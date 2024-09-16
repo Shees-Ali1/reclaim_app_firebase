@@ -31,10 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-          image: DecorationImage(
-            image: AssetImage(AppImages.appbardesign),
-            fit: BoxFit.cover,
-          ),
+
         ),
         child: SafeArea(
           child: Column(
@@ -110,10 +107,7 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-          image: DecorationImage(
-            image: AssetImage(AppImages.appbardesign),
-            fit: BoxFit.cover,
-          ),
+
         ),
         child: SafeArea(
           child: Column(
@@ -184,10 +178,7 @@ class CustomAppBar2 extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-          image: DecorationImage(
-            image: AssetImage(AppImages.appbardesign),
-            fit: BoxFit.cover,
-          ),
+
         ),
         child: SafeArea(
           child: Column(
@@ -233,7 +224,10 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return ClipPath(
       clipper: OvalBottomBorderClipper(),
@@ -246,9 +240,7 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
           height: preferredSize.height,
           decoration: const BoxDecoration(
               color: primaryColor,
-              image: DecorationImage(
-                  image: AssetImage(AppImages.appbardesign),
-                  fit: BoxFit.cover)),
+             ),
           child: SafeArea(
             child: Column(
               children: [
@@ -271,14 +263,16 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
                     ),
                     SizedBox(
                       width: 210.w,
-                      child: InterCustomText(
-                        text: 'Hey, Joe',
-                        textColor: Colors.white,
-                        fontsize: 20.sp,
-                        fontWeight: FontWeight.w600,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
+                      child: Obx(() {
+                        return InterCustomText(
+                          text: 'Hey, ${userController.userName.value}',
+                          textColor: Colors.white,
+                          fontsize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        );
+                      }),
                     ),
                     const Spacer(),
                     GestureDetector(
@@ -370,18 +364,19 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
+  Size get preferredSize =>
+      Size.fromHeight(
         Get.width <= 375
             ? 210.h
             : Get.width <= 400
-                ? 215.h // You can specify the width for widths less than 425
-                : Get.width <= 440?
-        195.h:
+            ? 215.h // You can specify the width for widths less than 425
+            : Get.width <= 440 ?
+        195.h :
         Get.width <= 768
-                    ? 250
-                        .h // You can specify the width for widths less than 768
-                    // You can specify the width for widths less than 1024
+            ? 250
+            .h // You can specify the width for widths less than 768
+        // You can specify the width for widths less than 1024
 
-                    : 280.h,
+            : 280.h,
       ); // Adjust height as needed
 }

@@ -46,7 +46,7 @@ class LoginAuthController extends GetxController {
       await  userController.fetchUserData();
         await homeController.fetchAllListings();
         await bookListingController.fetchUserBookListing();
-        await userController.approveProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
+        await userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
         await userController.checkIfAccountIsDeleted();
         await  walletController.fetchuserwallet();
         Get.snackbar('Success', 'Login Success');
@@ -178,17 +178,17 @@ class LoginAuthController extends GetxController {
           'userEmail': uEmail,
           'userImage': uPhoto,
           'userName': uName,
-          'verified': false,
+          // 'verified': false,
           'userPurchases':[],
-          'userSchool':'Harker',
+          // 'userSchool':'Harker',
           "userPassword":''
           // 'pushToken': devicetoken,
         });
-        await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
-            {
-              'balance':0,
-              'userId':uid,
-            },SetOptions(merge: true));
+        // await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
+        //     {
+        //       'balance':0,
+        //       'userId':uid,
+        //     },SetOptions(merge: true));
         // _authController.signupName.value = uName!;
         // _authController.signupEmail.value = uEmail!;
         // _authController.profileURL.value = uPhoto!;

@@ -227,15 +227,15 @@ class Signup extends StatelessWidget {
                           CustomButton(
                             text: 'Register',
                             onPressed: () {
-                              // signUpController.isChecked.value == true
-                              //     ? signUpController.sentCodeEmail()
-                              //     : Get.snackbar('Error',
-                              //         'You must agree to terms & conditions');
-                              CustomRoute.navigateTo(
-                                  context,
-                                  const Verification(
-                                    email: '',
-                                  ));
+                              signUpController.isChecked.value == true
+                                  ? signUpController.sentCodeEmail()
+                                  : Get.snackbar('Error',
+                                      'You must agree to terms & conditions');
+                              // CustomRoute.navigateTo(
+                              //     context,
+                              //     const Verification(
+                              //       email: '',
+                              //     ));
                             },
                             backgroundColor: primaryColor, // Example color
                             textColor: Colors.white,

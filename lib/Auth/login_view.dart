@@ -93,21 +93,21 @@ class LoginView extends StatelessWidget {
                 CustomButton(
                   text: 'Login',
                   onPressed: () {
-                    CustomRoute.navigateTo(context, const BottomNavBar());
+                    // CustomRoute.navigateTo(context, const BottomNavBar());
 
-                    // if (loginVM.emailController.text.isEmpty || loginVM.passwordController.text.isEmpty) {
-                    //   Get.snackbar(
-                    //     "Error", // title
-                    //     "Email and password cannot be empty", // message
-                    //
-                    //
-                    //   );
-                    // }
-                    // else {
-                    //   // loginVM.loginUser();
-                    //   CustomRoute.navigateTo(context, const BottomNavBar());
-                    //   // Handle successful login navigation if needed
-                    // }
+                    if (loginVM.emailController.text.isEmpty || loginVM.passwordController.text.isEmpty) {
+                      Get.snackbar(
+                        "Error", // title
+                        "Email and password cannot be empty", // message
+
+
+                      );
+                    }
+                    else {
+                       loginVM.loginUser();
+                      // CustomRoute.navigateTo(context, const BottomNavBar());
+                      // Handle successful login navigation if needed
+                    }
                   },
                   backgroundColor: primaryColor, // Example color
                   textColor: Colors.white,

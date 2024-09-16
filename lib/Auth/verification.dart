@@ -127,12 +127,12 @@ class Verification extends StatelessWidget {
                           CustomButton(
                             text: 'Verify',
                             onPressed: () {
-                              // signUpController.verifyOtp(
-                              //   verifyController,email,
-                              //
-                              //
-                              // );
-                             CustomRoute.navigateTo(context, SignupProfilePic());
+                              signUpController.verifyOtp(
+                                verifyController,email,
+
+
+                              );
+                             // CustomRoute.navigateTo(context, SignupProfilePic());
                             },
                             backgroundColor: primaryColor, // Example color
                             textColor: Colors.white,

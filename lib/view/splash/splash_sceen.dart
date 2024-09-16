@@ -7,6 +7,10 @@ import 'package:get/get.dart';
 
 import '../../const/assets/image_assets.dart';
 import '../../const/color.dart';
+import '../../controller/login_auth_controller.dart';
+import '../../controller/notification_controller.dart';
+import '../../controller/user_controller.dart';
+import '../../helper/notification_services.dart';
 import '../on_boarding/on_boarding_screens.dart';
 
 
@@ -18,23 +22,23 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // final LoginAuthController loginAuthController =
-  //     Get.find<LoginAuthController>();
-  // NotificationServices notificationServices = NotificationServices();
-  // final UserController userController = Get.find();
-  // final NotificationController notificationController = Get.find();
+  final LoginAuthController loginAuthController =
+      Get.find<LoginAuthController>();
+  NotificationServices notificationServices = NotificationServices();
+  final UserController userController = Get.find();
+  final NotificationController notificationController = Get.find();
   @override
   void initState() {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () {
        Get.offAll(OnBoarding());
-      // loginAuthController.checkUserLogin();
-      // notificationServices.requestNotificationPermission();
-      // notificationServices.firebaseInit(context);
-      //
-      // userController.getDeviceStoreToken();
-      // FirebaseMessaging.onBackgroundMessage(notificationServices.firebaseMessagingBackgroundHandler);
+       loginAuthController.checkUserLogin();
+      notificationServices.requestNotificationPermission();
+      notificationServices.firebaseInit(context);
+
+      userController.getDeviceStoreToken();
+      FirebaseMessaging.onBackgroundMessage(notificationServices.firebaseMessagingBackgroundHandler);
     });
   }
 

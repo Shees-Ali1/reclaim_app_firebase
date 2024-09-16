@@ -58,7 +58,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     // TODO: implement initState
     print("home");
     super.initState();
-    //    userController.fetchUserData().then((value) =>     homeController.fetchAllListings());
+     userController.fetchUserData();
     // bookListingController.fetchUserBookListing();
     //  userController.approveProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
     //    userController.checkIfAccountIsDeleted();

@@ -57,16 +57,19 @@ class UserController extends GetxController {
           userPurchases.clear();
           userName.value = userInfo["userName"] ?? "";
           userEmail.value = userInfo["userEmail"] ?? "";
-          verified.value = userInfo["verified"] ?? false;
+          // verified.value = userInfo["verified"] ?? false;
           userPurchases.value = userInfo['userPurchases'];
 
-          homeController.classOption.value = userInfo["userSchool"] ?? "";
+          // homeController.classOption.value = userInfo["userSchool"] ?? "";
           userPassword.value = userInfo['userPassword'];
 
           userImage.value = userInfo["userImage"] ?? "";
 
-          print(  homeController.classOption.value);
+          // print(  homeController.classOption.value);
+
           update();
+          checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
+
         } else {
           // User not found
         }
@@ -112,7 +115,7 @@ class UserController extends GetxController {
   //     print('Error Updateing Profile $e');
   //   }
   // }
-  Future<void> approveProfileUpdate(String userId) async {
+  Future<void> checkForProfileUpdate(String userId) async {
     try {
       // Get pending updates
       DocumentSnapshot pendingUpdates = await FirebaseFirestore.instance
@@ -120,18 +123,19 @@ class UserController extends GetxController {
           .doc(userId)
           .get();
       if (pendingUpdates.exists) {
+        print("Found pending update");
         Map<String, dynamic> update =
-            pendingUpdates.data() as Map<String, dynamic>;
-        bool approval = update['pendingApproval'];
+        pendingUpdates.data() as Map<String, dynamic>;
+        bool approval = update['approved'];
         if (approval == true) {
+          print("Updating pending user update");
           await FirebaseFirestore.instance
               .collection('userDetails')
               .doc(userId)
               .update(
             {
               'userName': update['pendingUserName'],
-              'userSchool':update['pendinguserSchool']
-
+              // 'userSchool': update['pendinguserSchool']
             },
           );
           if (update.containsKey('pendingUserImage') &&
@@ -142,7 +146,6 @@ class UserController extends GetxController {
                 .update(
               {
                 'userImage': update['pendingUserImage'],
-
               },
             );
           }
@@ -168,7 +171,7 @@ class UserController extends GetxController {
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .set({
         'pendingUserName': nameController.text.trim(),
-        'pendinguserSchool': homeController.classOption.value,
+        // 'pendinguserSchool': homeController.classOption.value,
 
 
         'pendingApproval': false, // Mark for approval

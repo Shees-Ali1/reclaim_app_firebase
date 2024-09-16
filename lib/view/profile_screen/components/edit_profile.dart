@@ -304,33 +304,33 @@ class _EditProfileState extends State<EditProfile> {
                                   height: 14.h,
                                 ),
                                 ElevatedButton(
-                                    onPressed: () {},
-                                    // onPressed: () {
-                                    //   // Check if the name has changed before updating the profile
-                                    //   if (nameController.text !=
-                                    //       userController.userName.value) {
-                                    //     userController
-                                    //         .profileUpdate(nameController)
-                                    //         .then(
-                                    //             (value) => // Inform the user that their request is pending approval
-                                    //                 Get.snackbar(
-                                    //                     'Profile Update',
-                                    //                     'Your profile update is pending approval by the administrator.'));
-                                    //   }
-                                    //
-                                    //   // Check if the password has changed before updating the password
-                                    //   else if (passwordController.text !=
-                                    //       userController.userPassword.value) {
-                                    //     userController
-                                    //         .changePassword(passwordController);
-                                    //   } else {
-                                    //     Get.back();
-                                    //     Get.back();
-                                    //     print('No changes');
-                                    //     Get.snackbar(
-                                    //         'Profile Update', 'No Changes');
-                                    //   }
-                                    // },
+
+                                    onPressed: () {
+                                      // Check if the name has changed before updating the profile
+                                      if (nameController.text !=
+                                          userController.userName.value) {
+                                        userController
+                                            .profileUpdate(nameController)
+                                            .then(
+                                                (value) => // Inform the user that their request is pending approval
+                                                    Get.snackbar(
+                                                        'Profile Update',
+                                                        'Your profile update is pending approval by the administrator.'));
+                                      }
+
+                                      // Check if the password has changed before updating the password
+                                      else if (passwordController.text !=
+                                          userController.userPassword.value) {
+                                        userController
+                                            .changePassword(passwordController);
+                                      } else {
+                                        Get.back();
+                                        Get.back();
+                                        print('No changes');
+                                        Get.snackbar(
+                                            'Profile Update', 'No Changes');
+                                      }
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       maximumSize: Size(350.w, 80.h),
                                       minimumSize: Size(327.w, 58.h),

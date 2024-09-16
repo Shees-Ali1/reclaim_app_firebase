@@ -1,11 +1,9 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
 
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
@@ -60,7 +58,7 @@ class MyDrawer extends StatelessWidget {
                 SizedBox(
                     width: 160.w,
                     child: LexendCustomText(
-                      text: 'Hamza',
+                      text: userController.userName.value,
                       fontWeight: FontWeight.w400,
                       fontsize: 20.sp,
                       textColor: blackTitleColor,

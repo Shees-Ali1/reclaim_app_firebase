@@ -105,21 +105,21 @@ class SignupProfilePic extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () async {
-                // if (userController.imageFile != null) {
-                //   String imageUrl = await signupController.uploadImage(
-                //       FirebaseAuth.instance.currentUser!.uid);
-                //   await FirebaseFirestore.instance
-                //       .collection('userDetails')
-                //       .doc(FirebaseAuth.instance.currentUser!.uid)
-                //       .set({'userImage': imageUrl},
-                //       SetOptions(merge: true));
-                //   userController.userImage.value = imageUrl;
-                //   CustomRoute.navigateTo(context, const BottomNavBar());
-                // } else {
-                //   Get.snackbar(
-                //       'Error Uploading', 'Pick image to Upload');
-                // }
-                CustomRoute.navigateTo(context, const BottomNavBar());
+                if (userController.imageFile != null) {
+                  String imageUrl = await signupController.uploadImage(
+                      FirebaseAuth.instance.currentUser!.uid);
+                  await FirebaseFirestore.instance
+                      .collection('userDetails')
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .set({'userImage': imageUrl},
+                      SetOptions(merge: true));
+                  userController.userImage.value = imageUrl;
+                  CustomRoute.navigateTo(context, const BottomNavBar());
+                } else {
+                  Get.snackbar(
+                      'Error Uploading', 'Pick image to Upload');
+                }
+                // CustomRoute.navigateTo(context, const BottomNavBar());
               },
               child: Obx(() {
                 return Container(
