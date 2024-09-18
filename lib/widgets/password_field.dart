@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 
 class PasswordField extends StatelessWidget {
-
+  final String? errorText ;
   // final String label;
   final String hint;
   // final FocusNode passwordFocus;
@@ -30,7 +30,7 @@ class PasswordField extends StatelessWidget {
         this.controller,
         this.cursorColor,
         this.onTap,
-        this.validator, this.hintStyle});
+        this.validator, this.hintStyle, this.errorText});
 
   @override
   Widget build(BuildContext context) {

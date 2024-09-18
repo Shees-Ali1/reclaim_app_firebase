@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class WalletController extends GetxController {
+class WishlistController extends GetxController {
   RxInt walletbalance = 0.obs;
 
   Future<void> fetchuserwallet() async {

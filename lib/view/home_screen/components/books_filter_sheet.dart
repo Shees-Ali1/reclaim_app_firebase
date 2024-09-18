@@ -13,7 +13,6 @@ import '../../../controller/home_controller.dart';
 import '../../../widgets/custom_text.dart';
 import '../../sell_screens/list_sell_book_screen.dart';
 
-
 class BooksFilterBottomSheet extends StatefulWidget {
   const BooksFilterBottomSheet({super.key});
 
@@ -25,21 +24,18 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
-    final TextEditingController authorController = TextEditingController();
-    final TextEditingController teacherController = TextEditingController();
+
     final List<String> sizes = [
-      '6',
-      '6.5',
-      '7',
-      '7.5',
-      '8',
-      '8.5',
-      '9',
-      '9.6',
-      '10',
-      '10.5',
-      '11',
-      '12',
+      '3XS',
+      '2XS',
+      'XS',
+      'S',
+      'M',
+      'L',
+      'XL',
+      '2XL',
+      '3XL',
+      '4XL',
     ];
 
     return SingleChildScrollView(
@@ -78,8 +74,8 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                   homeController.priceSliderValue.value = 50;
                   homeController.selectedCondition.value = 0;
                   homeController.sliderValue.value = 50;
-                  authorController.clear();
-                  teacherController.clear();
+                  homeController.authorController.clear();
+
                   // homeController.classOption.value = 'Class 10';
                   homeController.filteredBooks.value =
                       homeController.bookListing;
@@ -260,7 +256,7 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
           SizedBox(height: 5.h),
           CustomSellTextField(
             suffixIcon: const Icon(Icons.search),
-            controller: authorController,
+            controller: homeController.authorController,
           ),
           // SizedBox(height: 19.h),
           // RalewayCustomText(
@@ -326,7 +322,7 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
           GestureDetector(
             onTap: () {
               print("HI");
-              homeController.applyFilters(authorController.text);
+              homeController.applyFilters(homeController.authorController.text);
               Get.back();
 
               print(homeController.filteredBooks);

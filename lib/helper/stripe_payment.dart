@@ -9,7 +9,7 @@
 // import 'package:reclaim_app/controller/sign_up_controller.dart';
 //
 //
-// import '../controller/wallet_controller.dart';
+// import '../controller/wishlist_controller.dart';
 //
 // class StripePaymentMethod {
 //   final WalletController walletController = Get.put(WalletController());

@@ -1,4 +1,4 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
+import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
 import '../../const/assets/image_assets.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
 import '../../controller/home_controller.dart';
 import '../../controller/user_controller.dart';
-import '../../controller/wallet_controller.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/custom_route.dart';
 import '../../widgets/custom_text.dart';
@@ -32,9 +30,9 @@ class HomeScreenBooks extends StatefulWidget {
 class _HomeScreenBooksState extends State<HomeScreenBooks> {
   final HomeController homeController = Get.put(HomeController());
   final UserController userController = Get.find<UserController>();
-  final BookListingController bookListingController =
-      Get.find<BookListingController>();
-  final WalletController walletController = Get.find();
+  final ProductsListingController productsListingController =
+      Get.find<ProductsListingController>();
+  final WishlistController wishlistController = Get.find();
   // final List<Product> products = [
   //   Product('Adidas Japan Sneakers', '250 aed', 'assets/images/image1.jpg'),
   //   Product('Kids Toys Package', '36 aed', 'assets/images/image1.jpg'),
@@ -58,7 +56,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     // TODO: implement initState
     print("home");
     super.initState();
-     userController.fetchUserData();
+    userController.fetchUserData();
     // bookListingController.fetchUserBookListing();
     //  userController.approveProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
     //    userController.checkIfAccountIsDeleted();
@@ -103,17 +101,68 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: List.generate(
-                              5,
-                              (index) => Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 8.w),
-                                    child: SizedBox(
-                                        height: 60.h,
-                                        width: 82.w,
-                                        child: Image.asset(AppImages.image2)),
-                                  )),
+                            5,
+                                (index) => Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
+                              child: SizedBox(
+                                height: 60.h, // You can set your desired size here
+                                width: 60.w,  // Same as height to maintain square shape
+                                child: AspectRatio(
+                                  aspectRatio: 1, // This ensures the widget remains a square
+                                  child: Image.asset(AppImages.image2, fit: BoxFit.cover),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
+
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20.h,
+              ),
+              MontserratCustomText(
+                text: 'Followings',
+                fontsize: 14.sp,
+                textColor: primaryColor,
+                fontWeight: FontWeight.w600,
+                // height: 1,
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+
+                  // height: 1.h,
+                  decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(8.r)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(
+                            5,
+                                (index) => Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
+                              child: SizedBox(
+                                height: 60.h, // You can set your desired size here
+                                width: 60.w,  // Same as height to maintain square shape
+                                child: AspectRatio(
+                                  aspectRatio: 1, // This ensures the widget remains a square
+                                  child: Image.asset(AppImages.image2, fit: BoxFit.cover),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
                     ],
                   ),
                 ),
@@ -159,56 +208,48 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
               SizedBox(
                 height: 20.h,
               ),
-              GestureDetector(
-                  onTap: () {
-                    Get.to(BookDetailsScreen());
-                  },
-                  child: GridView.count(
+              StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('productsListing').snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  var products = snapshot.data!.docs;
+
+                  return GridView.count(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    crossAxisCount: 2, // Two items in each row
+                    crossAxisCount: 2,
                     crossAxisSpacing: 8.0,
                     mainAxisSpacing: 8.0,
                     childAspectRatio: 0.75,
-                    children: [
-                      productCard(
-                          'product1',
-                          'New',
-                          'Mango',
-                          'T-Shirt SPANISH',
-                          9,
-                          'assets/images/image1.jpg',
+                    children: List.generate(products.length, (index) {
+                      var product = products[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Get.to(BookDetailsScreen(
+                            bookDetail: product, // Pass the product data
+                            index: index,
+                            comingfromSellScreen: false,
+                          ));
+                        },
+                        child: productCard(
+                          product.id,
+                          product['productCondition'],
+                          product['brand'],
+                          product['productName'],
+                          product['productPrice'],
+                          product['productImage'],
                           context,
-                          homeController),
-                      productCard(
-                          'product2',
-                          'Used',
-                          'Dorothy Perkins',
-                          'Blouse',
-                          21,
-                          'assets/images/image1.jpg',
-                          context,
-                          homeController),
-                      productCard(
-                          'product3',
-                          'New',
-                          'Mango',
-                          'T-Shirt SPANISH',
-                          9,
-                          'assets/images/image1.jpg',
-                          context,
-                          homeController),
-                      productCard(
-                          'product4',
-                          'Used',
-                          'Dorothy Perkins',
-                          'Blouse',
-                          21,
-                          'assets/images/image1.jpg',
-                          context,
-                          homeController),
-                    ],
-                  )),
+                          homeController,
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+
               SizedBox(
                 height: 40.h,
               )
@@ -230,8 +271,7 @@ Widget productCard(
     BuildContext context,
     HomeController homeController) {
   return Card(
-    color:primaryColor.withOpacity(0.08),
-
+    color: primaryColor.withOpacity(0.08),
     margin: EdgeInsets.symmetric(vertical: 10),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     elevation: 0,
@@ -245,8 +285,8 @@ Widget productCard(
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: SizedBox(
-              // height: 120.h,
-                child: Image.asset(
+                height: 120.h,
+                child: Image.network(
                   imagePath,
                   fit: BoxFit.cover,
                   width: double.infinity,
@@ -318,7 +358,7 @@ Widget productCard(
               ),
               SizedBox(height: 4),
               InterCustomText(
-                text: '\$$price',
+                text: '$price Aed',
                 textColor: Color(0xff222222),
                 fontWeight: FontWeight.w500,
                 fontsize: 14.sp,

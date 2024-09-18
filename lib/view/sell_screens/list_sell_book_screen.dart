@@ -1,15 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 import '../../const/assets/image_assets.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
 import '../../controller/home_controller.dart';
 import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_appbar.dart';
@@ -43,32 +40,32 @@ class ListSellBookScreen extends StatefulWidget {
 }
 
 class _ListSellBookScreenState extends State<ListSellBookScreen> {
-  final BookListingController bookListingController =
-      Get.find<BookListingController>();
+  final ProductsListingController bookListingController =
+      Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   print(widget.bookImage);
-  //   bookListingController.titleController.text = widget.title!;
-  //   bookListingController.bookPartController.text = widget.bookPart!;
-  //   bookListingController.authorController.text = widget.author!;
-  //   bookListingController.classNameController.text = widget.bookClass!;
-  //   bookListingController.priceController.text = widget.bookPrice!.toString();
-  //
-  //   super.initState();
-  // }
-
   @override
-  void dispose() {
-    // bookListingController.titleController.dispose();
-    // bookListingController.bookPartController.dispose();
-    // bookListingController.authorController.dispose();
-    // bookListingController.classNameController.dispose();
-    // bookListingController.priceController.dispose();
-    super.dispose();
+  void initState() {
+    // TODO: implement initState
+    print(widget.bookImage);
+    // bookListingController.titleController.text = widget.title!;
+    // bookListingController.bookPartController.text = widget.bookPart!;
+    // bookListingController.authorController.text = widget.author!;
+    // bookListingController.classNameController.text = widget.bookClass!;
+    // bookListingController.priceController.text = widget.bookPrice!.toString();
+
+    super.initState();
   }
+  //
+  // @override
+  // void dispose() {
+  //   bookListingController.titleController.dispose();
+  //   bookListingController.bookPartController.dispose();
+  //   bookListingController.authorController.dispose();
+  //   // bookListingController.classNameController.dispose();
+  //   bookListingController.priceController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +97,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               SizedBox(
                 height: 12.h,
               ),
-              GetBuilder<BookListingController>(
+              GetBuilder<ProductsListingController>(
                   builder: (bookListingController) {
                 return bookListingController.imageFile == null
                     ? GestureDetector(
@@ -182,7 +179,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                controller: bookListingController.bookPartController,
+                controller: bookListingController.brandController,
               ),
               SizedBox(
                 height: 6.h,
@@ -203,13 +200,87 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                 ],
               ),
               // SizedBox(height: 8.h,),
-              CustomSellTextField(
-                controller: bookListingController.authorController,
-              ),
+              Obx(() {
+                return Container(
+                  height: 50.h,
+                  width: 327.w,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20.r)),
+                  child: DropdownButton<String>(
+                      underline: const SizedBox.shrink(),
+                      isExpanded: true,
+                      value: bookListingController.category.value,
+                      items: bookListingController.categorys
+                          .map((String option) {
+                        return DropdownMenuItem<String>(
+                          value: option,
+                          child: RalewayCustomText(
+                              text: option,
+                              textColor: primaryColor,
+                              fontWeight: FontWeight.w700),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        // homeController.bookClass.value=newValue!;
+                        bookListingController.category.value = newValue!;
+                      },
+                      hint: const SizedBox.shrink()),
+                );
+              }),
               SizedBox(
                 height: 6.h,
               ),
-
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 24.w,
+                  ),
+                  LexendCustomText(
+                    text: 'Sizes',
+                    textColor: titleColor,
+                    fontWeight: FontWeight.w500,
+                    fontsize: 16.sp,
+                  ),
+                ],
+              ),
+              // SizedBox(height: 8.h,),
+              Obx(() {
+                return Container(
+                  height: 50.h,
+                  width: 327.w,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20.r)),
+                  child: DropdownButton<String>(
+                      underline: const SizedBox.shrink(),
+                      isExpanded: true,
+                      value: bookListingController.size.value,
+                      items: bookListingController.sizes
+                          .map((String option) {
+                        return DropdownMenuItem<String>(
+                          value: option,
+                          child: RalewayCustomText(
+                              text: option,
+                              textColor: primaryColor,
+                              fontWeight: FontWeight.w700),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        // homeController.bookClass.value=newValue!;
+                        bookListingController.size.value = newValue!;
+                      },
+                      hint: const SizedBox.shrink()),
+                );
+              }),
+              SizedBox(
+                height: 6.h,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -226,7 +297,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                controller: bookListingController.classNameController,
+                controller: bookListingController.DescriptionController,
               ),
               SizedBox(
                 height: 6.h,
@@ -315,10 +386,10 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
 
               GestureDetector(
                 onTap: () {
-                  // widget.comingFromEdit == false
-                  //     ? bookListingController.addBookListing(context)
-                  //     : bookListingController.updateBookListing(
-                  //         context, widget.listingId.toString());
+                  widget.comingFromEdit == false
+                      ? bookListingController.addProductListing(context)
+                      : bookListingController.updateProductListing(
+                          context, widget.listingId.toString());
                 },
                 child: Container(
                       height: 58.h,
@@ -328,19 +399,19 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                           color: primaryColor,
                           borderRadius: BorderRadius.circular(20.r)),
                       child:
-                      // bookListingController.isLoading.value == false
-                      //     ?
+                      bookListingController.isLoading.value == false
+                          ?
                       LexendCustomText(
                               text: "Next",
                               textColor: Colors.white,
                               fontWeight: FontWeight.w400,
                               fontsize: 18.sp,
                             )
-                          // : Center(
-                          //     child: CircularProgressIndicator(
-                          //       color: Colors.white,
-                          //     ),
-                          //   )
+                          : Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
                   )
 
               ),

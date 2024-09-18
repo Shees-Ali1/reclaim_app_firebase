@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InputField extends StatelessWidget {
-
+  final String? errorText ;
   // final String label;
   final contentPadding;
   final String hint;
@@ -32,7 +32,7 @@ class InputField extends StatelessWidget {
         this.inputTextStyle = const TextStyle(color: Colors.black),
         this.controller,
         this.cursorColor,
-        this.validator, this.readOnly=false, this.contentPadding});
+        this.validator, this.readOnly=false, this.contentPadding, this.errorText});
 
   @override
   Widget build(BuildContext context) {

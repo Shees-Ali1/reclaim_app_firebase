@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 
 
 import '../const/assets/svg_assets.dart';
+import '../const/color.dart';
 import 'custom_text.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -29,6 +30,8 @@ class ProfileWidget extends StatelessWidget {
           height: 50.h,
           width: 50.w,
           fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(primaryColor, BlendMode.srcIn),
+
         ),
         title: Padding(
           padding: EdgeInsets.only(left: 10.sp),

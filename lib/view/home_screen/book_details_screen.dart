@@ -1,17 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
-import '../../const/assets/image_assets.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/home_controller.dart';
 import '../../controller/user_controller.dart';
@@ -19,14 +12,14 @@ import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
 
 class BookDetailsScreen extends StatefulWidget {
-  // final dynamic bookDetail;
-  // final int index;
-  // final bool comingfromSellScreen;
+  final dynamic bookDetail;
+  final int index;
+  final bool comingfromSellScreen;
   const BookDetailsScreen({
     super.key,
-    // required this.bookDetail,
-    // required this.index,
-    // required this.comingfromSellScreen
+    required this.bookDetail,
+    required this.index,
+    required this.comingfromSellScreen
   });
 
   @override
@@ -34,8 +27,8 @@ class BookDetailsScreen extends StatefulWidget {
 }
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
-  final BookListingController bookListingController =
-      Get.find<BookListingController>();
+  final ProductsListingController productsListingController =
+      Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
   final ChatController chatController = Get.find<ChatController>();
@@ -85,7 +78,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           borderRadius: BorderRadius.circular(10.r),
                           image: DecorationImage(
                               fit: BoxFit.fill,
-                              image: AssetImage(AppImages.image5)))),
+                              image:NetworkImage(widget.bookDetail['productImage'])))),
                 ),
               ],
             ),
@@ -103,13 +96,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InterCustomText(
-                            text: 'Adidas Japan Sneakers',
+                            text: widget.bookDetail['productName'], // Product name
                             textColor: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontsize: 20.sp,
                           ),
                           InterCustomText(
-                            text: '\$250',
+                            text: '${widget.bookDetail['productPrice']} Aed', // Product price
                             textColor: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontsize: 18.sp,
@@ -177,155 +170,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       SizedBox(
                         height: 9.h,
                       ),
-        
+
                       InterCustomText(
-                        text:
-                            'Short dress in soft cotton jersey with decorative buttons down the front and a wide, frill-trimmed square neckline with concealed elastication. ',
-                        textColor: Color(0xff222222),
-                        fontWeight: FontWeight.w400,
-                        fontsize: 14.sp,
+                        text: widget.bookDetail['Description'], // Product name
+                        textColor: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontsize: 20.sp,
                       ),
-        
-                      // widget.bookDetail['sellerId'] == 'qwerty'
-                      //     ? Row(
-                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //         children: [
-                      //           MontserratCustomText(
-                      //             text: 'Price',
-                      //             textColor: Colors.black,
-                      //             fontWeight: FontWeight.w500,
-                      //             fontsize: 16.sp,
-                      //           ),
-                      //           MontserratCustomText(
-                      //             text: "\$${widget.bookDetail['bookPrice']}",
-                      //             textColor: lightColor,
-                      //             fontWeight: FontWeight.w500,
-                      //             fontsize: 16.sp,
-                      //           ),
-                      //         ],
-                      //       )
-                      //     : const SizedBox.shrink(),
-        
-                      // Obx(() => userController.userPurchases
-                      //         .contains(widget.bookDetail['listingId'])
-                      //     ? GestureDetector(
-                      //         onTap: () {
-                      //           CustomRoute.navigateTo(
-                      //               context,
-                      //               ChatScreen(
-                      //                 image: widget.bookDetail['bookImage'],
-                      //                 chatName: widget.bookDetail['sellerId'] ==
-                      //                         FirebaseAuth.instance.currentUser!.uid
-                      //                     ? widget.bookDetail['bookName']
-                      //                     : "You Bought ${widget.bookDetail['bookName']}",
-                      //                 chatId: chatController
-                      //                     .orderId.value, //order is our chatId
-                      //
-                      //                 sellerId: widget.bookDetail['sellerId'] ==
-                      //                         FirebaseAuth.instance.currentUser!.uid
-                      //                     ? chatController.buyerId.value
-                      //                     : chatController.sellerId.value,
-                      //                 buyerId: chatController.buyerId.value,
-                      //                 seller: widget.bookDetail['sellerId'],
-                      //                 bookId: widget.bookDetail['bookImage'],
-                      //                 bookName: widget.bookDetail['bookName'],
-                      //               ));
-                      //         },
-                      //         child: Center(
-                      //           child: Container(
-                      //             height: 58.h,
-                      //             width: 327.w,
-                      //             alignment: Alignment.center,
-                      //             decoration: BoxDecoration(
-                      //                 color: primaryColor,
-                      //                 borderRadius: BorderRadius.circular(20.r)),
-                      //             child:
-                      //                 // bookDetail['sellerId']==FirebaseAuth.instance.currentUser!.uid?
-                      //                 // LexendCustomText(text: "Cancel This Listing", textColor: Colors.white, fontWeight: FontWeight.w400,fontsize: 18.sp,):
-                      //
-                      //                 Row(
-                      //               mainAxisAlignment: MainAxisAlignment.center,
-                      //               children: [
-                      //                 LexendCustomText(
-                      //                   text: "Chat with seller",
-                      //                   textColor: Colors.white,
-                      //                   fontWeight: FontWeight.w400,
-                      //                   fontsize: 18.sp,
-                      //                 ),
-                      //
-                      //                 // LexendCustomText(text: "\$${bookDetail['bookPrice'].toString()}", textColor: Colors.white, fontWeight: FontWeight.w600,fontsize: 24.sp,),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       )
-                      //     : GestureDetector(
-                      //         onTap: () {
-                      //           if (userController.verified.value == true) {
-                      //             widget.bookDetail['sellerId'] !=
-                      //                     FirebaseAuth.instance.currentUser!.uid
-                      //                 ? bookListingController.buyBook(
-                      //                     widget.bookDetail['listingId'],
-                      //                     widget.bookDetail['sellerId'],
-                      //                     context,
-                      //                     widget.bookDetail['bookName'],
-                      //                     widget.bookDetail['bookPrice'],
-                      //                     widget.bookDetail['bookImage'])
-                      //                 : widget.comingfromSellScreen == true
-                      //                     ? bookListingController
-                      //                         .removeListingfromSell(widget.index,
-                      //                             widget.bookDetail['listingId'])
-                      //                     : homeController.removeBookListing(
-                      //                         widget.index,
-                      //                         widget.bookDetail['listingId']);
-                      //           } else {
-                      //             Get.snackbar('Your Profile is UnderReview',
-                      //                 'Wait for Admin Approval');
-                      //           }
-                      //         },
-                      //         child: Center(
-                      //           child: Container(
-                      //             height: 58.h,
-                      //             width: 327.w,
-                      //             alignment: Alignment.center,
-                      //             decoration: BoxDecoration(
-                      //                 color: primaryColor,
-                      //                 borderRadius: BorderRadius.circular(20.r)),
-                      //             child: widget.bookDetail['sellerId'] ==
-                      //                     FirebaseAuth.instance.currentUser!.uid
-                      //                 ? LexendCustomText(
-                      //                     text: "Cancel This Listing",
-                      //                     textColor: Colors.white,
-                      //                     fontWeight: FontWeight.w400,
-                      //                     fontsize: 18.sp,
-                      //                   )
-                      //                 : bookListingController.isLoading.value ==
-                      //                         false
-                      //                     ? Row(
-                      //                         mainAxisAlignment:
-                      //                             MainAxisAlignment.center,
-                      //                         children: [
-                      //                           LexendCustomText(
-                      //                             text: "Add to Cart ",
-                      //                             textColor: Colors.white,
-                      //                             fontWeight: FontWeight.w400,
-                      //                             fontsize: 18.sp,
-                      //                           ),
-                      //                           LexendCustomText(
-                      //                             text:
-                      //                                 "\$${widget.bookDetail['bookPrice'].toString()}",
-                      //                             textColor: Colors.white,
-                      //                             fontWeight: FontWeight.w600,
-                      //                             fontsize: 24.sp,
-                      //                           ),
-                      //                         ],
-                      //                       )
-                      //                     : CircularProgressIndicator(
-                      //                         color: Colors.white,
-                      //                       ),
-                      //           ),
-                      //         ),
-                      //       )),
+
+
                       SizedBox(
                         height: 20.h,
                       ),

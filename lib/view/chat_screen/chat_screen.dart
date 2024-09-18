@@ -47,7 +47,6 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatController chatController = Get.find<ChatController>();
-  final TextEditingController messageController = TextEditingController();
   final OrderController orderController = Get.find<OrderController>();
   @override
   void initState() {
@@ -287,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   Expanded(
                     child: TextField(
-                      controller: messageController,
+                      controller: chatController.messageController,
                       decoration: InputDecoration(
                         contentPadding:
                             EdgeInsets.only(left: 10.w, bottom: 5.h),
@@ -311,14 +310,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 // Add a static message to the messages list
                 chatController.messages.add({
                   "sendby": 'me', // Static sender value
-                  "message": messageController.text.isEmpty
+                  "message": chatController.messageController.text.isEmpty
                       ? ''
-                      : messageController
+                      : chatController.messageController
                           .text, // If messageController is empty, send static message
                 });
 
                 // Clear the message input field after sending
-                messageController.clear();
+                chatController.messageController.clear();
               },
               child: Container(
                 decoration: BoxDecoration(

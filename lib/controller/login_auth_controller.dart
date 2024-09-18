@@ -1,13 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-
 import '../Auth/login_view.dart';
-import '../Auth/signup_profile_pic.dart';
 import '../helper/loading.dart';
 import '../view/nav_bar/app_nav_bar.dart';
 import '../view/on_boarding/on_boarding_screens.dart';
@@ -17,7 +13,60 @@ class LoginAuthController extends GetxController {
   final TextEditingController emailController = TextEditingController();
 
   final TextEditingController passwordController = TextEditingController();
+  List<String> restrictedWords = [
+    'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
+    'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
+    'lustful', 'nsfw', 'xxx', 'kill', 'murder', 'rape', 'stab', 'slaughter', 'torture',
+    'bomb', 'terrorist', 'assault', 'abuse', 'nigger', 'faggot', 'retard', 'bitch', 'slut',
+    'cunt', 'racist slur', 'homophobic slur', 'islamophobic', 'anti-semitic', 'xenophobic slur',
+    'transphobic slur', 'cocaine', 'heroin', 'meth', 'weed', 'marijuana', 'high', 'junkie',
+    'dealer', 'stoned', 'ecstasy', 'lsd', 'scammer', 'cheat', 'fraud', 'bullshit', 'douche', 'thief'
+  ];
 
+  RxString errorText = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    emailController.addListener(() {
+      String inputText = emailController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        emailController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+    passwordController.addListener(() {
+      String inputText = passwordController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        passwordController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+  }
+  // Method to check for restricted words
+  bool _containsRestrictedWords(String text) {
+    for (var word in restrictedWords) {
+      if (text.toLowerCase().contains(word.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
   final SignUpController signUpController = Get.find<SignUpController>();
   RxBool loginObscure = false.obs;
 
@@ -45,10 +94,10 @@ class LoginAuthController extends GetxController {
         // await prefs.setString('password', passwordController.text);
       await  userController.fetchUserData();
         await homeController.fetchAllListings();
-        await bookListingController.fetchUserBookListing();
+        await productsListingController.fetchUserBookListing();
         await userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
         await userController.checkIfAccountIsDeleted();
-        await  walletController.fetchuserwallet();
+        await  wishlistController.fetchuserwallet();
         Get.snackbar('Success', 'Login Success');
       signUpController.isLoading.value = false;
 

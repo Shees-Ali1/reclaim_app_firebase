@@ -1,9 +1,6 @@
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../controller/bookListing_controller.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
+import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
 import '../controller/chat_controller.dart';
 import '../controller/home_controller.dart';
 import '../controller/login_auth_controller.dart';
@@ -12,7 +9,6 @@ import '../controller/on_boarding_controller.dart';
 import '../controller/order_controller.dart';
 import '../controller/sign_up_controller.dart';
 import '../controller/user_controller.dart';
-import '../controller/wallet_controller.dart';
 
 class UserBinding extends Bindings {
   @override
@@ -22,10 +18,10 @@ class UserBinding extends Bindings {
     Get.put(LoginAuthController());
     Get.put(HomeController());
     Get.put(ChatController());
-    Get.put(BookListingController());
+    Get.put(ProductsListingController());
     Get.put(UserController());
     Get.put(NotificationController());
     Get.put(OrderController());
-    Get.put(WalletController());
+    Get.put(WishlistController());
   }
 }

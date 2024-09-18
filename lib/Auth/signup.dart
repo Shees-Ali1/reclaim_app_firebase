@@ -41,9 +41,28 @@ class Signup extends StatelessWidget {
                     SizedBox(
                       height: 100.h,
                     ),
-                    Logo(),
+                    Center(
+                      child: LexendCustomText(
+                          text: 'Signup',
+                          fontWeight: FontWeight.w500,
+                          fontsize: 24.sp,
+                          textColor: primaryColor
+                      ),
+                    ),
                     SizedBox(
-                      height: 25.h,
+                      height: 10.h,
+                    ),
+                    Center(
+                      child: LexendCustomText(
+                        text: 'Create your profile.',
+                        fontWeight: FontWeight.w500,
+                        fontsize: 12.sp,
+                        textColor: const Color(0xff808B9A),
+                      ),
+                    ),
+                    // Logo(),
+                    SizedBox(
+                      height: 80.h,
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25.sp),
@@ -62,6 +81,9 @@ class Signup extends StatelessWidget {
                             height: 8.h,
                           ),
                           InputField(
+                            errorText: loginVM.errorText.value.isEmpty
+                                ? null
+                                : loginVM.errorText.value,
                             controller: signUpController.nameController,
                             hint: 'Enter Name',
                             keyboard: TextInputType.emailAddress,
@@ -81,6 +103,9 @@ class Signup extends StatelessWidget {
                             height: 8.h,
                           ),
                           InputField(
+                            errorText: loginVM.errorText.value.isEmpty
+                                ? null
+                                : loginVM.errorText.value,
                             controller: signUpController.emailController,
                             hint: 'Enter Email',
                             keyboard: TextInputType.emailAddress,
@@ -101,6 +126,9 @@ class Signup extends StatelessWidget {
                           ),
                           Obx(() {
                             return PasswordField(
+                              errorText: loginVM.errorText.value.isEmpty
+                                  ? null
+                                  : loginVM.errorText.value,
                               onTap: () => loginVM.eyeIconLogin(),
                               controller: signUpController.passwordController,
                               keyboard: TextInputType.text,

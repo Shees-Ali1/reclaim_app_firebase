@@ -5,11 +5,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 
 import '../../../const/assets/image_assets.dart';
 import '../../../const/assets/svg_assets.dart';
 import '../../../const/color.dart';
-import '../../../controller/bookListing_controller.dart';
+
 import '../../../widgets/custom_route.dart';
 import '../../../widgets/custom_text.dart';
 import '../../chat_screen/main_chat.dart';
@@ -21,8 +22,8 @@ class BuyDialogBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final BookListingController bookListingController = Get.find<
-        BookListingController>();
+    final ProductsListingController productsListingController = Get.find<
+        ProductsListingController>();
     return SizedBox(
       // height: 335.h,
 
@@ -42,7 +43,7 @@ class BuyDialogBox extends StatelessWidget {
             SizedBox(height: 15.h,),
             Obx(() {
               return WorkSansCustomText(
-                text: "You bought this book from Sue S. You can now chat with ${bookListingController
+                text: "You bought this book from Sue S. You can now chat with ${productsListingController
                     .sellerName.value} about delivering the book at school.",
                 textColor: const Color(0xff010101),
                 fontWeight: FontWeight.w400,

@@ -1,17 +1,15 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-
+import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
 import '../../const/assets/image_assets.dart';
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
 import '../../controller/home_controller.dart';
 import '../../controller/sign_up_controller.dart';
-import '../../controller/wallet_controller.dart';
 import '../../helper/stripe_payment.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/custom_button.dart';
@@ -21,16 +19,16 @@ import '../../widgets/custom_textfield.dart';
 import '../chat_screen/main_chat.dart';
 import '../notification/notification_screen.dart';
 
-class Wallet extends StatefulWidget {
-  const Wallet({super.key});
+class Wishlist extends StatefulWidget {
+  const Wishlist({super.key});
 
   @override
-  State<Wallet> createState() => _WalletState();
+  State<Wishlist> createState() => _WishlistState();
 }
 
-class _WalletState extends State<Wallet> {
+class _WishlistState extends State<Wishlist> {
   final HomeController homeController = Get.find<HomeController>();
-  final WalletController walletController = Get.find<WalletController>();
+  final WishlistController wishlistController = Get.find<WishlistController>();
   // final StripePaymentMethod stripePaymentMethod = StripePaymentMethod();
   final TextEditingController amountcontroller = TextEditingController();
   final SignUpController signUpController = Get.find();
@@ -41,6 +39,7 @@ class _WalletState extends State<Wallet> {
     super.initState();
     // Initialize the favorite state for each item in the productListing
     isFavoritedList = List<bool>.filled(productListing.length, false);
+    homeController.fetchWishlist();
   }
 
   List<dynamic> productListing = [
@@ -56,15 +55,7 @@ class _WalletState extends State<Wallet> {
     }
   ];
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   walletController.fetchuserwallet();
-  //   walletController.transactionfetch();
-  //
-  //   amountcontroller.clear();
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -472,7 +463,8 @@ Widget productCard(
                   child: SizedBox(
                       height: 22.h,
                       width: 22.w,
-                      child: Image.asset(AppImages.Remove))),
+                    child: Icon(Icons.favorite,color: Colors.white,size: 20,),
+                  )),
             ),
           ],
         ),
@@ -497,7 +489,7 @@ Widget productCard(
               ),
               SizedBox(height: 4),
               InterCustomText(
-                text: '\$$price',
+                text: '$price Aed',
                 textColor: Color(0xff222222),
                 fontWeight: FontWeight.w500,
                 fontsize: 14.sp,

@@ -6,12 +6,13 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../const/assets/image_assets.dart';
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
+
 import '../../controller/home_controller.dart';
 import '../../controller/login_auth_controller.dart';
 import '../../controller/user_controller.dart';
@@ -24,6 +25,7 @@ import '../chat_screen/main_chat.dart';
 import '../notification/notification_screen.dart';
 import 'components/edit_profile.dart';
 import 'components/privacy_policy.dart';
+import 'components/review.dart';
 import 'components/term-Cond.dart';
 
 class Profile extends StatefulWidget {
@@ -36,8 +38,8 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
-  final BookListingController bookListingController =
-      Get.find<BookListingController>();
+  final ProductsListingController productsListingController =
+      Get.find<ProductsListingController>();
   final LoginAuthController loginAuthController =
       Get.find<LoginAuthController>();
 
@@ -372,7 +374,7 @@ class _ProfileState extends State<Profile> {
                               children: [
                                 Obx(() {
                                   return LexendCustomText(
-                                    text: bookListingController
+                                    text: productsListingController
                                         .mySellListings.length
                                         .toString(),
                                     fontWeight: FontWeight.w400,
@@ -395,17 +397,35 @@ class _ProfileState extends State<Profile> {
                             ),
                             Column(
                               children: [
-                                Obx(() {
-                                  return LexendCustomText(
-                                    text:
-                                        userController.saleSum.value.toString(),
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 20.sp,
-                                    textColor: blackTitleColor,
-                                  );
-                                }),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: userController.saleSum.value.toString() ,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 18.sp,
+                                          color: blackTitleColor,
+                                          fontFamily:
+                                          'Lexend', // Optional if you're using a custom font
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: ' Aed',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight
+                                              .w500, // Different style for 'Aed'
+                                          fontSize: 12.sp,
+                                          color: blackTitleColor,
+                                          fontFamily:
+                                          'Lexend', // Optional if you're using a custom font
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 LexendCustomText(
-                                  text: 'Sales',
+                                  text: 'Earned',
                                   fontWeight: FontWeight.w400,
                                   fontsize: 10.sp,
                                   textColor: lightTitleColor,
@@ -458,6 +478,16 @@ class _ProfileState extends State<Profile> {
                     },
                     title: 'Edit Profile',
                     imgUrl: AppIcons.editprofileIcon,
+                  ),
+                  SizedBox(
+                    height: 9.h,
+                  ),
+                  ProfileWidget(
+                    onTap: () {
+                      CustomRoute.navigateTo(context,  ReviewScreen());
+                    },
+                    title: 'Reviews',
+                    imgUrl: AppIcons.privacyIcon,
                   ),
                   SizedBox(
                     height: 9.h,
@@ -557,7 +587,8 @@ class _ProfileState extends State<Profile> {
                     },
                     child: Row(
                       children: [
-                        SvgPicture.asset(AppIcons.logoutIcon),
+                        SvgPicture.asset(AppIcons.logoutIcon, height: 50.h,
+                          width: 50.w,colorFilter: ColorFilter.mode(primaryColor, BlendMode.srcIn),),
                         Padding(
                           padding: EdgeInsets.only(left: 26.sp),
                           child: WorkSansCustomText(

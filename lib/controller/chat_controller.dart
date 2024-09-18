@@ -10,6 +10,49 @@ import 'notification_controller.dart';
 class ChatController extends GetxController {
   NotificationController notificationController =
       Get.put(NotificationController());
+  final TextEditingController messageController = TextEditingController();
+  List<String> restrictedWords = [
+    'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
+    'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
+    'lustful', 'nsfw', 'xxx', 'kill', 'murder', 'rape', 'stab', 'slaughter', 'torture',
+    'bomb', 'terrorist', 'assault', 'abuse', 'nigger', 'faggot', 'retard', 'bitch', 'slut',
+    'cunt', 'racist slur', 'homophobic slur', 'islamophobic', 'anti-semitic', 'xenophobic slur',
+    'transphobic slur', 'cocaine', 'heroin', 'meth', 'weed', 'marijuana', 'high', 'junkie',
+    'dealer', 'stoned', 'ecstasy', 'lsd', 'scammer', 'cheat', 'fraud', 'bullshit', 'douche', 'thief'
+  ];
+
+  RxString errorText = ''.obs;
+  @override
+  void onInit() {
+    super.onInit();
+    messageController.addListener(() {
+      String inputText = messageController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        messageController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+
+  }
+  // Method to check for restricted words
+  bool _containsRestrictedWords(String text) {
+    for (var word in restrictedWords) {
+      if (text.toLowerCase().contains(word.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void dispose() {
+    messageController.dispose();
+
+    super.dispose();
+  }
 
   RxList<dynamic> messages = [
     {

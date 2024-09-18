@@ -34,9 +34,28 @@ class LoginView extends StatelessWidget {
           SizedBox(
             height: 100.h,
           ),
-          Logo(),
+          Center(
+            child: LexendCustomText(
+                text: 'Login',
+                fontWeight: FontWeight.w500,
+                fontsize: 24.sp,
+                textColor: primaryColor
+            ),
+          ),
           SizedBox(
-            height: 25.h,
+            height: 10.h,
+          ),
+          Center(
+            child: LexendCustomText(
+              text: 'Welcome back! Please enter your details.',
+              fontWeight: FontWeight.w500,
+              fontsize: 12.sp,
+              textColor: const Color(0xff808B9A),
+            ),
+          ),
+          // Logo(),
+          SizedBox(
+            height: 80.h,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 25.sp),
@@ -53,6 +72,10 @@ class LoginView extends StatelessWidget {
                   height: 8.h,
                 ),
                 InputField(
+                  errorText: loginVM.errorText.value.isEmpty
+                      ? null
+                      : loginVM.errorText.value,
+
                   controller: loginVM.emailController,
                   hint: 'Enter Email',
                   keyboard: TextInputType.emailAddress,
@@ -72,6 +95,9 @@ class LoginView extends StatelessWidget {
                 ),
                 Obx(() {
                   return PasswordField(
+                    errorText: loginVM.errorText.value.isEmpty
+                        ? null
+                        : loginVM.errorText.value,
                     onTap: () => loginVM.eyeIconLogin(),
                     controller: loginVM.passwordController,
                     keyboard: TextInputType.text,

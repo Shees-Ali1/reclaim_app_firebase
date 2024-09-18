@@ -18,6 +18,68 @@ class SignUpController extends GetxController {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  List<String> restrictedWords = [
+    'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
+    'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
+    'lustful', 'nsfw', 'xxx', 'kill', 'murder', 'rape', 'stab', 'slaughter', 'torture',
+    'bomb', 'terrorist', 'assault', 'abuse', 'nigger', 'faggot', 'retard', 'bitch', 'slut',
+    'cunt', 'racist slur', 'homophobic slur', 'islamophobic', 'anti-semitic', 'xenophobic slur',
+    'transphobic slur', 'cocaine', 'heroin', 'meth', 'weed', 'marijuana', 'high', 'junkie',
+    'dealer', 'stoned', 'ecstasy', 'lsd', 'scammer', 'cheat', 'fraud', 'bullshit', 'douche', 'thief'
+  ];
+
+  RxString errorText = ''.obs;
+  @override
+  void onInit() {
+    super.onInit();
+    passwordController.addListener(() {
+      String inputText = passwordController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        passwordController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+    nameController.addListener(() {
+      String inputText = nameController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        nameController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+    emailController.addListener(() {
+      String inputText = emailController.text;
+      if (_containsRestrictedWords(inputText)) {
+        errorText.value = 'Text contains restricted words';
+        emailController.clear();
+        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+      } else {
+        errorText.value = ''; // Clear the error if no restricted words
+      }
+    });
+  }
+  // Method to check for restricted words
+  bool _containsRestrictedWords(String text) {
+    for (var word in restrictedWords) {
+      if (text.toLowerCase().contains(word.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void dispose() {
+    passwordController.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
   final UserController userController = Get.put(UserController());
   final HomeController homeController = Get.put(HomeController());
   RxBool isChecked = false.obs;

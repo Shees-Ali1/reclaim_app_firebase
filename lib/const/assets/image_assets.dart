@@ -8,6 +8,7 @@ class AppImages {
   static const image2 = 'assets/images/image2.png';
   static const image5 = 'assets/images/image5.png';
   static const download = 'assets/images/download.png';
+  static const editimage = 'assets/images/editimage.png';
   static const Remove = 'assets/images/Remove.png';
   static const notification = 'assets/images/notification.png';
   static const profile = 'assets/images/profile.png';

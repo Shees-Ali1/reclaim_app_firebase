@@ -26,13 +26,13 @@ class SignupProfilePic extends StatelessWidget {
 
     return Scaffold(
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SizedBox(
-        height: 100.h,
-      ),
-      Logo(),
-      SizedBox(
-        height: 25.h,
-      ),
+          SizedBox(
+            height: 100.h,
+          ),
+
+          SizedBox(
+            height: 25.h,
+          ),
       GetBuilder<UserController>(builder: (userController) {
         return userController.imageFile != null
             ? GestureDetector(

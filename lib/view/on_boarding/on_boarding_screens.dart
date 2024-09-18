@@ -71,7 +71,8 @@ class OnBoardingOne extends StatelessWidget {
         LexendCustomText(
           textColor: const Color(0xff273958),
           fontsize: 20.sp,
-          text: 'Buy and sell new of used items',
+          text: 'Renew, Resell, Reclaim!',
+
           fontWeight: FontWeight.w400,
         ),
         LexendCustomText(

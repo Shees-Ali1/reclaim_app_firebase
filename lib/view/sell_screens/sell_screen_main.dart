@@ -6,12 +6,13 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 
 
 import '../../const/assets/image_assets.dart';
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
+
 import '../../controller/home_controller.dart';
 import '../../controller/user_controller.dart';
 import '../../widgets/custom_appbar.dart';
@@ -30,8 +31,7 @@ class SellScreenMain extends StatefulWidget {
 }
 
 class _SellScreenMainState extends State<SellScreenMain> {
-  final BookListingController bookListingController =
-  Get.find<BookListingController>();
+
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
   @override
@@ -43,11 +43,11 @@ class _SellScreenMainState extends State<SellScreenMain> {
           homeController: homeController,
           text: 'Listed Items',
         ),
-        body: Obx(() => bookListingController.isLoading.value == false?SingleChildScrollView(
+        body: Obx(() => productsListingController.isLoading.value == false?SingleChildScrollView(
           child: Center(
             child: Column(
               children: [
-                Obx(() => bookListingController.mySellListings.isEmpty
+                Obx(() => productsListingController.mySellListings.isEmpty
                     ? Column(
                   children: [
                     SizedBox(
@@ -75,7 +75,9 @@ class _SellScreenMainState extends State<SellScreenMain> {
                         // userController.verified.value == true
                         //     ?
                         Get.to(
-                          const ListSellBookScreen(),
+                          const ListSellBookScreen(
+                            comingFromEdit: false,
+                          ),
                           transition: Transition.fade,
                           duration:
                           const Duration(milliseconds: 500),
@@ -117,7 +119,7 @@ class _SellScreenMainState extends State<SellScreenMain> {
                           GestureDetector(
                             onTap: () {
                               Get.to(
-                                const BookSellScreen(),
+                                const ListSellBookScreen(),
                                 transition: Transition.fade,
                                 duration:
                                 const Duration(milliseconds: 500),
@@ -160,14 +162,17 @@ class _SellScreenMainState extends State<SellScreenMain> {
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount:
-                        bookListingController.mySellListings.length,
+                        productsListingController.mySellListings.length,
                         itemBuilder: (context, index) {
                           final books =
-                          bookListingController.mySellListings[index];
+                          productsListingController.mySellListings[index];
                           return GestureDetector(
                               onTap: () {
                                 Get.to(
                                   BookDetailsScreen(
+                                    index: index,
+                                    comingfromSellScreen: true,
+                                    bookDetail: '',
                                     // bookDetail: books,
                                     // index: index,
                                     // comingfromSellScreen: true,

@@ -12,7 +12,7 @@
 //
 // import '../../const/color.dart';
 // import '../profile_screen/profile.dart';
-// import '../wallet/wallet.dart';
+// import '../wallet/wishlist.dart';
 //
 // class AppNavBar extends StatefulWidget {
 //   const AppNavBar({Key? key}) : super(key: key);
@@ -202,10 +202,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
-import '../../controller/bookListing_controller.dart';
+
 import '../../controller/home_controller.dart';
 import '../../controller/user_controller.dart';
 import '../../helper/app_life_cycle.dart';
@@ -213,7 +214,7 @@ import '../drawer/drawer.dart';
 import '../home_screen/home_screen_books.dart';
 import '../profile_screen/profile.dart';
 import '../sell_screens/sell_screen_main.dart';
-import '../wallet/wallet.dart';
+import '../wishlist/wishlist.dart';
 
 
 class BottomNavBar extends StatefulWidget {
@@ -228,7 +229,7 @@ class _BottomNavBarState extends State<BottomNavBar> with WidgetsBindingObserver
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   late final List<Widget> _pages;
   final HomeController homeController=Get.find<HomeController>();
-  final BookListingController bookListingController=Get.find<BookListingController>();
+  final ProductsListingController productsListingController=Get.find<ProductsListingController>();
   final UserController userController=Get.find<UserController>();
   final AppLifecycleObserver lifecycleObserver = AppLifecycleObserver();
 
@@ -238,7 +239,7 @@ class _BottomNavBarState extends State<BottomNavBar> with WidgetsBindingObserver
     _pages = [
       const HomeScreenBooks(),
       const SellScreenMain(),
-      const Wallet(),
+      const Wishlist(),
       const Profile(),
     ];
     WidgetsBinding.instance?.addObserver(lifecycleObserver);
