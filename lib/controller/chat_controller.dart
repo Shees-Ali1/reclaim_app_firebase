@@ -68,20 +68,20 @@ class ChatController extends GetxController {
       String chatId, String sellerId) async {
     try {
       if (messageController.text.isNotEmpty) {
-        // DocumentSnapshot chatSnap = await FirebaseFirestore.instance
-        //     .collection("userMessages")
-        //     .doc(chatId)
-        //     .get();
-        // // if(chatSnap.exists){
-        // await FirebaseFirestore.instance
-        //     .collection('userMessages')
-        //     .doc(chatId)
-        //     .collection('messages')
-        //     .add({
-        //   'message': messageController.text,
-        //   'timeStamp': DateTime.now(),
-        //   'userId': FirebaseAuth.instance.currentUser!.uid,
-        // });
+        DocumentSnapshot chatSnap = await FirebaseFirestore.instance
+            .collection("userMessages")
+            .doc(chatId)
+            .get();
+        // if(chatSnap.exists){
+        await FirebaseFirestore.instance
+            .collection('userMessages')
+            .doc(chatId)
+            .collection('messages')
+            .add({
+          'message': messageController.text,
+          'timeStamp': DateTime.now(),
+          'userId': FirebaseAuth.instance.currentUser!.uid,
+        });
         String message = messageController.text;
         messageController.clear();
         print("MEssage sent");
@@ -102,7 +102,7 @@ class ChatController extends GetxController {
 
 //   Create chat with seller when buy book
   Future<void> createChatConvo(String listingId, String orderId,
-      String bookName, String sellerId,String bookImage) async {
+      String productName, String sellerId,String productImage,int productPrice) async {
     try {
       // On buyer side chat creation
 
@@ -114,13 +114,14 @@ class ChatController extends GetxController {
           .set({
         // Order id is our chat id
         'chatId': orderId,
-        'bookId': listingId,
+        'productId': listingId,
         'sellerId': sellerId,
         'orderDate': DateTime.now(),
-        'bookName': bookName,
+        'productName': productName,
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'person': 'buyer',
-        'bookImage':bookImage
+        'productImage':productImage,
+        'productPrice':productPrice
       }, SetOptions(merge: true));
       print("chat created");
       // On seller side chat creation
@@ -132,13 +133,15 @@ class ChatController extends GetxController {
           .set({
         // Order id is our chat id
         'chatId': orderId,
-        'bookId': listingId,
+        'productId': listingId,
         'sellerId': sellerId,
         'orderDate': DateTime.now(),
-        'bookName': bookName,
+        'productName': productName,
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'person': 'seller',
-        'bookImage':bookImage
+        'productImage':productImage,
+        'productPrice':productPrice
+
       }, SetOptions(merge: true));
       print("chat created");
       // creating a message with address
@@ -147,7 +150,7 @@ class ChatController extends GetxController {
           .doc(orderId)
           .collection('messages')
           .add({
-        'message': "You Got the Order on ${bookName}",
+        'message': "You Got the Order on ${productName}",
         'timeStamp': DateTime.now(),
         'userId': FirebaseAuth.instance.currentUser!.uid,
       });
@@ -163,12 +166,12 @@ RxString orderId =''.obs;
   RxString sellerId = ''.obs;
   RxString buyerId = ''.obs;
   RxBool deliverystatus = false.obs;
-  Future<void> getorderId(String bookId) async {
+  Future<void> getorderId(String productId) async {
   try{
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('orders')
         .where("buyerId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-        .where("bookId", isEqualTo: bookId)
+        .where("productId", isEqualTo: productId)
         .get();
     if(snapshot.docs.isNotEmpty){
       dynamic order =snapshot.docs.first;

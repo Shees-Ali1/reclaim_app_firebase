@@ -3,12 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 
 class HomeController extends GetxController {
   var favoriteProducts = <String, bool>{}.obs;
+  var filterdProduct1 = <QueryDocumentSnapshot<Object?>> [].obs;
+  var filterdProduct2 = <QueryDocumentSnapshot<Object?>> [].obs;
   // var selectedindex = 0.obs;
   var favorites = <String>[].obs;
-
+  RxString searchQuery = ''.obs;
   Future<void> fetchWishlist() async {
     var userId = FirebaseAuth.instance.currentUser!.uid;
     var snapshot = await FirebaseFirestore.instance
@@ -113,92 +116,8 @@ class HomeController extends GetxController {
     authorController.dispose();
     super.dispose();
   }
-  // ******************Books Listings***********
-  // RxList<dynamic> bookListing=[
-  //   {
-  //     'bookImage':AppImages.harryPotterBook,
-  //     'bookName':'Harry Potter and the cursed child',
-  //     'bookPart':'Parts One And Two',
-  //     'bookAuthor':'J.K. Rowling',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'New',
-  //     'bookPrice':100,
-  //     'bookPosted':'20 May 2025',
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. '
-  //   },
-  //   {
-  //     'bookImage':AppImages.soulBook,
-  //     'bookName':'Soul',
-  //     'bookPart':'',
-  //     'bookAuthor':' Olivia Wilson',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'New',
-  //     'bookPrice':100,
-  //     'bookPosted':'20 May 2025',
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. '
-  //   },
-  //   {
-  //     'bookImage':AppImages.milliontoone ,
-  //     'bookName':'A MILLION TO ONE',
-  //     'bookPart':'The Fassano Trilogy - Book Two',
-  //     'bookAuthor':'Tony Faggioli',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'Used',
-  //     'bookPrice':70,
-  //     'bookPosted':'20 May 2025',
-  //     'sellerId':'qwerty',
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. '
-  //   },
-  //   {
-  //     'bookImage':AppImages.harryPotterBook,
-  //     'bookName':'Harry Potter and the cursed child',
-  //     'bookPart':'Parts One And Two',
-  //     'bookAuthor':'J.K. Rowling',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'New',
-  //     'bookPrice':100,
-  //     'bookPosted':'20 May 2025',
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. '
-  //   },
-  //
-  //
-  //
-  // ].obs;
   RxBool isLoading = false.obs;
   RxList<Map<String, dynamic>> bookListing = <Map<String, dynamic>>[].obs;
-  Future<void> fetchAllListings() async {
-    try {
-      isLoading.value = true;
-      bookListing.clear();
-      QuerySnapshot data = await FirebaseFirestore.instance
-          .collection('booksListing')
-          .where('approval', isEqualTo: true)
-          .where('schoolName', isEqualTo: classOption.value)
-          .get();
-      data.docs.forEach((bookData) {
-        bookListing.add({
-          'bookImage': bookData['bookImage'],
-          'bookName': bookData['bookName'],
-          'bookPart': bookData['bookPart'],
-          'bookAuthor': bookData['bookAuthor'],
-          'bookClass': bookData['bookClass'],
-          'bookCondition': bookData['bookCondition'],
-          'bookPrice': bookData['bookPrice'],
-          'bookPosted': bookData['bookPosted'],
-          'sellerId': bookData['sellerId'] ?? "n/a",
-          'bookDescription': bookData['bookDescription'],
-          'approval': bookData['approval'],
-          'listingId': bookData['listingId'],
-          'schoolName': bookData['schoolName']
-        });
-      });
-      print(bookListing);
-      isLoading.value = false;
-    } catch (e) {
-      print("Error fetching all listings $e");
-      isLoading.value = false;
-    }
-  }
 
   void removeBookListing(int index, String listingId) async {
     await FirebaseFirestore.instance
@@ -214,28 +133,29 @@ class HomeController extends GetxController {
 
   RxInt selectedindex = 0.obs;
 
-  RxString selectedSize = '6'.obs;
+  RxString selectedSize = 'All'.obs;
 
 // ******************Search***********
 //   final TextEditingController bookSearchController = TextEditingController();
-  RxList<dynamic> filteredBooks = <dynamic>[].obs;
+  RxList<dynamic> filteredProducts = <dynamic>[].obs;
   void filterBooks() {
     List<dynamic> results = [];
     if (bookSearchController.text.isEmpty) {
       results = bookListing;
     } else {
       results = bookListing
-          .where((book) => book['bookName']
+          .where((book) => book['productName']
               .toLowerCase()
               .contains(bookSearchController.text.toLowerCase()))
           .toList();
     }
     // Update the list of filtered books
-    filteredBooks.value = results;
+    filteredProducts.value = results;
   }
-
+  final TextEditingController bookfilterSearchController =
+  TextEditingController();
   // ******************Filters***********
-  RxInt selectedCondition = 1.obs;
+  RxString selectedCondition ='All'.obs;
   RxDouble priceSliderValue = 100.0.obs;
   RxDouble sliderValue = 100.0.obs;
   RxString classOption = 'Graduate'.obs;
@@ -251,37 +171,20 @@ class HomeController extends GetxController {
     return str.replaceAll(RegExp(r'[\W_]+'), '').toLowerCase();
   }
 
-  void applyFilters(String author) {
-    filteredBooks.value = bookListing.where((book) {
-      final matchesClass = book['bookClass'] == classOption.value;
-      final priceRange = book['bookPrice'] <= priceSliderValue.value;
-      final matchesCondition = selectedCondition.value == 1 ||
-          (selectedCondition.value == 2 && book['bookCondition'] == 'New') ||
-          (selectedCondition.value == 3 &&
-              book['bookCondition'] == 'Like New') ||
-          (selectedCondition.value == 4 && book['bookCondition'] == 'Used');
-      // final matchesAuthor = book['bookAuthor'].toLowerCase().contains(author.toLowerCase());
-      final matchesAuthor =
-          normalize(book['bookAuthor']).contains(normalize(author));
-      return matchesClass &&
-          (matchesCondition || selectedCondition.value == 1) &&
-          matchesAuthor &&
-          priceRange;
-    }).toList();
-  }
+  void filterAppointments() {
+  int  priceSlider =homeController.priceSliderValue.value.toInt();
+  print(priceSlider);
+    filterdProduct1.assignAll(filterdProduct2.where((product) {
+      final matchesCondition = selectedCondition.value == "All" || product['productCondition'] == selectedCondition.value;
+      final matchesCategory = productsListingController.category.value == "All" || product['category'] == productsListingController.category.value;
+      final matchesSizes = selectedSize.value == "All" || product['size'] == selectedSize.value;
+    final matchesPrice = priceSlider == 0|| product['productPrice'] <= priceSlider;
+      // final matchesStatus = selectedStatus == "All Status" || appointment['status'] == selectedStatus;
 
-  //
-  // @override
-  // void onInit() {
-  //   // TODO: implement onInit
-  // filteredBooks.value = bookListing;
-  // bookSearchController.addListener(() {
-  //   filterBooks();
-  // });
-  // // fetchAllListings();
-  // scrollController.addListener(_scrollListener);
-  //
-  //
-  // super.onInit();
-  // }
+      return matchesCondition && matchesCategory && matchesSizes && matchesPrice ;
+
+    }).toList());
+    update();
+    print(filterdProduct1);
+  }
 }

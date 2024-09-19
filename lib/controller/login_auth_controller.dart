@@ -93,8 +93,8 @@ class LoginAuthController extends GetxController {
         // await prefs.setString('email', emailController.text);
         // await prefs.setString('password', passwordController.text);
       await  userController.fetchUserData();
-        await homeController.fetchAllListings();
-        await productsListingController.fetchUserBookListing();
+        // await homeController.fetchAllListings();
+        await productsListingController.fetchUserProductListing();
         await userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
         await userController.checkIfAccountIsDeleted();
         await  wishlistController.fetchuserwallet();

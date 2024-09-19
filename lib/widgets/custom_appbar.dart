@@ -229,13 +229,22 @@ class CustomAppBar2 extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(128.h); // Adjust height as needed
 }
 
-class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBarHome extends StatefulWidget implements PreferredSizeWidget {
   final HomeController homeController;
   final UserController userController;
-  final FocusNode searchFocusNode = FocusNode();
 
   CustomAppBarHome(
       {required this.homeController, required this.userController});
+
+  @override
+  State<CustomAppBarHome> createState() => _CustomAppBarHomeState();
+
+  @override
+  Size get preferredSize => _CustomAppBarHomeState().preferredSize;
+}
+
+class _CustomAppBarHomeState extends State<CustomAppBarHome> {
+  final FocusNode searchFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -267,7 +276,7 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
                         GestureDetector(
                             onTap: () {
                               FocusScope.of(context).unfocus();
-                              homeController.openDrawer();
+                              widget.homeController.openDrawer();
                             },
                             child: SvgPicture.asset(AppIcons.drawericon)),
                         const Spacer(),
@@ -293,7 +302,11 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
                           SizedBox(
                             width: 273.w,
                             child: Obx(() => TextField(
-                              controller: homeController.bookSearchController,
+                              onChanged: (value) {
+                                widget.homeController.searchQuery.value = value.toLowerCase();
+
+                              },
+                              controller: widget.homeController.bookSearchController,
                               focusNode: searchFocusNode,
                               style: GoogleFonts.inter(
                                   textStyle: TextStyle(
@@ -319,9 +332,9 @@ class CustomAppBarHome extends StatelessWidget implements PreferredSizeWidget {
                                         color: Colors.white,
                                         fontSize: 15.11.sp,
                                         fontWeight: FontWeight.w500)),
-                                errorText: homeController.errorText.value.isEmpty
+                                errorText: widget.homeController.errorText.value.isEmpty
                                     ? null
-                                    : homeController.errorText.value,
+                                    : widget.homeController.errorText.value,
                               ),
                             )),
                           ),

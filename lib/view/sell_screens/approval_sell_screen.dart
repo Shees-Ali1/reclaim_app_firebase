@@ -53,7 +53,7 @@ class ApprovalSellScreen extends StatelessWidget {
                           width: 300.w,
                           child: InterCustomText(
                             textAlign:  TextAlign.center,
-                            text: 'Your item is pending approval from Creek',
+                            text: 'Your item is pending approval from Reclaim',
                             textColor: headingBlackColor,
                             fontsize: 20.sp,
                             fontWeight: FontWeight.w500,
@@ -64,7 +64,7 @@ class ApprovalSellScreen extends StatelessWidget {
                       SizedBox(
                         height: 137.h,
                         width: 135.w,
-                        child: Image.asset(AppImages.approvalPending),
+                        child: Image.asset(AppImages.approvalPending,color: primaryColor,),
 
                       ),
                       SizedBox(height: 52.h,),

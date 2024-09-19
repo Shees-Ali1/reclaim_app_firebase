@@ -30,21 +30,22 @@ class BuyDialogBox extends StatelessWidget {
         width: 404.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
             SizedBox(
               height: 159.h,
               width: 163.w,
-              child: Image.asset(AppImages.doneTick),
+              child: Image.asset(AppImages.doneTick,color: primaryColor,),
             ),
-            WorkSansCustomText(text: "Book Purchased!",
-              textColor: const Color(0xff29604E),
+            WorkSansCustomText(text: "Product Purchased!",
+              textColor:primaryColor,
               fontWeight: FontWeight.w700,
               fontsize: 22.sp,),
             SizedBox(height: 15.h,),
             Obx(() {
               return WorkSansCustomText(
-                text: "You bought this book from Sue S. You can now chat with ${productsListingController
-                    .sellerName.value} about delivering the book at school.",
+
+                text: "You bought this product from ${productsListingController.sellerName.value}. You can now chat with seller about delivering the product.",
                 textColor: const Color(0xff010101),
                 fontWeight: FontWeight.w400,
                 fontsize: 14.sp,);
@@ -76,18 +77,18 @@ class BuyDialogBox extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(width: 15.w,),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    CustomRoute.navigateTo(context, const MainChat());
-                  },
-                  child: SizedBox(
-                    height: 54.h,
-                    width: 61.w,
-                    child: SvgPicture.asset(AppIcons.msgIcon),
-                  ),
-                ),
+                // SizedBox(width: 15.w,),
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     CustomRoute.navigateTo(context, const MainChat());
+                //   },
+                //   child: SizedBox(
+                //     height: 54.h,
+                //     width: 61.w,
+                //     child: SvgPicture.asset(AppIcons.msgIcon),
+                //   ),
+                // ),
               ],
             ),
 

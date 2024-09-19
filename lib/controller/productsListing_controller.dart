@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
+import '../const/color.dart';
 import '../view/home_screen/components/buy_dialog_box.dart';
 import '../view/sell_screens/approval_sell_screen.dart';
 import '../widgets/custom_route.dart';
@@ -14,7 +15,6 @@ import 'chat_controller.dart';
 import 'home_controller.dart';
 import 'notification_controller.dart';
 import 'user_controller.dart';
-
 
 class ProductsListingController extends GetxController {
   final HomeController homeController = Get.find<HomeController>();
@@ -31,13 +31,67 @@ class ProductsListingController extends GetxController {
   final TextEditingController DescriptionController = TextEditingController();
 
   List<String> restrictedWords = [
-    'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
-    'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
-    'lustful', 'nsfw', 'xxx', 'kill', 'murder', 'rape', 'stab', 'slaughter', 'torture',
-    'bomb', 'terrorist', 'assault', 'abuse', 'nigger', 'faggot', 'retard', 'bitch', 'slut',
-    'cunt', 'racist slur', 'homophobic slur', 'islamophobic', 'anti-semitic', 'xenophobic slur',
-    'transphobic slur', 'cocaine', 'heroin', 'meth', 'weed', 'marijuana', 'high', 'junkie',
-    'dealer', 'stoned', 'ecstasy', 'lsd', 'scammer', 'cheat', 'fraud', 'bullshit', 'douche', 'thief'
+    'fuck',
+    'fed',
+    'fing',
+    'shit',
+    'bitch',
+    'asshole',
+    'cunt',
+    'dick',
+    'dickhead',
+    'pussy',
+    'motherfucker',
+    'tit',
+    'sex',
+    'porn',
+    'nudes',
+    'erotic',
+    'strip',
+    'masturbation',
+    'horny',
+    'lustful',
+    'nsfw',
+    'xxx',
+    'kill',
+    'murder',
+    'rape',
+    'stab',
+    'slaughter',
+    'torture',
+    'bomb',
+    'terrorist',
+    'assault',
+    'abuse',
+    'nigger',
+    'faggot',
+    'retard',
+    'bitch',
+    'slut',
+    'cunt',
+    'racist slur',
+    'homophobic slur',
+    'islamophobic',
+    'anti-semitic',
+    'xenophobic slur',
+    'transphobic slur',
+    'cocaine',
+    'heroin',
+    'meth',
+    'weed',
+    'marijuana',
+    'high',
+    'junkie',
+    'dealer',
+    'stoned',
+    'ecstasy',
+    'lsd',
+    'scammer',
+    'cheat',
+    'fraud',
+    'bullshit',
+    'douche',
+    'thief'
   ];
 
   RxString errorText = ''.obs;
@@ -49,7 +103,8 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         titleController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
@@ -59,7 +114,8 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         brandController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
@@ -69,7 +125,8 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         categoryController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
@@ -79,7 +136,8 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         classNameController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
@@ -89,7 +147,8 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         priceController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
@@ -99,12 +158,15 @@ class ProductsListingController extends GetxController {
       if (_containsRestrictedWords(inputText)) {
         errorText.value = 'Text contains restricted words';
         DescriptionController.clear();
-        Get.snackbar('Error', 'Your message contains inappropriate content'); // Clear the text field if restricted word is found
+        Get.snackbar('Error',
+            'Your message contains inappropriate content'); // Clear the text field if restricted word is found
       } else {
         errorText.value = ''; // Clear the error if no restricted words
       }
     });
+    fetchUserProductListing();
   }
+
   // Method to check for restricted words
   bool _containsRestrictedWords(String text) {
     for (var word in restrictedWords) {
@@ -126,8 +188,9 @@ class ProductsListingController extends GetxController {
 
     super.dispose();
   }
+
   RxString bookCondition = 'New'.obs;
-  RxString category = 'Men'.obs;
+  RxString category = 'All'.obs;
   RxString size = '3XS'.obs;
 
   List<String> bookConditions = ['New', 'Used', 'Old'];
@@ -143,7 +206,7 @@ class ProductsListingController extends GetxController {
     '3XL',
     '4XL',
   ];
-  List<String> categorys = ['Fashion', 'Men', 'Women'];
+  List<String> categorys = ['All','Fashion', 'Men', 'Women'];
   File? imageFile;
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -157,53 +220,6 @@ class ProductsListingController extends GetxController {
     }
   }
 
-  // RxList<dynamic> mySellListings=[
-  //   {
-  //     'bookImage':AppImages.harryPotterBook,
-  //     'bookName':'Harry Potter and the cursed child',
-  //     'bookPart':'Parts One And Two',
-  //     'bookAuthor':'J.K. Rowling',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'New',
-  //     'bookPrice':100,
-  //     'bookPosted':'20 May 2025',
-  //     'sellerId':'qwerty',
-  //
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. ',
-  //     'approval':false,
-  //   },
-  //   {
-  //     'bookImage':AppImages.soulBook,
-  //     'bookName':'Soul',
-  //     'bookPart':'',
-  //     'bookAuthor':' Olivia Wilson',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'New',
-  //     'bookPrice':100,
-  //     'bookPosted':'20 May 2025',
-  //     'sellerId':'qwerty',
-  //
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. ',
-  //     'approval':true,
-  //
-  //   },
-  //   {
-  //     'bookImage':AppImages.milliontoone ,
-  //     'bookName':'A MILLION TO ONE',
-  //     'bookPart':'The Fassano Trilogy - Book Two',
-  //     'bookAuthor':'Tony Faggioli',
-  //     'bookClass':'Graduate',
-  //     'bookCondition':'Used',
-  //     'bookPrice':70,
-  //     'bookPosted':'20 May 2025',
-  //     'sellerId':'qwerty',
-  //     'bookDescription':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Adipiscing malesuada sed imperdiet pharetra, quis et a. Purus sed purus sed proin ornare integer proin lectus. Ut in purus mi, cursus integer et massa. Posuere turpis nulla odio eget auctor nulla lorem. ',
-  //     'approval':true,
-  //
-  //   },
-  //
-  //
-  // ].obs;
   RxList<Map<String, dynamic>> mySellListings = <Map<String, dynamic>>[].obs;
 
   // **************Store book listing by user**********
@@ -213,14 +229,15 @@ class ProductsListingController extends GetxController {
       if (titleController.text.isNotEmpty &&
           priceController.text.isNotEmpty &&
           // classNameController.text.isNotEmpty &&
-          categoryController.text.isNotEmpty &&
+          // categoryController.text.isNotEmpty &&
           imageFile != null) {
         print('hello');
         DocumentReference productId =
             await FirebaseFirestore.instance.collection('productsListing').add({
           'productName': titleController.text,
           'brand': brandController.text,
-          'category': categoryController.text,
+          'category': category.value,
+          'size': size.value,
           // 'bookClass': classNameController.text,
           'productCondition': bookCondition.value,
           'productPrice': int.tryParse(priceController.text) ?? 0,
@@ -248,10 +265,10 @@ class ProductsListingController extends GetxController {
         Get.snackbar('Success', "product Listing Added");
         isLoading.value = false;
         CustomRoute.navigateTo(context, ApprovalSellScreen());
-        await fetchUserBookListing();
+        await fetchUserProductListing();
         titleController.clear();
         brandController.clear();
-        categoryController.clear();
+        // categoryController.clear();
         classNameController.clear();
         priceController.clear();
       } else {
@@ -291,17 +308,18 @@ class ProductsListingController extends GetxController {
       BuildContext context, String listingId) async {
     try {
       isLoading.value = true;
-      if (titleController.text.isNotEmpty &&
-          priceController.text.isNotEmpty &&
-          classNameController.text.isNotEmpty &&
-          categoryController.text.isNotEmpty) {
+      if (titleController.text.isNotEmpty && priceController.text.isNotEmpty
+          // classNameController.text.isNotEmpty &&
+          // categoryController.text.isNotEmpty
+          ) {
         await FirebaseFirestore.instance
             .collection('productsListing')
             .doc(listingId)
             .update({
           'productName': titleController.text,
           'brand': brandController.text,
-          'category': categoryController.text,
+          'category': category.value,
+          'size': size.value,
           // 'bookClass': classNameController.text,
           'productCondition': bookCondition.value,
           'productPrice': int.tryParse(priceController.text) ?? 0,
@@ -323,15 +341,15 @@ class ProductsListingController extends GetxController {
         // mySellListings.refresh();
         // update();
         // Get.back();
-        Get.snackbar('Success', "Book Listing Updated");
+        Get.snackbar('Success', "Product Listing Updated");
         isLoading.value = false;
 
         CustomRoute.navigateTo(context, ApprovalSellScreen());
-        await fetchUserBookListing();
-        await homeController.fetchAllListings();
+        await fetchUserProductListing();
+        // await homeController.fetchAllListings();
         titleController.clear();
         brandController.clear();
-        categoryController.clear();
+        // categoryController.clear();
         classNameController.clear();
         priceController.clear();
       } else {
@@ -345,31 +363,20 @@ class ProductsListingController extends GetxController {
     }
   }
 
-  // **************Fetch book listings of that user**********
-  Future<void> fetchUserBookListing() async {
+  // **************Fetch product listings of that user**********
+  Future<void> fetchUserProductListing() async {
     try {
       mySellListings.clear();
       isLoading.value = true;
       QuerySnapshot listingsData = await FirebaseFirestore.instance
-          .collection('booksListing')
+          .collection('productsListing')
           .where('sellerId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .get();
       if (listingsData.docs.isNotEmpty) {
-        listingsData.docs.forEach((book) {
-          dynamic bookData = book.data();
+        listingsData.docs.forEach((prod) {
+          Map<String, dynamic> prodData = prod.data() as Map<String, dynamic>;
           mySellListings.add({
-            'bookImage': bookData['bookImage'],
-            'bookName': bookData['bookName'],
-            'bookPart': bookData['bookPart'],
-            'bookAuthor': bookData['bookAuthor'],
-            'bookClass': bookData['bookClass'],
-            'bookCondition': bookData['bookCondition'],
-            'bookPrice': bookData['bookPrice'],
-            'bookPosted': bookData['bookPosted'],
-            'sellerId': bookData['sellerId'],
-            'bookDescription': bookData['bookDescription'],
-            'approval': bookData['approval'],
-            'listingId': bookData['listingId']
+            ...prodData,
           });
         });
         print('Current User sell listings ${mySellListings}');
@@ -383,55 +390,44 @@ class ProductsListingController extends GetxController {
     }
   }
 
-  // **************remove book listings of that user**********
-  void removeListingfromSell(int index, String listingId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('booksListing')
-          .doc(listingId)
-          .delete();
-      mySellListings.removeAt(index);
-      mySellListings.refresh();
-      update();
-      Get.back();
-      Get.snackbar('Success', "Listing Removed");
-    } catch (e) {
-      print("Error deleting user lisitng $e");
-    }
-  }
+
 
 // **************buy book**********
   RxBool isLoading = false.obs;
-  Future<void> buyBook(String listingId, String sellerId, BuildContext context,
-      String bookName, int purchasePrice, String bookImage) async {
+  Future<void> buyProduct(
+      String listingId,
+      String sellerId,
+      BuildContext context,
+      String productName,
+      int purchasePrice,
+      String productImage) async {
     try {
       isLoading.value = true;
       // Check if balance is zero
-      if (wishlistController.walletbalance.value == 0) {
-        Get.snackbar('Low Balance', ' Add money to their wallet');
-        isLoading.value = false;
-      } else {
-        int appFees = (purchasePrice * 0.2).round();
-        int finalPrice = purchasePrice - appFees;
+
+        // int appFees = (purchasePrice * 0.2).round();
+        // int finalPrice = purchasePrice - appFees;
         // DocumentReference docRef=   await FirebaseFirestore.instance.collection('booksListing').doc(listingId).collection('orders').add({
         //   'bookId':listingId,
         //   'buyerId':FirebaseAuth.instance.currentUser!.uid,
         //   'orderDate':DateTime.now(),
         //   'deliveryStatus':false
         // });
+        print("book bought111");
+
         DocumentReference docRef =
             await FirebaseFirestore.instance.collection('orders').add({
           // listing id is our book id
-          'bookId': listingId,
+          'productId': listingId,
           'buyerId': FirebaseAuth.instance.currentUser!.uid,
           'orderDate': DateTime.now(),
           'deliveryStatus': false,
           'sellerId': sellerId,
-          'buyerApproval': false,
-          'sellerApproval': false,
+          // 'buyerApproval': false,
+          // 'sellerApproval': false,
           'buyingprice': purchasePrice,
-          'appFees': appFees,
-          'finalPrice': finalPrice,
+          // 'appFees': appFees,
+          // 'finalPrice': finalPrice,
         });
         // await FirebaseFirestore.instance.collection('booksListing').doc(listingId).collection('orders').doc(docRef.id).set({
         //   'orderId':docRef.id
@@ -458,59 +454,69 @@ class ProductsListingController extends GetxController {
                 content: BuyDialogBox());
           },
         );
-        await notificationController.sendFcmMessage(
-            'New message', 'You got the order', sellerId);
+        // await notificationController.sendFcmMessage(
+        //     'New message', 'You got the order', sellerId);
 
-        await notificationController.storeNotification(
-            purchasePrice, docRef.id, listingId, bookName, 'purchased');
+        // await notificationController.storeNotification(
+        //     purchasePrice, docRef.id, listingId, bookName, 'purchased');
 
         await chatController.createChatConvo(
-            listingId, docRef.id, bookName, sellerId, bookImage);
+            listingId, docRef.id, productName, sellerId, productImage,purchasePrice );
         await chatController.getorderId(listingId);
 
         // await checkUserBookOrder(listingId,sellerId);
 
-        print("book bought");
+        print("product bought");
         isLoading.value = false;
-      }
+
 
       isLoading.value = false;
     } catch (e) {
-      print("error buying book $e");
+      print("error buying product $e");
       isLoading.value = false;
     } finally {
       isLoading.value = false;
     }
   }
-
-// **************check if user bought that book**********
-//   RxBool userBoughtBook=false.obs;
-// Future<void> checkUserBookOrder(String listingId,String sellerId) async{
-// try{
-//   QuerySnapshot querySnapshot= await FirebaseFirestore.instance.collection('booksListing').doc(listingId).collection('orders').where('buyerId',isEqualTo:FirebaseAuth.instance.currentUser!.uid).get();
-//   if(querySnapshot.docs.isNotEmpty) {
-//     dynamic data=querySnapshot.docs.first;
-//
-//     if(data['buyerId']!=sellerId){
-//       userBoughtBook.value=true;
-//     }
-//     else{
-//       print("Not match");
-//       userBoughtBook.value=false;
-//     }
-//   }else{
-//     userBoughtBook.value=false;
-//     print("No order on that id");
-//   }
-//
-// }catch(e){
-//   print("error checking order user $e");
-// }
-//
-//
-// }
-
-// **************get seller data**********
+  // **************remove book listings of that user**********
+  void removeListingfromSell(int index, String listingId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('productsListing')
+          .doc(listingId)
+          .delete();
+      mySellListings.removeAt(index);
+      mySellListings.refresh();
+      update();
+      Get.back();
+      Get.snackbar('Success', "Listing Removed");
+    } catch (e) {
+      print("Error deleting user lisitng $e");
+    }
+  }
+// *************remove book listings of that user*********
+  void removeListing(
+      String listingId, String sellerId, String productName) async {
+    try {
+      isLoading.value = true;
+      // await sendSystemMessage(listingId, sellerId);
+      // await refundOrderPayment(listingId);
+      // TODO(MB): probably should remove the booklisting serverside also....
+      await FirebaseFirestore.instance
+          .collection('productsListing')
+          .doc(listingId)
+          .delete();
+      // await fetchUserBookListing();
+      update();
+      Get.back();
+      Get.snackbar('Success', "Listing Removed",
+          backgroundColor: whiteColor, colorText: Colors.black);
+    } catch (e) {
+      print("Error deleting user listing $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
   RxString sellerName = ''.obs;
 
   Future<void> getSellerData(String sellerId) async {
@@ -530,11 +536,4 @@ class ProductsListingController extends GetxController {
       print("Error fetching seller data $e");
     }
   }
-// @override
-//   void onInit() {
-//     // TODO: implement onInit
-//     super.onInit();
-//     fetchUserBookListing();
-//
-// }
 }

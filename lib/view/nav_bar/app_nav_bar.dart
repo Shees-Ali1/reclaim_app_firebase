@@ -216,7 +216,6 @@ import '../profile_screen/profile.dart';
 import '../sell_screens/sell_screen_main.dart';
 import '../wishlist/wishlist.dart';
 
-
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
 
@@ -224,15 +223,16 @@ class BottomNavBar extends StatefulWidget {
   _BottomNavBarState createState() => _BottomNavBarState();
 }
 
-class _BottomNavBarState extends State<BottomNavBar> with WidgetsBindingObserver{
+class _BottomNavBarState extends State<BottomNavBar>
+    with WidgetsBindingObserver {
   int _page = 0;
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   late final List<Widget> _pages;
-  final HomeController homeController=Get.find<HomeController>();
-  final ProductsListingController productsListingController=Get.find<ProductsListingController>();
-  final UserController userController=Get.find<UserController>();
+  final HomeController homeController = Get.find<HomeController>();
+  final ProductsListingController productsListingController =
+      Get.find<ProductsListingController>();
+  final UserController userController = Get.find<UserController>();
   final AppLifecycleObserver lifecycleObserver = AppLifecycleObserver();
-
 
   @override
   void initState() {
@@ -249,8 +249,6 @@ class _BottomNavBarState extends State<BottomNavBar> with WidgetsBindingObserver
     super.initState();
   }
 
-
-
   @override
   void dispose() {
     WidgetsBinding.instance?.removeObserver(lifecycleObserver);
@@ -260,12 +258,11 @@ class _BottomNavBarState extends State<BottomNavBar> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-key: homeController.scaffoldKey,
-resizeToAvoidBottomInset: false,
+// key: homeController.scaffoldKey,
+      resizeToAvoidBottomInset: false,
       drawer: MyDrawer(),
       bottomNavigationBar: Builder(builder: (BuildContext innerContext) {
         return CurvedNavigationBar(
-
           iconPadding: 16,
           height: 70.h,
           key: _bottomNavigationKey,
@@ -309,10 +306,12 @@ resizeToAvoidBottomInset: false,
             // ),
             CurvedNavigationBarItem(
               child: SizedBox(
-                height: 28.h,
-                width: 28.w,
-                child: Icon(Icons.favorite_border_outlined,color: Colors.white,)
-              ),
+                  height: 28.h,
+                  width: 28.w,
+                  child: Icon(
+                    Icons.favorite_border_outlined,
+                    color: Colors.white,
+                  )),
               label: 'Wishlist',
               labelStyle: GoogleFonts.jost(
                 color: whiteColor,

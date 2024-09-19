@@ -40,7 +40,7 @@ class ListSellBookScreen extends StatefulWidget {
 }
 
 class _ListSellBookScreenState extends State<ListSellBookScreen> {
-  final ProductsListingController bookListingController =
+  final ProductsListingController productsListingController =
       Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
 
@@ -158,7 +158,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                controller: bookListingController.titleController,
+                controller: productsListingController.titleController,
               ),
               SizedBox(
                 height: 6.h,
@@ -179,7 +179,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                controller: bookListingController.brandController,
+                controller: productsListingController.brandController,
               ),
               SizedBox(
                 height: 6.h,
@@ -212,8 +212,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                   child: DropdownButton<String>(
                       underline: const SizedBox.shrink(),
                       isExpanded: true,
-                      value: bookListingController.category.value,
-                      items: bookListingController.categorys
+                      value: productsListingController.category.value,
+                      items: productsListingController.categorys
                           .map((String option) {
                         return DropdownMenuItem<String>(
                           value: option,
@@ -225,7 +225,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       }).toList(),
                       onChanged: (String? newValue) {
                         // homeController.bookClass.value=newValue!;
-                        bookListingController.category.value = newValue!;
+                        productsListingController.category.value = newValue!;
                       },
                       hint: const SizedBox.shrink()),
                 );
@@ -260,8 +260,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                   child: DropdownButton<String>(
                       underline: const SizedBox.shrink(),
                       isExpanded: true,
-                      value: bookListingController.size.value,
-                      items: bookListingController.sizes
+                      value: productsListingController.size.value,
+                      items: productsListingController.sizes
                           .map((String option) {
                         return DropdownMenuItem<String>(
                           value: option,
@@ -273,7 +273,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       }).toList(),
                       onChanged: (String? newValue) {
                         // homeController.bookClass.value=newValue!;
-                        bookListingController.size.value = newValue!;
+                        productsListingController.size.value = newValue!;
                       },
                       hint: const SizedBox.shrink()),
                 );
@@ -297,7 +297,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                controller: bookListingController.DescriptionController,
+                controller: productsListingController.DescriptionController,
               ),
               SizedBox(
                 height: 6.h,
@@ -333,8 +333,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                   child: DropdownButton<String>(
                       underline: const SizedBox.shrink(),
                       isExpanded: true,
-                      value: bookListingController.bookCondition.value,
-                      items: bookListingController.bookConditions
+                      value: productsListingController.bookCondition.value,
+                      items: productsListingController.bookConditions
                           .map((String option) {
                         return DropdownMenuItem<String>(
                           value: option,
@@ -346,7 +346,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       }).toList(),
                       onChanged: (String? newValue) {
                         // homeController.bookClass.value=newValue!;
-                        bookListingController.bookCondition.value = newValue!;
+                        productsListingController.bookCondition.value = newValue!;
                       },
                       hint: const SizedBox.shrink()),
                 );
@@ -377,7 +377,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                   size: 24.sp,
                 ),
                 keyboard: TextInputType.number,
-                controller: bookListingController.priceController,
+                controller: productsListingController.priceController,
               ),
 
               SizedBox(
@@ -387,8 +387,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               GestureDetector(
                 onTap: () {
                   widget.comingFromEdit == false
-                      ? bookListingController.addProductListing(context)
-                      : bookListingController.updateProductListing(
+                      ? productsListingController.addProductListing(context)
+                      : productsListingController.updateProductListing(
                           context, widget.listingId.toString());
                 },
                 child: Container(
@@ -399,7 +399,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                           color: primaryColor,
                           borderRadius: BorderRadius.circular(20.r)),
                       child:
-                      bookListingController.isLoading.value == false
+                      productsListingController.isLoading.value == false
                           ?
                       LexendCustomText(
                               text: "Next",

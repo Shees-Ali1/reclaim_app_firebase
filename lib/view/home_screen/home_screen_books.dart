@@ -33,6 +33,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
   final ProductsListingController productsListingController =
       Get.find<ProductsListingController>();
   final WishlistController wishlistController = Get.find();
+
   // final List<Product> products = [
   //   Product('Adidas Japan Sneakers', '250 aed', 'assets/images/image1.jpg'),
   //   Product('Kids Toys Package', '36 aed', 'assets/images/image1.jpg'),
@@ -50,6 +51,8 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     'Electronics',
     'Accessories',
   ];
+  late final Stream<QuerySnapshot> product;
+  late final Stream<QuerySnapshot> productlisting;
 
   @override
   void initState() {
@@ -57,6 +60,13 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     print("home");
     super.initState();
     userController.fetchUserData();
+    productlisting =
+        FirebaseFirestore.instance.collection('productsListing').snapshots();
+    product = FirebaseFirestore.instance
+        .collection('userDetails')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('wishlist')
+        .snapshots();
     // bookListingController.fetchUserBookListing();
     //  userController.approveProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
     //    userController.checkIfAccountIsDeleted();
@@ -86,37 +96,50 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                 // height: 1,
               ),
               Align(
-                alignment: Alignment.center,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 8.h),
-
-                  // height: 1.h,
                   decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(8.r)),
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(
-                            5,
-                                (index) => Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              child: SizedBox(
-                                height: 60.h, // You can set your desired size here
-                                width: 60.w,  // Same as height to maintain square shape
-                                child: AspectRatio(
-                                  aspectRatio: 1, // This ensures the widget remains a square
-                                  child: Image.asset(AppImages.image2, fit: BoxFit.cover),
+                      StreamBuilder(
+                        stream: product, // Real-time updates for wishlist
+                        builder: (context, wishlistSnapshot) {
+                          if (wishlistSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return SizedBox.shrink();
+                          } else if (wishlistSnapshot.hasError) {
+                            return Center(
+                                child:
+                                    Text('Error: ${wishlistSnapshot.error}'));
+                          } else if (!wishlistSnapshot.hasData ||
+                              wishlistSnapshot.data!.docs.isEmpty) {
+                            return Center(
+                                child: Text('No products found in wishlist.'));
+                          } else {
+                            // Fetch product details based on the wishlist product IDs
+                            final wishlistDocs = wishlistSnapshot.data!.docs;
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: List.generate(
+                                  wishlistDocs.length,
+                                  (index) {
+                                    final productId = wishlistDocs[index].id;
+                                    return FavouriteProduct(
+                                      productId: productId,
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
+                            );
+                          }
+                        },
                       ),
-
                     ],
                   ),
                 ),
@@ -148,21 +171,24 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         child: Row(
                           children: List.generate(
                             5,
-                                (index) => Padding(
+                            (index) => Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.w),
                               child: SizedBox(
-                                height: 60.h, // You can set your desired size here
-                                width: 60.w,  // Same as height to maintain square shape
+                                height: 60.h,
+                                // You can set your desired size here
+                                width: 60.w,
+                                // Same as height to maintain square shape
                                 child: AspectRatio(
-                                  aspectRatio: 1, // This ensures the widget remains a square
-                                  child: Image.asset(AppImages.image2, fit: BoxFit.cover),
+                                  aspectRatio: 1,
+                                  // This ensures the widget remains a square
+                                  child: Image.asset(AppImages.image2,
+                                      fit: BoxFit.cover),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -209,47 +235,139 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                 height: 20.h,
               ),
               StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('productsListing').snapshots(),
+                stream: productlisting,
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  var products = snapshot.data!.docs;
-
-                  return GridView.count(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                    childAspectRatio: 0.75,
-                    children: List.generate(products.length, (index) {
-                      var product = products[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Get.to(BookDetailsScreen(
-                            bookDetail: product, // Pass the product data
-                            index: index,
-                            comingfromSellScreen: false,
-                          ));
-                        },
-                        child: productCard(
-                          product.id,
-                          product['productCondition'],
-                          product['brand'],
-                          product['productName'],
-                          product['productPrice'],
-                          product['productImage'],
-                          context,
-                          homeController,
+                    return Center(
+                        child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ));
+                  } else if (!snapshot.data!.docs.isNotEmpty) {
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 80.h,
                         ),
+                        Center(
+                          child: InterCustomText(
+                            text: "No Products",
+                            textColor: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontsize: 18.sp,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    var products = snapshot.data!.docs;
+
+                    homeController.filterdProduct1.value =
+                        products.where((product) {
+                      var productName =
+                          product['productName'].toString().toLowerCase();
+                      var productBrand =
+                          product['brand'].toString().toLowerCase();
+
+                      // Check if product name or brand contains the search query
+                      return productName
+                              .contains(homeController.searchQuery.value) ||
+                          productBrand
+                              .contains(homeController.searchQuery.value);
+                    }).toList();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      homeController.update();
+                      setState(() {});
+                    });
+                    homeController.filterdProduct1.value =
+                        homeController.filterdProduct2.value;
+
+// Apply additional filtering based on condition, price, and size
+//                     homeController.filterdProduct1.value =  homeController.filterdProduct1.value.where((product) {
+//                       // Filter by price range
+//                       final priceRange = product['productPrice'] <=
+//                           homeController.priceSliderValue.value;
+//
+//                       // Filter by selected condition
+//                       final matchesCondition =
+//                           homeController.selectedCondition.value == 1 ||
+//                               (homeController.selectedCondition.value == 2 &&
+//                                   product['productCondition'] == 'New') ||
+//                               (homeController.selectedCondition.value == 3 &&
+//                                   product['productCondition'] == 'Used') ||
+//                               (homeController.selectedCondition.value == 4 &&
+//                                   product['productCondition'] == 'Old');
+//
+//                       final matchesSize = product['size'].toString() ==
+//                           homeController.selectedSize.value;
+//
+//                       final category = product['category'] ==
+//                           productsListingController.category.value;
+//                       // Combine all conditions
+//                       return matchesCondition &&
+//                           priceRange &&
+//                           matchesSize &&
+//                           category;
+//                     }).toList();
+
+                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                    //   homeController.update();
+                    //   setState(() {});
+                    // });
+                    homeController.filterdProduct2.value =
+                        products.where((product) {
+                      var productName =
+                          product['productName'].toString().toLowerCase();
+                      var productBrand =
+                          product['brand'].toString().toLowerCase();
+
+                      // Check if product name or brand contains the search query
+                      return productName
+                              .contains(homeController.searchQuery.value) ||
+                          productBrand
+                              .contains(homeController.searchQuery.value);
+                    }).toList();
+                    // homeController.filterdProduct1.value = homeController.filterdProduct2.value;
+                    return Obx(() {
+                      return GridView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: homeController.filterdProduct1.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          // Number of columns
+                          crossAxisSpacing: 8.0,
+                          // Horizontal space between items
+                          mainAxisSpacing: 8.0,
+                          // Vertical space between items
+                          childAspectRatio: 0.75, // Aspect ratio of each item
+                        ),
+                        itemBuilder: (context, index) {
+                          var product = homeController.filterdProduct1[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Get.to(BookDetailsScreen(
+                                bookDetail: product, // Pass the product data
+                                index: index,
+                                comingfromSellScreen: false,
+                              ));
+                            },
+                            child: productCard(
+                              product.id,
+                              product['productCondition'],
+                              product['brand'],
+                              product['productName'],
+                              product['productPrice'],
+                              product['productImage'],
+                              context,
+                              homeController,
+                            ),
+                          );
+                        },
                       );
-                    }),
-                  );
+                    });
+                  }
                 },
               ),
-
               SizedBox(
                 height: 40.h,
               )
@@ -371,243 +489,58 @@ Widget productCard(
   );
 }
 
-// class Product {
-//   final String name;
-//   final String price;
-//   final String imagePath;
-//
-//   Product(this.name, this.price, this.imagePath);
-// }
-//
-// class ProductCard extends StatefulWidget {
-//   final Product product;
-//
-//   const ProductCard({required this.product});
-//
-//   @override
-//   _ProductCardState createState() => _ProductCardState();
-// }
-//
-// class _ProductCardState extends State<ProductCard> {
-//   bool isFavorited = false;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: Stack(
-//         clipBehavior: Clip.none,
-//         children: [
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Expanded(
-//                 child: Image.asset(
-//                   widget.product.imagePath,
-//                   fit: BoxFit.fill,
-//                   // width: double.infinity,
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: MontserratCustomText(
-//                   text: widget.product.name,
-//                   fontsize: 15.sp,
-//                   fontWeight: FontWeight.w600,
-//                   textColor: Colors.black,
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-//                 child: MontserratCustomText(
-//                   text: widget.product.price,
-//                   fontsize: 12.sp,
-//                   fontWeight: FontWeight.w500,
-//                   textColor: Colors.black87,
-//                 ),
-//               ),
-//               SizedBox(
-//                 height: 10.h,
-//               )
-//             ],
-//           ),
-//           Positioned(
-//             top: -15,
-//             right: -15,
-//             child: IconButton(
-//               icon: Icon(
-//                 isFavorited ? Icons.favorite : Icons.favorite_border,
-//                 color: isFavorited ? Colors.red : Colors.red,
-//               ),
-//               onPressed: () {
-//                 setState(() {
-//                   isFavorited = !isFavorited; // Toggle favorite state
-//                 });
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+class FavouriteProduct extends StatefulWidget {
+  final String productId;
 
-// key: homeController.scaffoldKey,
-// drawer: MyDrawer(),
-//       body: Obx(() => userController.isLoading.value==false &&homeController.isLoading.value ==false?SingleChildScrollView(
-//         controller: homeController.scrollController,
-//         child: Column(
-//           children: [
-//             SizedBox(
-//               height: 18.h,
-//             ),
-//             Obx(() {
-//               return ListView.builder(
-//                   clipBehavior: Clip.none,
-//                   padding: EdgeInsets.zero,
-//                   physics: const NeverScrollableScrollPhysics(),
-//                   shrinkWrap: true,
-//                   itemCount: homeController.filteredBooks.length,
-//                   itemBuilder: (context, index) {
-//                     final books = homeController.filteredBooks[index];
-//                     return GestureDetector(
-//                         onTap: () {
-//                           Get.to(
-//                             BookDetailsScreen(
-//                               bookDetail: books,
-//                               index: index,
-//                               comingfromSellScreen: false,
-//                             ),
-//                             transition: Transition.fade,
-//                             duration: const Duration(milliseconds: 500),
-//                             curve: Curves.easeIn,
-//                           );
-//                         },
-//                         child: Container(
-//                           height: 125.23.h,
-//                           width: 303.w,
-//                           margin: EdgeInsets.symmetric(
-//                               vertical: 8.h, horizontal: 36.w),
-//                           decoration: BoxDecoration(
-//                               color: Colors.white,
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                     color: shadowColor,
-//                                     blurRadius: 20,
-//                                     offset: Offset(0, 4.h))
-//                               ],
-//                               borderRadius: BorderRadius.circular(9.89.r)),
-//                           child: Stack(
-//                             alignment: Alignment.bottomRight,
-//                             children: [
-//                               Row(
-//                                 children: [
-//                                   ClipRRect(
-//                                     borderRadius: BorderRadius.only(
-//                                         topLeft: Radius.circular(9.89.r),
-//                                         bottomLeft: Radius.circular(9.89.r)),
-//                                     child: SizedBox(
-//                                       height: 125.23.h,
-//                                       width: 77.w,
-//                                       child: books['bookImage'] != ''
-//                                           ? Image.network(
-//                                         books['bookImage'].toString(),
-//                                         fit: BoxFit.cover,
-//                                       )
-//                                           : Container(
-//                                         color: primaryColor ,
-//                                       ),
-//                                     ),
-//                                   ),
-//                                   SizedBox(
-//                                     width: 5.w,
-//                                   ),
-//                                   FittedBox(
-//                                     child: Column(
-//                                       crossAxisAlignment:
-//                                       CrossAxisAlignment.start,
-//                                       children: [
-//                                         SizedBox(
-//                                           height: 3.h,
-//                                         ),
-//                                         SizedBox(
-//                                             width: 214.w,
-//                                             child: MontserratCustomText(
-//                                               text: books['bookName'],
-//                                               fontsize: 16.sp,
-//                                               textColor: textColor,
-//                                               fontWeight: FontWeight.w600,
-//                                               height: 1,
-//                                             )),
-//                                         SizedBox(
-//                                           height: 5.h,
-//                                         ),
-//                                         MontserratCustomText(
-//                                             text: books['bookPart'] ?? '',
-//                                             fontsize: 12.sp,
-//                                             textColor: mainTextColor,
-//                                             fontWeight: FontWeight.w600),
-//                                         SizedBox(
-//                                           height: 14.h,
-//                                         ),
-//                                         MontserratCustomText(
-//                                           text:
-//                                           "Author: ${books['bookAuthor']}",
-//                                           fontsize: 10.sp,
-//                                           textColor: mainTextColor,
-//                                           fontWeight: FontWeight.w600,
-//                                           height: 1.h,
-//                                         ),
-//                                         SizedBox(
-//                                           height: 14.h,
-//                                         ),
-//                                         MontserratCustomText(
-//                                             text:
-//                                             "Class: ${books['bookClass']}",
-//                                             fontsize: 8.sp,
-//                                             textColor: mainTextColor,
-//                                             fontWeight: FontWeight.w600),
-//                                         MontserratCustomText(
-//                                             text:
-//                                             "Condition: ${books['bookCondition']}",
-//                                             fontsize: 8.sp,
-//                                             textColor: mainTextColor,
-//                                             fontWeight: FontWeight.w600),
-//                                         SizedBox(
-//                                           height: 3.h,
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   )
-//                                 ],
-//                               ),
-//                               Container(
-//                                 width: 71.w,
-//                                 height: 29.h,
-//                                 alignment: Alignment.center,
-//                                 decoration: BoxDecoration(
-//                                     color: primaryColor,
-//                                     borderRadius: BorderRadius.only(
-//                                         topLeft: Radius.circular(10.r),
-//                                         bottomRight: Radius.circular(10.r))),
-//                                 child: MontserratCustomText(
-//                                   text: "\$${books['bookPrice'].toString()}",
-//                                   textColor: Colors.white,
-//                                   fontWeight: FontWeight.w700,
-//                                   fontsize: 14.sp,
-//                                 ),
-//                               )
-//                             ],
-//                           ),
-//                         ));
-//                   });
-//             }),
-//             SizedBox(
-//               height: 18.h,
-//             ),
-//           ],
-//         ),
-//       ):Center(child: CircularProgressIndicator(color: primaryColor,))));
-// }
+  const FavouriteProduct({super.key, required this.productId});
+
+  @override
+  State<FavouriteProduct> createState() => _FavouriteProductState();
+}
+
+class _FavouriteProductState extends State<FavouriteProduct> {
+  late Stream<DocumentSnapshot> favquery;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    favquery = FirebaseFirestore.instance
+        .collection('productsListing')
+        .doc(widget.productId)
+        .snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: favquery, // Real-time updates for product details
+      builder: (context, productSnapshot) {
+        if (productSnapshot.connectionState == ConnectionState.waiting) {
+          return SizedBox.shrink();
+        } else if (productSnapshot.hasError) {
+          return Center(child: Text('Error: ${productSnapshot.error}'));
+        } else if (!productSnapshot.hasData || !productSnapshot.data!.exists) {
+          return Center(child: Text('Product not found.'));
+        } else {
+          final productData =
+              productSnapshot.data!.data()! as Map<String, dynamic>;
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: SizedBox(
+              height: 60.h,
+              width: 60.w,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Image.network(
+                  productData['productImage'], // Product image URL
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+}

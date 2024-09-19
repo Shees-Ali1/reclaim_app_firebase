@@ -1,12 +1,11 @@
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/trackbar.dart';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 
 import '../../../const/color.dart';
 import '../../../controller/home_controller.dart';
@@ -24,8 +23,10 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find<HomeController>();
+    final ProductsListingController productsListingController = Get.find<ProductsListingController>();
 
     final List<String> sizes = [
+      'All',
       '3XS',
       '2XS',
       'XS',
@@ -49,7 +50,6 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                 height: 4.h,
                 width: 50.w,
                 decoration: BoxDecoration(
-                  // color: AppColor.green,
                   color: primaryColor,
                   borderRadius: BorderRadius.circular(4.r),
                 ),
@@ -62,31 +62,34 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
               Text(
                 "Filter",
                 style: GoogleFonts.lato(
-                    // color: AppColor.green,
-
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: primaryColor),
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: primaryColor,
+                ),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: () {
                   homeController.priceSliderValue.value = 50;
-                  homeController.selectedCondition.value = 0;
+                  homeController.selectedCondition.value = "All";
+                  productsListingController.category.value = "All";
+                  homeController.selectedSize.value = "All";
                   homeController.sliderValue.value = 50;
-                  homeController.authorController.clear();
+                  homeController.filterdProduct1.value = homeController.filterdProduct2.value;
+                  setState(() {
 
-                  // homeController.classOption.value = 'Class 10';
-                  homeController.filteredBooks.value =
-                      homeController.bookListing;
+                  });
+
+
                   homeController.update();
                   Get.back();
+                  homeController.filterdProduct1.refresh();
+
                 },
                 child: Container(
                   width: 68.w,
                   height: 42.h,
                   decoration: BoxDecoration(
-                    // color: AppColor.green,
                     color: primaryColor,
                     borderRadius: BorderRadius.circular(35.r),
                   ),
@@ -94,9 +97,10 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                     child: Text(
                       'Reset',
                       style: TextStyle(
-                          fontSize: 10.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500),
+                        fontSize: 10.sp,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -112,8 +116,8 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
           ),
           SizedBox(height: 10.h),
           Wrap(
-            spacing: 10.w, // space between items
-            runSpacing: 10.h, // space between rows
+            spacing: 10.w,
+            runSpacing: 10.h,
             children: sizes.map((size) {
               return GestureDetector(
                 onTap: () {
@@ -127,171 +131,144 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                         border: Border.all(
                           color: size == homeController.selectedSize.value
                               ? Colors.transparent
-                              : primaryColor, // Highlight selected size
+                              : primaryColor,
                           width: size == homeController.selectedSize.value
                               ? 2.w
                               : 1.w,
                         ),
                         color: size == homeController.selectedSize.value
                             ? primaryColor
-                            : Colors
-                                .transparent, // Highlight background color for selected size
+                            : Colors.transparent,
                       ),
                       child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            MontserratCustomText(
-                              text: size,
-                              textColor:
-                                  size == homeController.selectedSize.value
-                                      ? whiteColor
-                                      : primaryColor, // Change as needed
-                              fontWeight: FontWeight.w400,
-                              fontsize: 15.sp,
-                            ),
-                            if (size == homeController.selectedSize.value)
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5.w),
-                                child: Divider(
-                                  height: 1.h,
-                                  thickness: 2.h,
-                                  color: whiteColor, // Divider color
-                                  indent: 1.w,
-                                  endIndent: 1.w,
-                                ),
-                              ),
-                          ],
+                        child: MontserratCustomText(
+                          text: size,
+                          textColor: size == homeController.selectedSize.value
+                              ? Colors.white
+                              : primaryColor,
+                          fontWeight: FontWeight.w400,
+                          fontsize: 15.sp,
                         ),
                       ),
                     )),
               );
             }).toList(),
           ),
-
-          SizedBox(
-            height: 11.h,
-          ),
-
+          SizedBox(height: 11.h),
           LatoCustomText(
             text: 'Condition',
             textColor: primaryColor,
             fontWeight: FontWeight.w700,
             fontsize: 18.sp,
           ),
-          SizedBox(
-            height: 11.h,
-          ),
+          SizedBox(height: 11.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Obx(() {
-                return ConditionContainer(
-                  condtionText: 'All',
-                  onTap: () {
-                    homeController.selectedCondition.value = 1;
-                  },
-                  color: homeController.selectedCondition.value == 1
-                      ? primaryColor
-                      : primaryColor.withOpacity(0.08),
-                  textcolor: homeController.selectedCondition.value == 1
-                      ? Colors.white
-                      : primaryColor,
-                );
-              }),
-              Obx(() {
-                return ConditionContainer(
-                  condtionText: 'New',
-                  onTap: () {
-                    homeController.selectedCondition.value = 2;
-                  },
-                  color: homeController.selectedCondition.value == 2
-                      ? primaryColor
-                      : primaryColor.withOpacity(0.08),
-                  textcolor: homeController.selectedCondition.value == 2
-                      ? Colors.white
-                      : primaryColor,
-                );
-              }),
-              Obx(() {
-                return ConditionContainer(
-                  condtionText: 'Like New',
-                  onTap: () {
-                    homeController.selectedCondition.value = 3;
-                  },
-                  color: homeController.selectedCondition.value == 3
-                      ? primaryColor
-                      : primaryColor.withOpacity(0.08),
-                  textcolor: homeController.selectedCondition.value == 3
-                      ? Colors.white
-                      : primaryColor,
-                );
-              }),
-              Obx(() {
-                return ConditionContainer(
-                  condtionText: 'Old',
-                  onTap: () {
-                    homeController.selectedCondition.value = 4;
-                  },
-                  color: homeController.selectedCondition.value == 4
-                      ? primaryColor
-                      : primaryColor.withOpacity(0.08),
-                  textcolor: homeController.selectedCondition.value == 4
-                      ? Colors.white
-                      : primaryColor,
-                );
-              }),
+              Obx(() => ConditionContainer(
+                    condtionText: 'All',
+                    onTap: () {
+                      homeController.selectedCondition.value = "All";
+                    },
+                    color: homeController.selectedCondition.value == "All"
+                        ? primaryColor
+                        : primaryColor.withOpacity(0.08),
+                    textcolor: homeController.selectedCondition.value == "All"
+                        ? Colors.white
+                        : primaryColor,
+                  )),
+              Obx(() => ConditionContainer(
+                    condtionText: 'New',
+                    onTap: () {
+                      homeController.selectedCondition.value = "New";
+                    },
+                    color: homeController.selectedCondition.value == "New"
+                        ? primaryColor
+                        : primaryColor.withOpacity(0.08),
+                    textcolor: homeController.selectedCondition.value == "New"
+                        ? Colors.white
+                        : primaryColor,
+                  )),
+              Obx(() => ConditionContainer(
+                    condtionText: 'Used',
+                    onTap: () {
+                      homeController.selectedCondition.value = "Used";
+                    },
+                    color: homeController.selectedCondition.value == "Used"
+                        ? primaryColor
+                        : primaryColor.withOpacity(0.08),
+                    textcolor: homeController.selectedCondition.value == "Used"
+                        ? Colors.white
+                        : primaryColor,
+                  )),
+              Obx(() => ConditionContainer(
+                    condtionText: 'Old',
+                    onTap: () {
+                      homeController.selectedCondition.value = "Old";
+                    },
+                    color: homeController.selectedCondition.value == "Old"
+                        ? primaryColor
+                        : primaryColor.withOpacity(0.08),
+                    textcolor: homeController.selectedCondition.value == "Old"
+                        ? Colors.white
+                        : primaryColor,
+                  )),
             ],
           ),
           SizedBox(height: 20.h),
           RalewayCustomText(
             text: "Category",
-
-            // color: AppColor.green,
             textColor: primaryColor,
-
             fontWeight: FontWeight.w700,
             fontsize: 18.sp,
           ),
           SizedBox(height: 5.h),
-          CustomSellTextField(
-            suffixIcon: const Icon(Icons.search),
-            controller: homeController.authorController,
-          ),
-          // SizedBox(height: 19.h),
-          // RalewayCustomText(
-          //   text: "Teacher",
-          //
-          //   // color: AppColor.green,
-          //   textColor: primaryColor,
-          //
-          //   fontWeight: FontWeight.w700,
-          //   fontsize: 18.sp,
-          // ),
-          // SizedBox(height: 5.h),
-          // CustomSellTextField(suffixIcon: const Icon(Icons.search),
-          //   controller: teacherController,),
+          Obx(() {
+            return Container(
+              height: 50.h,
+              width: 327.w,
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20.r)),
+              child: DropdownButton<String>(
+                  underline: const SizedBox.shrink(),
+                  isExpanded: true,
+                  value: productsListingController.category.value,
+                  items: productsListingController.categorys
+                      .map((String option) {
+                    return DropdownMenuItem<String>(
+                      value: option,
+                      child: RalewayCustomText(
+                          text: option,
+                          textColor: primaryColor,
+                          fontWeight: FontWeight.w700),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    // homeController.bookClass.value=newValue!;
+                    productsListingController.category.value = newValue!;
+                  },
+                  hint: const SizedBox.shrink()),
+            );
+          }),
           SizedBox(height: 20.h),
           Row(
             children: [
               RalewayCustomText(
                 text: "Price",
-
-                // color: AppColor.green,
                 textColor: primaryColor,
-
                 fontWeight: FontWeight.w700,
                 fontsize: 18.sp,
               ),
               const Spacer(),
-              Obx(() {
-                return WorkSansCustomText(
-                  text: '< \$${homeController.priceSliderValue.value}',
-                  textColor: primaryColor,
-                  fontWeight: FontWeight.w700,
-                  fontsize: 18.sp,
-                );
-              })
+              Obx(() => WorkSansCustomText(
+                    text: '< \$${homeController.priceSliderValue.value}',
+                    textColor: primaryColor,
+                    fontWeight: FontWeight.w700,
+                    fontsize: 18.sp,
+                  )),
             ],
           ),
           GetBuilder<HomeController>(builder: (homeController) {
@@ -300,18 +277,21 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
               max: 500,
               min: 0,
               trackBar: const FlutterSliderTrackBar(
-                  activeTrackBar: BoxDecoration(color: primaryColor)),
+                activeTrackBar: BoxDecoration(color: primaryColor),
+              ),
               handler: FlutterSliderHandler(
-                  decoration: const BoxDecoration(shape: BoxShape.rectangle),
-                  child: Container(
-                    height: 35.h,
-                    width: 34.w,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: primaryColor),
-                        borderRadius: BorderRadius.circular(9.r)),
-                    child: const Icon(Icons.compare_arrows_outlined),
-                  )),
+                decoration: const BoxDecoration(shape: BoxShape.rectangle),
+                child: Container(
+                  height: 35.h,
+                  width: 34.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: primaryColor),
+                    borderRadius: BorderRadius.circular(9.r),
+                  ),
+                  child: const Icon(Icons.compare_arrows_outlined),
+                ),
+              ),
               onDragging: (handlerIndex, lowerValue, upperValue) {
                 homeController.priceSliderValue.value = lowerValue;
                 print(homeController.priceSliderValue.value);
@@ -321,11 +301,12 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
           SizedBox(height: 26.h),
           GestureDetector(
             onTap: () {
-              print("HI");
-              homeController.applyFilters(homeController.authorController.text);
-              Get.back();
+              // homeController.applyFilters(homeController.authorController.text);
+              homeController.filterAppointments();
+              setState(() {
 
-              print(homeController.filteredBooks);
+              });
+              Get.back();
             },
             child: Center(
               child: Container(
@@ -337,9 +318,10 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                   color: primaryColor,
                 ),
                 child: const LatoCustomText(
-                    text: 'Apply Filter',
-                    textColor: Colors.white,
-                    fontWeight: FontWeight.w700),
+                  text: 'Apply Filter',
+                  textColor: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
