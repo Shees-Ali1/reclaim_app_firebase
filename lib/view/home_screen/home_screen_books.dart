@@ -239,9 +239,10 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
-                        child: CircularProgressIndicator(
-                      color: primaryColor,
-                    ));
+                      child: CircularProgressIndicator(
+                        color: primaryColor,
+                      ),
+                    );
                   } else if (!snapshot.data!.docs.isNotEmpty) {
                     return Column(
                       children: [
@@ -260,85 +261,38 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                     );
                   } else {
                     var products = snapshot.data!.docs;
-
-                    homeController.filterdProduct1.value =
-                        products.where((product) {
-                      var productName =
-                          product['productName'].toString().toLowerCase();
-                      var productBrand =
-                          product['brand'].toString().toLowerCase();
-
-                      // Check if product name or brand contains the search query
-                      return productName
-                              .contains(homeController.searchQuery.value) ||
-                          productBrand
-                              .contains(homeController.searchQuery.value);
-                    }).toList();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       homeController.update();
                       setState(() {});
                     });
-                    homeController.filterdProduct1.value =
-                        homeController.filterdProduct2.value;
-
-// Apply additional filtering based on condition, price, and size
-//                     homeController.filterdProduct1.value =  homeController.filterdProduct1.value.where((product) {
-//                       // Filter by price range
-//                       final priceRange = product['productPrice'] <=
-//                           homeController.priceSliderValue.value;
-//
-//                       // Filter by selected condition
-//                       final matchesCondition =
-//                           homeController.selectedCondition.value == 1 ||
-//                               (homeController.selectedCondition.value == 2 &&
-//                                   product['productCondition'] == 'New') ||
-//                               (homeController.selectedCondition.value == 3 &&
-//                                   product['productCondition'] == 'Used') ||
-//                               (homeController.selectedCondition.value == 4 &&
-//                                   product['productCondition'] == 'Old');
-//
-//                       final matchesSize = product['size'].toString() ==
-//                           homeController.selectedSize.value;
-//
-//                       final category = product['category'] ==
-//                           productsListingController.category.value;
-//                       // Combine all conditions
-//                       return matchesCondition &&
-//                           priceRange &&
-//                           matchesSize &&
-//                           category;
-//                     }).toList();
-
-                    // WidgetsBinding.instance.addPostFrameCallback((_) {
-                    //   homeController.update();
-                    //   setState(() {});
-                    // });
+                    // Step 1: Filter based on the search query
                     homeController.filterdProduct2.value =
                         products.where((product) {
-                      var productName =
+                      final productName =
                           product['productName'].toString().toLowerCase();
-                      var productBrand =
-                          product['brand'].toString().toLowerCase();
-
-                      // Check if product name or brand contains the search query
+                      final query =
+                          homeController.searchQuery.value.toLowerCase();
                       return productName
-                              .contains(homeController.searchQuery.value) ||
-                          productBrand
-                              .contains(homeController.searchQuery.value);
+                          .contains(query); // Filtering by search query
                     }).toList();
-                    // homeController.filterdProduct1.value = homeController.filterdProduct2.value;
+
+                    // Step 2: Apply other filters (condition, category, size, and price)
+                    homeController.filterAppointments();
+                    // homeController.update();
+
+
+
+
                     return Obx(() {
                       return GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: homeController.filterdProduct1.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          // Number of columns
-                          crossAxisSpacing: 8.0,
-                          // Horizontal space between items
-                          mainAxisSpacing: 8.0,
-                          // Vertical space between items
+                          crossAxisCount: 2, // Number of columns
+                          crossAxisSpacing:
+                              8.0, // Horizontal space between items
+                          mainAxisSpacing: 8.0, // Vertical space between items
                           childAspectRatio: 0.75, // Aspect ratio of each item
                         ),
                         itemBuilder: (context, index) {

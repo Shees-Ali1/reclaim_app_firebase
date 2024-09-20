@@ -8,7 +8,7 @@ import 'package:timeago/timeago.dart'as timeago;
 
 class NotificationController extends GetxController {
   Future<void> storeNotification(
-      int price, String orderId, String bookId,String bookName,String notificationType) async {
+      int price, String orderId, String productId,String productName,String notificationType) async {
     DocumentReference documentReference=    await FirebaseFirestore.instance
         .collection('userNotifications')
         .doc(
@@ -17,11 +17,11 @@ class NotificationController extends GetxController {
         .collection('notifications')
         .add({
       'userId': FirebaseAuth.instance.currentUser!.uid,
-      'title': 'You successfully purchased $bookName',
+      'title': 'You successfully purchased $productName',
       'time': DateTime.timestamp(),
       'price': price,
       'orderId': orderId,
-      'bookId': bookId,
+      'bookId': productId,
       'notificationType':notificationType
     });
     await FirebaseFirestore.instance

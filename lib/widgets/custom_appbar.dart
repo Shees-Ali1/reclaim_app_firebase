@@ -303,7 +303,7 @@ class _CustomAppBarHomeState extends State<CustomAppBarHome> {
                             width: 273.w,
                             child: Obx(() => TextField(
                               onChanged: (value) {
-                                widget.homeController.searchQuery.value = value.toLowerCase();
+                                widget.homeController.searchQuery.value = value;
 
                               },
                               controller: widget.homeController.bookSearchController,

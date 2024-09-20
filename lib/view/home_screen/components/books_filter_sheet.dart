@@ -70,11 +70,11 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  homeController.priceSliderValue.value = 50;
+                  homeController.priceSliderValue.value = 0.0;
                   homeController.selectedCondition.value = "All";
                   productsListingController.category.value = "All";
                   homeController.selectedSize.value = "All";
-                  homeController.sliderValue.value = 50;
+                  homeController.sliderValue.value = 0.0;
                   homeController.filterdProduct1.value = homeController.filterdProduct2.value;
                   setState(() {
 
@@ -303,9 +303,11 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
             onTap: () {
               // homeController.applyFilters(homeController.authorController.text);
               homeController.filterAppointments();
+
               setState(() {
 
               });
+              print('filterAppointments');
               Get.back();
             },
             child: Center(

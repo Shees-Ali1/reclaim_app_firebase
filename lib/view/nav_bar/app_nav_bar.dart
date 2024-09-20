@@ -258,7 +258,7 @@ class _BottomNavBarState extends State<BottomNavBar>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-// key: homeController.scaffoldKey,
+ key: homeController.scaffoldKey,
       resizeToAvoidBottomInset: false,
       drawer: MyDrawer(),
       bottomNavigationBar: Builder(builder: (BuildContext innerContext) {

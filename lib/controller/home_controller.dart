@@ -156,8 +156,8 @@ class HomeController extends GetxController {
   TextEditingController();
   // ******************Filters***********
   RxString selectedCondition ='All'.obs;
-  RxDouble priceSliderValue = 100.0.obs;
-  RxDouble sliderValue = 100.0.obs;
+  RxDouble priceSliderValue = 0.0.obs;
+  RxDouble sliderValue = 0.0.obs;
   RxString classOption = 'Graduate'.obs;
   List<String> bookClass = [
     'Graduate',
@@ -184,7 +184,7 @@ class HomeController extends GetxController {
       return matchesCondition && matchesCategory && matchesSizes && matchesPrice ;
 
     }).toList());
-    update();
+
     print(filterdProduct1);
   }
 }

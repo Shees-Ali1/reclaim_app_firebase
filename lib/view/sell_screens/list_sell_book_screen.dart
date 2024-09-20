@@ -362,7 +362,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                     width: 24.w,
                   ),
                   LexendCustomText(
-                    text: 'Enter your Asking Price',
+                    text: 'Enter your Asking Price (Aed)',
                     textColor: titleColor,
                     fontWeight: FontWeight.w500,
                     fontsize: 16.sp,
@@ -371,11 +371,11 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
-                prefixIcon: Icon(
-                  Icons.currency_exchange_sharp,
-                  color: titleColor,
-                  size: 24.sp,
-                ),
+                // prefixIcon: Icon(
+                //   Icons.currency_exchange_sharp,
+                //   color: titleColor,
+                //   size: 24.sp,
+                // ),
                 keyboard: TextInputType.number,
                 controller: productsListingController.priceController,
               ),

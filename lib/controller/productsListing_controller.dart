@@ -454,11 +454,11 @@ class ProductsListingController extends GetxController {
                 content: BuyDialogBox());
           },
         );
-        // await notificationController.sendFcmMessage(
-        //     'New message', 'You got the order', sellerId);
+        await notificationController.sendFcmMessage(
+            'New message', 'You got the order', sellerId);
 
-        // await notificationController.storeNotification(
-        //     purchasePrice, docRef.id, listingId, bookName, 'purchased');
+        await notificationController.storeNotification(
+            purchasePrice, docRef.id, listingId, productName, 'purchased');
 
         await chatController.createChatConvo(
             listingId, docRef.id, productName, sellerId, productImage,purchasePrice );
