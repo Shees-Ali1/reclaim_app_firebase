@@ -225,9 +225,9 @@ class UserController extends GetxController {
   }
 
 //   ************Get user history sell
-  RxInt saleSum = 0.obs;
+  RxDouble totalSalePrice = 0.0.obs; // Use RxDouble for price
 
-  Future<void> getSellHistory() async {
+  Future<void> getPurchasePrice() async {
     try {
       QuerySnapshot orderData = await FirebaseFirestore.instance
           .collection('orders')
@@ -235,52 +235,21 @@ class UserController extends GetxController {
           .get();
 
       if (orderData.docs.isNotEmpty) {
-        saleSum.value = orderData.docs.length;
-        print('total sale $saleSum');
+        totalSalePrice.value = orderData.docs.fold(
+            0.0,
+                (sum, doc) => sum + (doc['buyingprice'] ?? 0.0) // Replace 'price' with your actual field name
+        );
+
+        print('Total sale price: $totalSalePrice');
       } else {
-        print("NO orders or data");
+        print("No orders or data");
       }
     } catch (e) {
-      print("error fetchnig user sale history");
+      print("Error fetching user sale history: $e");
     }
   }
-//   List<dynamic> bookId = [];
-//   List<dynamic> booksSale = [];
-//   Future<void> getSellHistory() async {
-//     try {
-//       bookId.clear();
-//       booksSale.clear();
-//       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-//           .collection('booksListing')
-//           .where('sellerId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-//           .get();
-//       if (querySnapshot.docs.isNotEmpty) {
-//         querySnapshot.docs.forEach((booksList) async {
-//           bookId.add(booksList['listingId']);
-//         });
-//         bookId.forEach((ids) async {
-//           QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-//               .collection('booksListing')
-//               .doc(ids)
-//               .collection('orders')
-//               .get();
-//           if (querySnapshot.docs.isNotEmpty) {
-//             // print(querySnapshot.docs.length);
-//             booksSale.add(querySnapshot.docs.length);
-//             print(booksSale);
-//             saleSum.value = booksSale.reduce((a, b) => a + b);
-//             update();
-//           } else {
-//             print('no orders');
-//           }
-//         });
-//       } else {
-//         print('no listing or seller listing found');
-//       }
-//     } catch (e) {
-//       print("error getting sales $e");
-//     }
-//   }
+
+
 
   Future<void> changePassword(TextEditingController password) async {
     try {

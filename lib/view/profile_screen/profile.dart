@@ -39,14 +39,14 @@ class _ProfileState extends State<Profile> {
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
   final ProductsListingController productsListingController =
-      Get.find<ProductsListingController>();
+  Get.find<ProductsListingController>();
   final LoginAuthController loginAuthController =
-      Get.find<LoginAuthController>();
+  Get.find<LoginAuthController>();
 
   @override
   void initState() {
     // TODO: implement initState
-    userController.getSellHistory();
+    userController.getPurchasePrice();
 
     super.initState();
   }
@@ -61,554 +61,573 @@ class _ProfileState extends State<Profile> {
         ),
         body: SingleChildScrollView(
             child: Column(
-          children: [
-            SizedBox(
-              height: 17.h,
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 35.h),
-              child: Column(
-                children: [
-                  StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('userDetails')
-                        .doc(FirebaseAuth.instance.currentUser!.uid)
-                        .snapshots(),
-                    builder: (context, usersnapshot) {
-                      if (usersnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.white,
-                          child: Container(
-                            height: 50.h,
-                            width: 320.w,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8.h, horizontal: 36.w),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(9.89.r)),
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(9.89.r),
-                                          bottomLeft: Radius.circular(9.89.r)),
-                                    ),
-                                    SizedBox(
-                                      width: 5.w,
-                                    ),
-                                    FittedBox(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            height: 3.h,
-                                          ),
-                                          SizedBox(
-                                              width: 214.w,
-                                              child: MontserratCustomText(
-                                                text: "books[",
-                                                fontsize: 16.sp,
-                                                textColor: textColor,
-                                                fontWeight: FontWeight.w600,
-                                                height: 1,
-                                              )),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          SizedBox(
-                                            width: 214.w,
-                                            child: MontserratCustomText(
-                                                text: '',
-                                                fontsize: 12.sp,
-                                                textColor: mainTextColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          SizedBox(
-                                            height: 14.h,
-                                          ),
-                                          MontserratCustomText(
-                                            text: '',
-                                            fontsize: 10.sp,
-                                            textColor: mainTextColor,
-                                            fontWeight: FontWeight.w600,
-                                            height: 1.h,
-                                          ),
-                                          SizedBox(
-                                            height: 14.h,
-                                          ),
-                                          // MontserratCustomText(
-                                          //     text:
-                                          //     "Class: ${books['bookClass']}",
-                                          //     fontsize: 8.sp,
-                                          //     textColor: mainTextColor,
-                                          //     fontWeight: FontWeight.w600),
-                                          MontserratCustomText(
-                                              text: '',
-                                              fontsize: 8.sp,
-                                              textColor: mainTextColor,
-                                              fontWeight: FontWeight.w600),
-                                          SizedBox(
-                                            height: 3.h,
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Container(
-                                  width: 71.w,
-                                  height: 29.h,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10.r),
-                                          bottomRight: Radius.circular(10.r))),
-                                  child: MontserratCustomText(
-                                    text: "",
-                                    textColor: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontsize: 14.sp,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      } else if (usersnapshot.hasError) {
-                        return Center(child: Text('Error loading user data'));
-                      } else if (!usersnapshot.hasData ||
-                          !usersnapshot.data!.exists) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.white,
-                          child: Container(
-                            height: 50.h,
-                            width: 320.w,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 8.h, horizontal: 36.w),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(9.89.r)),
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(9.89.r),
-                                          bottomLeft: Radius.circular(9.89.r)),
-                                    ),
-                                    SizedBox(
-                                      width: 5.w,
-                                    ),
-                                    FittedBox(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            height: 3.h,
-                                          ),
-                                          SizedBox(
-                                              width: 214.w,
-                                              child: MontserratCustomText(
-                                                text: "books[",
-                                                fontsize: 16.sp,
-                                                textColor: textColor,
-                                                fontWeight: FontWeight.w600,
-                                                height: 1,
-                                              )),
-                                          SizedBox(
-                                            height: 5.h,
-                                          ),
-                                          SizedBox(
-                                            width: 214.w,
-                                            child: MontserratCustomText(
-                                                text: '',
-                                                fontsize: 12.sp,
-                                                textColor: mainTextColor,
-                                                fontWeight: FontWeight.w600),
-                                          ),
-                                          SizedBox(
-                                            height: 14.h,
-                                          ),
-                                          MontserratCustomText(
-                                            text: '',
-                                            fontsize: 10.sp,
-                                            textColor: mainTextColor,
-                                            fontWeight: FontWeight.w600,
-                                            height: 1.h,
-                                          ),
-                                          SizedBox(
-                                            height: 14.h,
-                                          ),
-                                          // MontserratCustomText(
-                                          //     text:
-                                          //     "Class: ${books['bookClass']}",
-                                          //     fontsize: 8.sp,
-                                          //     textColor: mainTextColor,
-                                          //     fontWeight: FontWeight.w600),
-                                          MontserratCustomText(
-                                              text: '',
-                                              fontsize: 8.sp,
-                                              textColor: mainTextColor,
-                                              fontWeight: FontWeight.w600),
-                                          SizedBox(
-                                            height: 3.h,
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Container(
-                                  width: 71.w,
-                                  height: 29.h,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10.r),
-                                          bottomRight: Radius.circular(10.r))),
-                                  child: MontserratCustomText(
-                                    text: "",
-                                    textColor: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontsize: 14.sp,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        );
-                      } else {
-                        final userdata =
-                            usersnapshot.data!.data() as Map<String, dynamic>?;
-                        if (userdata != null) {
-                          userController.userName.value =
-                              userdata['userName'] ?? 'Unknown';
-                          userController.userImage.value =
-                              userdata['userImage'] ?? '';
-                          userController.verified.value =
-                              userdata['verified'] ?? false;
-                        }
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Obx(() {
-                              return Container(
+              children: [
+                SizedBox(
+                  height: 17.h,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 35.h),
+                  child: Column(
+                    children: [
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('userDetails')
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .snapshots(),
+                        builder: (context, usersnapshot) {
+                          if (usersnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.white,
+                              child: Container(
+                                height: 50.h,
+                                width: 320.w,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 8.h, horizontal: 36.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      userController.userImage.value,
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(
+                                        9.89.r)),
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(9.89.r),
+                                              bottomLeft: Radius.circular(
+                                                  9.89.r)),
+                                        ),
+                                        SizedBox(
+                                          width: 5.w,
+                                        ),
+                                        FittedBox(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 3.h,
+                                              ),
+                                              SizedBox(
+                                                  width: 214.w,
+                                                  child: MontserratCustomText(
+                                                    text: "books[",
+                                                    fontsize: 16.sp,
+                                                    textColor: textColor,
+                                                    fontWeight: FontWeight.w600,
+                                                    height: 1,
+                                                  )),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              SizedBox(
+                                                width: 214.w,
+                                                child: MontserratCustomText(
+                                                    text: '',
+                                                    fontsize: 12.sp,
+                                                    textColor: mainTextColor,
+                                                    fontWeight: FontWeight
+                                                        .w600),
+                                              ),
+                                              SizedBox(
+                                                height: 14.h,
+                                              ),
+                                              MontserratCustomText(
+                                                text: '',
+                                                fontsize: 10.sp,
+                                                textColor: mainTextColor,
+                                                fontWeight: FontWeight.w600,
+                                                height: 1.h,
+                                              ),
+                                              SizedBox(
+                                                height: 14.h,
+                                              ),
+                                              // MontserratCustomText(
+                                              //     text:
+                                              //     "Class: ${books['bookClass']}",
+                                              //     fontsize: 8.sp,
+                                              //     textColor: mainTextColor,
+                                              //     fontWeight: FontWeight.w600),
+                                              MontserratCustomText(
+                                                  text: '',
+                                                  fontsize: 8.sp,
+                                                  textColor: mainTextColor,
+                                                  fontWeight: FontWeight.w600),
+                                              SizedBox(
+                                                height: 3.h,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                    fit: BoxFit.cover,
-                                  ),
+                                    Container(
+                                      width: 71.w,
+                                      height: 29.h,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(10.r),
+                                              bottomRight: Radius.circular(
+                                                  10.r))),
+                                      child: MontserratCustomText(
+                                        text: "",
+                                        textColor: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontsize: 14.sp,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                height: 76.h,
-                                width: 76.w,
-                              );
-                            }),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              ),
+                            );
+                          } else if (usersnapshot.hasError) {
+                            return Center(child: Text(
+                                'Error loading user data'));
+                          } else if (!usersnapshot.hasData ||
+                              !usersnapshot.data!.exists) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.white,
+                              child: Container(
+                                height: 50.h,
+                                width: 320.w,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 8.h, horizontal: 36.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(
+                                        9.89.r)),
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(9.89.r),
+                                              bottomLeft: Radius.circular(
+                                                  9.89.r)),
+                                        ),
+                                        SizedBox(
+                                          width: 5.w,
+                                        ),
+                                        FittedBox(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 3.h,
+                                              ),
+                                              SizedBox(
+                                                  width: 214.w,
+                                                  child: MontserratCustomText(
+                                                    text: "books[",
+                                                    fontsize: 16.sp,
+                                                    textColor: textColor,
+                                                    fontWeight: FontWeight.w600,
+                                                    height: 1,
+                                                  )),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              SizedBox(
+                                                width: 214.w,
+                                                child: MontserratCustomText(
+                                                    text: '',
+                                                    fontsize: 12.sp,
+                                                    textColor: mainTextColor,
+                                                    fontWeight: FontWeight
+                                                        .w600),
+                                              ),
+                                              SizedBox(
+                                                height: 14.h,
+                                              ),
+                                              MontserratCustomText(
+                                                text: '',
+                                                fontsize: 10.sp,
+                                                textColor: mainTextColor,
+                                                fontWeight: FontWeight.w600,
+                                                height: 1.h,
+                                              ),
+                                              SizedBox(
+                                                height: 14.h,
+                                              ),
+                                              // MontserratCustomText(
+                                              //     text:
+                                              //     "Class: ${books['bookClass']}",
+                                              //     fontsize: 8.sp,
+                                              //     textColor: mainTextColor,
+                                              //     fontWeight: FontWeight.w600),
+                                              MontserratCustomText(
+                                                  text: '',
+                                                  fontsize: 8.sp,
+                                                  textColor: mainTextColor,
+                                                  fontWeight: FontWeight.w600),
+                                              SizedBox(
+                                                height: 3.h,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Container(
+                                      width: 71.w,
+                                      height: 29.h,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(10.r),
+                                              bottomRight: Radius.circular(
+                                                  10.r))),
+                                      child: MontserratCustomText(
+                                        text: "",
+                                        textColor: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontsize: 14.sp,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            final userdata =
+                            usersnapshot.data!.data() as Map<String, dynamic>?;
+                            if (userdata != null) {
+                              userController.userName.value =
+                                  userdata['userName'] ?? 'Unknown';
+                              userController.userImage.value =
+                                  userdata['userImage'] ?? '';
+                              userController.verified.value =
+                                  userdata['verified'] ?? false;
+                            }
+
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Obx(() {
-                                  return SizedBox(
-                                    width: 150,
-                                    child: LexendCustomText(
-                                      overflow: TextOverflow.ellipsis,
-                                      text: userController.userName.value,
-                                      fontWeight: FontWeight.w400,
-                                      fontsize: 20.sp,
-                                      textColor: blackTitleColor,
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          userController.userImage.value,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
+                                    height: 76.h,
+                                    width: 76.w,
                                   );
                                 }),
                                 SizedBox(
-                                  height: 8.h,
+                                  width: 10.w,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Obx(() {
+                                      return SizedBox(
+                                        width: 150,
+                                        child: LexendCustomText(
+                                          overflow: TextOverflow.ellipsis,
+                                          text: userController.userName.value,
+                                          fontWeight: FontWeight.w400,
+                                          fontsize: 20.sp,
+                                          textColor: blackTitleColor,
+                                        ),
+                                      );
+                                    }),
+                                    SizedBox(
+                                      height: 8.h,
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                GestureDetector(
+                                  onTap: () {
+                                    CustomRoute.navigateTo(
+                                        context, const EditProfile());
+                                  },
+                                  child: SvgPicture.asset(AppIcons.editIcon),
+                                ),
+                              ],
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        height: 36.h,
+                      ),
+                      const Divider(
+                        color: Color(0xffDADADA),
+                        thickness: 1.5,
+                      ),
+                      Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 25.w, right: 25.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Obx(() {
+                                      return LexendCustomText(
+                                        text: productsListingController
+                                            .mySellListings.length
+                                            .toString(),
+                                        fontWeight: FontWeight.w400,
+                                        fontsize: 20.sp,
+                                        textColor: blackTitleColor,
+                                      );
+                                    }),
+                                    LexendCustomText(
+                                      text: 'Listed',
+                                      fontWeight: FontWeight.w400,
+                                      fontsize: 10.sp,
+                                      textColor: lightTitleColor,
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  height: 24.h,
+                                  width: 2.w,
+                                  color: const Color(0xffE0E0E0),
+                                ),
+                                Column(
+                                  children: [
+                                    Obx(() {
+                                      return RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: userController
+                                                  .totalSalePrice.value
+                                                  .toString(),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 18.sp,
+                                                color: blackTitleColor,
+                                                fontFamily:
+                                                'Lexend', // Optional if you're using a custom font
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: ' Aed',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight
+                                                    .w500,
+                                                // Different style for 'Aed'
+                                                fontSize: 12.sp,
+                                                color: blackTitleColor,
+                                                fontFamily:
+                                                'Lexend', // Optional if you're using a custom font
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                    SizedBox(height: 5.h,),
+                                    LexendCustomText(
+                                      text: 'Earned',
+                                      fontWeight: FontWeight.w400,
+                                      fontsize: 10.sp,
+                                      textColor: lightTitleColor,
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  height: 24.h,
+                                  width: 2.w,
+                                  color: const Color(0xffE0E0E0),
+                                ),
+                                Column(
+                                  children: [
+                                    Obx(() {
+                                      return LexendCustomText(
+                                        text: userController.userPurchases
+                                            .length
+                                            .toString(),
+                                        fontWeight: FontWeight.w400,
+                                        fontsize: 20.sp,
+                                        textColor: blackTitleColor,
+                                      );
+                                    }),
+                                    LexendCustomText(
+                                      text: 'Purchases',
+                                      fontWeight: FontWeight.w400,
+                                      fontsize: 10.sp,
+                                      textColor: lightTitleColor,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {
-                                CustomRoute.navigateTo(
-                                    context, const EditProfile());
-                              },
-                              child: SvgPicture.asset(AppIcons.editIcon),
-                            ),
-                          ],
-                        );
-                      }
-                    },
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  SizedBox(
-                    height: 36.h,
-                  ),
-                  const Divider(
-                    color: Color(0xffDADADA),
-                    thickness: 1.5,
-                  ),
-                  Column(
+                ),
+                SizedBox(
+                  height: 20.h,
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 25.w, right: 25.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                Obx(() {
-                                  return LexendCustomText(
-                                    text: productsListingController
-                                        .mySellListings.length
-                                        .toString(),
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 20.sp,
-                                    textColor: blackTitleColor,
-                                  );
-                                }),
-                                LexendCustomText(
-                                  text: 'Listed',
-                                  fontWeight: FontWeight.w400,
-                                  fontsize: 10.sp,
-                                  textColor: lightTitleColor,
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 24.h,
-                              width: 2.w,
-                              color: const Color(0xffE0E0E0),
-                            ),
-                            Column(
-                              children: [
-                                RichText(
-                                  text: TextSpan(
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(context, const EditProfile());
+                        },
+                        title: 'Edit Profile',
+                        imgUrl: AppIcons.editprofileIcon,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(context, ReviewScreen());
+                        },
+                        title: 'Reviews',
+                        imgUrl: AppIcons.privacyIcon,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(
+                              context, const PrivacyPolicy());
+                        },
+                        title: 'Privacy Policy',
+                        imgUrl: AppIcons.privacyIcon,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      // ProfileWidget(
+                      //   onTap: () {},
+                      //   title: 'Settings',
+                      //   imgUrl: AppIcons.settingIcon,
+                      // ),
+                      // SizedBox(
+                      //   height: 9.h,
+                      // ),
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(context, const TermCond());
+                        },
+                        title: 'Terms and Conditions',
+                        imgUrl: AppIcons.termcondIcon,
+                      ),
+                      SizedBox(
+                        height: 28.11.h,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.r)),
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SizedBox(
+                                  height: 290.h,
+                                  width: double.infinity,
+                                  child: Column(
                                     children: [
-                                      TextSpan(
-                                        text: userController.saleSum.value.toString() ,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 18.sp,
-                                          color: blackTitleColor,
-                                          fontFamily:
-                                          'Lexend', // Optional if you're using a custom font
-                                        ),
+                                      SizedBox(
+                                        height: 8.h,
                                       ),
-                                      TextSpan(
-                                        text: ' Aed',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight
-                                              .w500, // Different style for 'Aed'
-                                          fontSize: 12.sp,
-                                          color: blackTitleColor,
-                                          fontFamily:
-                                          'Lexend', // Optional if you're using a custom font
-                                        ),
+                                      Container(
+                                        width: 48.w,
+                                        height: 5.h,
+                                        decoration: const BoxDecoration(
+                                            color: Color(0xffCDCFD0)),
+                                      ),
+                                      SizedBox(
+                                        height: 30.h,
+                                      ),
+                                      LexendCustomText(
+                                        text: 'Logout Account?',
+                                        textColor: const Color(0xff090A0A),
+                                        fontWeight: FontWeight.w700,
+                                        fontsize: 24.sp,
+                                      ),
+                                      SizedBox(
+                                        height: 8.h,
+                                      ),
+                                      LexendCustomText(
+                                        text:
+                                        'Are you sure want to logout this account?',
+                                        textColor: const Color(0xff090A0A),
+                                        fontWeight: FontWeight.w400,
+                                        fontsize: 16.sp,
+                                      ),
+                                      SizedBox(
+                                        height: 37.h,
+                                      ),
+                                      CustomButton(
+                                          text: 'Logout',
+                                          onPressed: () async {
+                                            await loginAuthController.logOut();
+                                          },
+                                          backgroundColor: const Color(
+                                              0xffE60000),
+                                          textColor: whiteColor),
+                                      SizedBox(
+                                        height: 22.h,
+                                      ),
+                                      LexendCustomText(
+                                        text: 'Cancel',
+                                        textColor: const Color(0xff202325),
+                                        fontWeight: FontWeight.w500,
+                                        fontsize: 16.sp,
                                       ),
                                     ],
                                   ),
-                                ),
-                                SizedBox(height: 5.h,),
-                                LexendCustomText(
-                                  text: 'Earned',
-                                  fontWeight: FontWeight.w400,
-                                  fontsize: 10.sp,
-                                  textColor: lightTitleColor,
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 24.h,
-                              width: 2.w,
-                              color: const Color(0xffE0E0E0),
-                            ),
-                            Column(
-                              children: [
-                                Obx(() {
-                                  return LexendCustomText(
-                                    text: userController.userPurchases.length
-                                        .toString(),
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 20.sp,
-                                    textColor: blackTitleColor,
-                                  );
-                                }),
-                                LexendCustomText(
-                                  text: 'Purchases',
-                                  fontWeight: FontWeight.w400,
-                                  fontsize: 10.sp,
-                                  textColor: lightTitleColor,
-                                ),
-                              ],
+                                );
+                              });
+                        },
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(AppIcons.logoutIcon, height: 50.h,
+                              width: 50.w,
+                              colorFilter: ColorFilter.mode(
+                                  primaryColor, BlendMode.srcIn),),
+                            Padding(
+                              padding: EdgeInsets.only(left: 26.sp),
+                              child: WorkSansCustomText(
+                                textColor: const Color(0xff040415),
+                                fontWeight: FontWeight.w700,
+                                fontsize: 16.sp,
+                                text: 'Log Out',
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ],
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProfileWidget(
-                    onTap: () {
-                      CustomRoute.navigateTo(context, const EditProfile());
-                    },
-                    title: 'Edit Profile',
-                    imgUrl: AppIcons.editprofileIcon,
                   ),
-                  SizedBox(
-                    height: 9.h,
-                  ),
-                  ProfileWidget(
-                    onTap: () {
-                      CustomRoute.navigateTo(context,  ReviewScreen());
-                    },
-                    title: 'Reviews',
-                    imgUrl: AppIcons.privacyIcon,
-                  ),
-                  SizedBox(
-                    height: 9.h,
-                  ),
-                  ProfileWidget(
-                    onTap: () {
-                      CustomRoute.navigateTo(context, const PrivacyPolicy());
-                    },
-                    title: 'Privacy Policy',
-                    imgUrl: AppIcons.privacyIcon,
-                  ),
-                  SizedBox(
-                    height: 9.h,
-                  ),
-                  // ProfileWidget(
-                  //   onTap: () {},
-                  //   title: 'Settings',
-                  //   imgUrl: AppIcons.settingIcon,
-                  // ),
-                  // SizedBox(
-                  //   height: 9.h,
-                  // ),
-                  ProfileWidget(
-                    onTap: () {
-                      CustomRoute.navigateTo(context, const TermCond());
-                    },
-                    title: 'Terms and Conditions',
-                    imgUrl: AppIcons.termcondIcon,
-                  ),
-                  SizedBox(
-                    height: 28.11.h,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.r)),
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SizedBox(
-                              height: 290.h,
-                              width: double.infinity,
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 8.h,
-                                  ),
-                                  Container(
-                                    width: 48.w,
-                                    height: 5.h,
-                                    decoration: const BoxDecoration(
-                                        color: Color(0xffCDCFD0)),
-                                  ),
-                                  SizedBox(
-                                    height: 30.h,
-                                  ),
-                                  LexendCustomText(
-                                    text: 'Logout Account?',
-                                    textColor: const Color(0xff090A0A),
-                                    fontWeight: FontWeight.w700,
-                                    fontsize: 24.sp,
-                                  ),
-                                  SizedBox(
-                                    height: 8.h,
-                                  ),
-                                  LexendCustomText(
-                                    text:
-                                        'Are you sure want to logout this account?',
-                                    textColor: const Color(0xff090A0A),
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 16.sp,
-                                  ),
-                                  SizedBox(
-                                    height: 37.h,
-                                  ),
-                                  CustomButton(
-                                      text: 'Logout',
-                                      onPressed: () async {
-                                        await loginAuthController.logOut();
-                                      },
-                                      backgroundColor: const Color(0xffE60000),
-                                      textColor: whiteColor),
-                                  SizedBox(
-                                    height: 22.h,
-                                  ),
-                                  LexendCustomText(
-                                    text: 'Cancel',
-                                    textColor: const Color(0xff202325),
-                                    fontWeight: FontWeight.w500,
-                                    fontsize: 16.sp,
-                                  ),
-                                ],
-                              ),
-                            );
-                          });
-                    },
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(AppIcons.logoutIcon, height: 50.h,
-                          width: 50.w,colorFilter: ColorFilter.mode(primaryColor, BlendMode.srcIn),),
-                        Padding(
-                          padding: EdgeInsets.only(left: 26.sp),
-                          child: WorkSansCustomText(
-                            textColor: const Color(0xff040415),
-                            fontWeight: FontWeight.w700,
-                            fontsize: 16.sp,
-                            text: 'Log Out',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 28.11.h,
-            ),
-          ],
-        )));
+                ),
+                SizedBox(
+                  height: 28.11.h,
+                ),
+              ],
+            )));
   }
 }

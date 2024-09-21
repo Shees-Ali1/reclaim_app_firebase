@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:reclaim_firebase_app/const/color.dart';
 
 import '../../../widgets/custom_text.dart';
  // for adaptive sizing, make sure to use the package
@@ -81,7 +82,7 @@ class ActionButtonsRow extends StatelessWidget {
           width: 100.w,
           height: 52.h,
           decoration: BoxDecoration(
-            color: Colors.green,
+            color:primaryColor,
             borderRadius: BorderRadius.circular(30.r),
           ),
           child: Center(

@@ -290,7 +290,7 @@ class ChatMessageContainer extends StatelessWidget {
                 curve: Curves.easeOut,
               );
             });
-            return ListView.builder(
+            return  ListView.builder(
               controller: scrollController,
               shrinkWrap: true,
               addAutomaticKeepAlives: true,
@@ -301,21 +301,17 @@ class ChatMessageContainer extends StatelessWidget {
                 final role = messages[index]['userId'];
                 var timestamp = messages[index]['timeStamp'] as Timestamp;
                 var messageTime = timestamp.toDate();
-                // var shouldShowTime = chatController.shouldShowTimestamp(
-                //     messageTime, lastShownTimestamp);
-                // if (shouldShowTime) {
-                //   lastShownTimestamp = messageTime;
-                // }
-                var formattedTime =
-                chatController.formatMessageTimestamp(timestamp);
+                var formattedTime = chatController.formatMessageTimestamp(timestamp);
+
+                // Check if the message field exists
+                final messageText = messages[index].data().containsKey('message')
+                    ? messages[index]['message']
+                    : ""; // Fallback text if the message doesn't exist
 
                 return Container(
-                  alignment: role == currentUser
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                  alignment: role == currentUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Column(
                     children: [
-                      // if (shouldShowTime)
                       Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: RobotoCustomText(
@@ -328,73 +324,64 @@ class ChatMessageContainer extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(7.0),
                         child: Row(
-                            mainAxisAlignment: role == currentUser
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  role == currentUser
-                                      ? const SizedBox.shrink()
-                                      : Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 10.sp,
-                                    ),
-                                    child: image != ''
-                                        ? Container(
-                                      height: 24.h,
-                                      width: 24.w,
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey,
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                              image: NetworkImage(
-                                                image,
-                                              ),
-                                              fit: BoxFit.cover)),
-                                    )
-                                        : const CircleAvatar(),
-                                  ),
-                                  Container(
-                                    margin: role == currentUser
-                                        ? EdgeInsets.symmetric(
-                                        horizontal: 14.sp)
-                                        : EdgeInsets.only(left: 5.sp),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 17.w, vertical: 4.h),
-                                    constraints: BoxConstraints(
-                                      maxWidth:
-                                      MediaQuery.of(context).size.width /
-                                          1.3,
-                                    ),
+                          mainAxisAlignment: role == currentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                role == currentUser
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                  padding: EdgeInsets.only(top: 10.sp),
+                                  child: image != ''
+                                      ? Container(
+                                    height: 24.h,
+                                    width: 24.w,
                                     decoration: BoxDecoration(
-                                        borderRadius:
-                                        BorderRadius.circular(10.r),
-                                        color: role == currentUser
-                                            ? primaryColor
-                                            : primaryColor.withOpacity(0.08)),
-                                    child: SelectableText(
-                                        messages[index]['message']!,
-                                        style: GoogleFonts.roboto(
-                                          textStyle: TextStyle(
-                                            color: role == currentUser
-                                                ? whiteColor
-                                                : Colors.black,
-                                            fontSize: 13.sp,
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        )),
+                                      color: Colors.grey,
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: NetworkImage(image),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  )
+                                      : const CircleAvatar(),
+                                ),
+                                Container(
+                                  margin: role == currentUser
+                                      ? EdgeInsets.symmetric(horizontal: 14.sp)
+                                      : EdgeInsets.only(left: 5.sp),
+                                  padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 4.h),
+                                  constraints: BoxConstraints(
+                                    maxWidth: MediaQuery.of(context).size.width / 1.3,
                                   ),
-                                ],
-                              ),
-                            ]),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    color: role == currentUser ? primaryColor : primaryColor.withOpacity(0.08),
+                                  ),
+                                  child: SelectableText(
+                                    messageText,
+                                    style: GoogleFonts.roboto(
+                                      textStyle: TextStyle(
+                                        color: role == currentUser ? whiteColor : Colors.black,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 );
               },
             );
+
           }
         });
   }

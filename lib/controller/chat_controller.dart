@@ -102,7 +102,7 @@ class ChatController extends GetxController {
 
 //   Create chat with seller when buy book
   Future<void> createChatConvo(String listingId, String orderId,
-      String productName, String sellerId,String productImage,int productPrice) async {
+      String productName, String sellerId,String productImage,int productPrice,String message) async {
     try {
       // On buyer side chat creation
 
@@ -150,7 +150,7 @@ class ChatController extends GetxController {
           .doc(orderId)
           .collection('messages')
           .add({
-        'message': "You Got the Order on ${productName}",
+        'message': message,
         'timeStamp': DateTime.now(),
         'userId': FirebaseAuth.instance.currentUser!.uid,
       });
@@ -162,7 +162,7 @@ class ChatController extends GetxController {
 
 
 
-RxString orderId =''.obs;
+RxBool isOrdered =false.obs;
   RxString sellerId = ''.obs;
   RxString buyerId = ''.obs;
   RxBool deliverystatus = false.obs;
@@ -175,16 +175,18 @@ RxString orderId =''.obs;
         .get();
     if(snapshot.docs.isNotEmpty){
       dynamic order =snapshot.docs.first;
-      orderId.value = order['orderId'];
+      isOrdered.value = order['isOrdered'];
       sellerId.value = order['sellerId'];
       buyerId.value = order['buyerId'];
       deliverystatus.value = order['deliveryStatus'];
-      print(orderId.value);
+      print(isOrdered.value);
       print(sellerId.value);
       print(buyerId.value);
       update();
     }else{
       deliverystatus.value =true;
+      isOrdered.value = false;
+
       print('There is no order');
     }
 

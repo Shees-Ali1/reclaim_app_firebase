@@ -1,16 +1,20 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../../../const/color.dart';
 import '../../../widgets/custom_text.dart';
 
-
 class OfferDialog extends StatelessWidget {
+  final String orderId;
   final int currentOffer;
   final Function(int) onOfferChanged;
 
-  OfferDialog({required this.currentOffer, required this.onOfferChanged});
+  OfferDialog(
+      {required this.currentOffer,
+      required this.onOfferChanged,
+      required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +82,18 @@ class OfferDialog extends StatelessWidget {
             SizedBox(height: 20),
             // Send Offer Button
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                await FirebaseFirestore.instance
+                    .collection('orders')
+                    .doc(orderId)
+                    .set({
+                  'offers': {
+                    'isAccepted': 'pending',
+                    'offerPrice': currentOffer,
+                  }
+                }, SetOptions(merge: true));
+
+                Get.snackbar('Success', 'Offer has been sent');
 
                 Navigator.of(context).pop(); // Close the dialog
                 // Handle send offer logic here

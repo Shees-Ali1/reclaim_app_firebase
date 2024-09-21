@@ -16,11 +16,11 @@ class BookDetailsScreen extends StatefulWidget {
   final dynamic bookDetail;
   final int index;
   final bool comingfromSellScreen;
-  const BookDetailsScreen(
-      {super.key,
-      required this.bookDetail,
-      required this.index,
-      required this.comingfromSellScreen});
+
+  const BookDetailsScreen({super.key,
+    required this.bookDetail,
+    required this.index,
+    required this.comingfromSellScreen});
 
   @override
   State<BookDetailsScreen> createState() => _BookDetailsScreenState();
@@ -28,7 +28,7 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   final ProductsListingController productsListingController =
-      Get.find<ProductsListingController>();
+  Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
   final ChatController chatController = Get.find<ChatController>();
@@ -37,15 +37,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   @override
   void initState() {
     // TODO: implement initState
-
     chatController.getorderId(widget.bookDetail['listingId']);
-    // bookListingController.checkUserBookOrder(widget.bookDetail['listingId'],widget.bookDetail['sellerId']);
+
     productsListingController.getSellerData(widget.bookDetail['sellerId']);
     super.initState();
-    // Timestamp timestamp = widget.bookDetail['bookPosted'];
-    // DateTime dateTime = timestamp.toDate();
-    // formattedDate = DateFormat('MMMM dd, yyyy').format(dateTime);
   }
+
   final List<String> items = [
     'Size UK 14',
     'Women',
@@ -104,7 +101,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ),
                           InterCustomText(
                             text:
-                                '${widget.bookDetail['productPrice']} Aed', // Product price
+                            '${widget.bookDetail['productPrice']} Aed',
+                            // Product price
                             textColor: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontsize: 18.sp,
@@ -134,33 +132,35 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 onTap: () {
                                   homeController.selectedSize.value = size;
                                 },
-                                child: Obx(() => Container(
+                                child: Obx(() =>
+                                    Container(
                                       // width: 76.w,
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 8.w, vertical: 6.h),
                                       decoration: BoxDecoration(
                                         borderRadius:
-                                            BorderRadius.circular(20.r),
+                                        BorderRadius.circular(20.r),
 
                                         color: size ==
-                                                homeController
-                                                    .selectedSize.value
+                                            homeController
+                                                .selectedSize.value
                                             ? primaryColor
                                             : primaryColor.withOpacity(
-                                                0.10), // Highlight background color for selected size
+                                            0.10), // Highlight background color for selected size
                                       ),
                                       child: Center(
                                         child: Column(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                           children: [
                                             MontserratCustomText(
                                               text: size,
                                               textColor: size ==
-                                                      homeController
-                                                          .selectedSize.value
+                                                  homeController
+                                                      .selectedSize.value
                                                   ? whiteColor
-                                                  : primaryColor, // Change as needed
+                                                  : primaryColor,
+                                              // Change as needed
                                               fontWeight: FontWeight.w500,
                                               fontsize: 10.sp,
                                             ),
@@ -193,74 +193,109 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 28.0),
               child: widget.bookDetail['sellerId'] ==
-                      FirebaseAuth.instance.currentUser!.uid
+                  FirebaseAuth.instance.currentUser!.uid
                   ? Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          productsListingController.removeListing(widget.bookDetail['listingId'], widget.bookDetail['sellerId'], widget.bookDetail['productName']);
-                        },
-                        child: Container(
-                          height: 58.h,
-                          width: 250.w,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(20.r)),
-                          child: MontserratCustomText(
-                            text: "Cancel This Listing",
-                            textColor: Colors.white,
-                            fontWeight: FontWeight.w400,
-                            fontsize: 16.sp,
-                          ),
-                        ),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 58.h,
-                          width: 155.w,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: Color(0xffFFB9B9),
-                              borderRadius: BorderRadius.circular(20.r)),
-                          child: MontserratCustomText(
-                            text: 'Make offer',
-                            textColor: primaryColor,
-                            fontWeight: FontWeight.w500,
-                            fontsize: 16.sp,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            productsListingController.buyProduct(
-                                widget.bookDetail['listingId'],
-                                widget.bookDetail['sellerId'],
-                                context,
-                                widget.bookDetail['productName'],
-                                widget.bookDetail['productPrice'],
-                                widget.bookDetail['productImage']);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            height: 58.h,
-                            width: 155.w,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(20.r)),
-                            child: MontserratCustomText(
-                              text: 'Purchase',
-                              textColor: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              fontsize: 16.sp,
-                            ),
-                          ),
-                        ),
-                      ],
+                child: GestureDetector(
+                  onTap: () {
+                    productsListingController.removeListing(
+                        widget.bookDetail['listingId'],
+                        widget.bookDetail['sellerId'],
+                        widget.bookDetail['productName']);
+                  },
+                  child: Container(
+                    height: 58.h,
+                    width: 250.w,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(20.r)),
+                    child: MontserratCustomText(
+                      text: "Cancel This Listing",
+                      textColor: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontsize: 16.sp,
                     ),
+                  ),
+                ),
+              )
+                  : chatController.isOrdered.value == true
+                  ? Obx(() {
+                return Center(
+                  child: Container(
+                    height: 58.h,
+                    width: 250.w,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(20.r)),
+                    child: MontserratCustomText(
+                      text: "Purchased", // Show purchased message
+                      textColor: Colors.white,
+                      fontWeight: FontWeight.w500,
+
+                      fontsize: 16.sp,
+                    ),
+                  ),
+                );
+              })
+                  : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      await productsListingController
+                          .createchatwithoutroffer(
+                          widget.bookDetail['listingId'],
+                          widget.bookDetail['sellerId'],
+                          context,
+                          widget.bookDetail['productName'],
+                          widget.bookDetail['productPrice'],
+                          widget.bookDetail['productImage']);
+                    },
+                    child: Container(
+                      height: 58.h,
+                      width: 155.w,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Color(0xffFFB9B9),
+                          borderRadius: BorderRadius.circular(20.r)),
+                      child: MontserratCustomText(
+                        text: 'Make offer',
+                        textColor: primaryColor,
+                        fontWeight: FontWeight.w500,
+                        fontsize: 16.sp,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      productsListingController.buyProduct(
+                          widget.bookDetail['listingId'],
+                          widget.bookDetail['sellerId'],
+                          context,
+                          widget.bookDetail['productName'],
+                          widget.bookDetail['productPrice'],
+                          widget.bookDetail['productImage']);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      height: 58.h,
+                      width: 155.w,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.circular(20.r)),
+                      child: MontserratCustomText(
+                        text: 'Purchase',
+                        textColor: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontsize: 16.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 10.h,

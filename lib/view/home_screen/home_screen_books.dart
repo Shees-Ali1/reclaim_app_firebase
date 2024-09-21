@@ -280,9 +280,6 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                     homeController.filterAppointments();
                     // homeController.update();
 
-
-
-
                     return Obx(() {
                       return GridView.builder(
                         physics: NeverScrollableScrollPhysics(),

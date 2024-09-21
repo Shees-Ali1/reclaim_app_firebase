@@ -295,9 +295,6 @@
 //   }
 // }
 
-
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -332,17 +329,17 @@ class ChatMessageList extends StatelessWidget {
           } else if (snapshot.data!.docs.isEmpty) {
             return Center(
                 child: Column(
-                  children: [
-                    SizedBox(
-                      height: 180.h,
-                    ),
-                    Text(
-                      "No Chats",
-                      style:
+              children: [
+                SizedBox(
+                  height: 180.h,
+                ),
+                Text(
+                  "No Chats",
+                  style:
                       TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ));
+                ),
+              ],
+            ));
           } else {
             return ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
@@ -370,9 +367,9 @@ class ChatMessageList extends StatelessWidget {
                               stream: FirebaseFirestore.instance
                                   .collection('userDetails')
                                   .doc(chat['sellerId'] ==
-                                  FirebaseAuth.instance.currentUser!.uid
-                                  ? chat['buyerId']
-                                  : chat['sellerId'])
+                                          FirebaseAuth.instance.currentUser!.uid
+                                      ? chat['buyerId']
+                                      : chat['sellerId'])
                                   .snapshots(),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
@@ -389,7 +386,7 @@ class ChatMessageList extends StatelessWidget {
                                           .doc(chat['chatId'])
                                           .collection('messages')
                                           .orderBy('timeStamp',
-                                          descending: true)
+                                              descending: true)
                                           .snapshots(),
                                       builder: (context, latestMsgSnapshot) {
                                         if (latestMsgSnapshot.connectionState ==
@@ -397,12 +394,13 @@ class ChatMessageList extends StatelessWidget {
                                           return ShimmerCovo();
                                         } else if (latestMsgSnapshot.hasError) {
                                           return ShimmerCovo();
-                                        } else {
+                                        }
+                                        else {
                                           dynamic latestMessage =
                                               latestMsgSnapshot.data!.docs;
                                           String formattedTime = chatController
                                               .formatTimestamp(latestMessage[0]
-                                          ['timeStamp']);
+                                                  ['timeStamp']);
 
                                           return ListTile(
                                             onTap: () {
@@ -410,28 +408,32 @@ class ChatMessageList extends StatelessWidget {
                                                   context,
                                                   ChatScreen(
                                                     image:
-                                                    chat['productImage'] ?? '',
+                                                        chat['productImage'] ??
+                                                            '',
                                                     chatName: chat['buyerId'] !=
-                                                        FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid
                                                         ? chat['productName']
                                                         : "You Bought ${chat['productName']}",
                                                     chatId: chat['chatId'],
                                                     sellerId: chat[
-                                                    'sellerId'] ==
-                                                        FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid
+                                                                'sellerId'] ==
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid
                                                         ? chat['buyerId']
                                                         : chat['sellerId'],
                                                     buyerId: chat['buyerId'],
                                                     seller: chat['sellerId'],
-                                                    productId: chat['productId'],
-                                                    productName: chat['productName'],
-                                                    productPrice: chat['productPrice'],
+                                                    productId:
+                                                        chat['productId'],
+                                                    productName:
+                                                        chat['productName'],
+                                                    productPrice:
+                                                        chat['productPrice'],
                                                   ));
                                               //    CustomRoute.navigateTo(context, ChatScreen(receiverUserID: chat['sellerId']));
                                             },
@@ -444,8 +446,8 @@ class ChatMessageList extends StatelessWidget {
                                                   shape: BoxShape.circle,
                                                   image: DecorationImage(
                                                       image: NetworkImage(
-                                                        chat['productImage'] ?? '',
-                                                      ))),
+                                                    chat['productImage'] ?? '',
+                                                  ))),
                                               // child: Padding(
                                               //   padding:
                                               //   const EdgeInsets.all(4.0),
@@ -460,20 +462,20 @@ class ChatMessageList extends StatelessWidget {
                                             ),
                                             title: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 SizedBox(
                                                   width: 200.w,
                                                   child: LexendCustomText(
                                                     maxLines: 1,
                                                     overflow:
-                                                    TextOverflow.ellipsis,
+                                                        TextOverflow.ellipsis,
                                                     text: chat['sellerId'] !=
-                                                        FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid
                                                         ? "You bought ${chat['productName']}"
                                                         : chat['productName'],
                                                     textColor: Colors.black,
@@ -490,7 +492,7 @@ class ChatMessageList extends StatelessWidget {
                                               ],
                                             ),
                                             subtitle: LexendCustomText(
-                                              text: latestMessage[0]['message'],
+                                              text: latestMessage[0]['message']?? '',
                                               textColor: Colors.black,
                                               fontWeight: FontWeight.w400,
                                               fontsize: 12.sp,
