@@ -6,9 +6,7 @@ import 'package:get/get.dart';
 import 'package:reclaim_firebase_app/helper/loading.dart';
 
 class HomeController extends GetxController {
-  var favoriteProducts = <String, bool>{}.obs;
-  var filterdProduct1 = <QueryDocumentSnapshot<Object?>> [].obs;
-  var filterdProduct2 = <QueryDocumentSnapshot<Object?>> [].obs;
+
   // var selectedindex = 0.obs;
   var favorites = <String>[].obs;
   RxString searchQuery = ''.obs;
@@ -110,26 +108,7 @@ class HomeController extends GetxController {
     return false;
   }
 
-  @override
-  void dispose() {
-    bookSearchController.dispose();
-    authorController.dispose();
-    super.dispose();
-  }
-  RxBool isLoading = false.obs;
-  RxList<Map<String, dynamic>> bookListing = <Map<String, dynamic>>[].obs;
 
-  void removeBookListing(int index, String listingId) async {
-    await FirebaseFirestore.instance
-        .collection('booksListing')
-        .doc(listingId)
-        .delete();
-    bookListing.removeAt(index);
-    bookListing.refresh();
-    update();
-    Get.back();
-    Get.snackbar('Success', "Listing Removed");
-  }
 
   RxInt selectedindex = 0.obs;
 
@@ -137,23 +116,7 @@ class HomeController extends GetxController {
 
 // ******************Search***********
 //   final TextEditingController bookSearchController = TextEditingController();
-  RxList<dynamic> filteredProducts = <dynamic>[].obs;
-  void filterBooks() {
-    List<dynamic> results = [];
-    if (bookSearchController.text.isEmpty) {
-      results = bookListing;
-    } else {
-      results = bookListing
-          .where((book) => book['productName']
-              .toLowerCase()
-              .contains(bookSearchController.text.toLowerCase()))
-          .toList();
-    }
-    // Update the list of filtered books
-    filteredProducts.value = results;
-  }
-  final TextEditingController bookfilterSearchController =
-  TextEditingController();
+
   // ******************Filters***********
   RxString selectedCondition ='All'.obs;
   RxDouble priceSliderValue = 0.0.obs;
@@ -170,11 +133,12 @@ class HomeController extends GetxController {
     // Remove all punctuation and spaces, and convert to lower case
     return str.replaceAll(RegExp(r'[\W_]+'), '').toLowerCase();
   }
-
+  var filterredProduct = <QueryDocumentSnapshot<Object?>> [].obs;
+  var mainProductlist = <QueryDocumentSnapshot<Object?>> [].obs;
   void filterAppointments() {
   int  priceSlider =homeController.priceSliderValue.value.toInt();
   print(priceSlider);
-    filterdProduct1.assignAll(filterdProduct2.where((product) {
+    filterredProduct.assignAll(mainProductlist.where((product) {
       final matchesCondition = selectedCondition.value == "All" || product['productCondition'] == selectedCondition.value;
       final matchesCategory = productsListingController.category.value == "All" || product['category'] == productsListingController.category.value;
       final matchesSizes = selectedSize.value == "All" || product['size'] == selectedSize.value;
@@ -184,7 +148,37 @@ class HomeController extends GetxController {
       return matchesCondition && matchesCategory && matchesSizes && matchesPrice ;
 
     }).toList());
+filterredProduct.refresh();    print(filterredProduct);
+  }
 
-    print(filterdProduct1);
+  void filterProductsByCategory(String categoryName) {
+    if (categoryName == 'All') {
+      // Show all products
+      homeController.filterredProduct.assignAll(homeController.mainProductlist);
+    } else {
+      // Filter products by category name
+      homeController.filterredProduct.assignAll(
+        homeController.mainProductlist.where((product) {
+          return product['category'] == categoryName; // Ensure this matches your product structure
+        }).toList(),
+      );
+    }
+
+    homeController.filterredProduct.refresh(); // Make sure to refresh the observable list
+    print(homeController.mainProductlist); // For debugging
+    print(homeController.filterredProduct); // For debugging
+  }
+
+  void searchProduct(String searchquery) {
+    filterredProduct.value =
+        mainProductlist.where((product) {
+          final productName =
+          product['productName'].toString().toLowerCase();
+          final query =
+          searchquery.toLowerCase();
+          return productName
+              .contains(query); // Filtering by search query
+        }).toList();
+    filterredProduct.refresh();
   }
 }

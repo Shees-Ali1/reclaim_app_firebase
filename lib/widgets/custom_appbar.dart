@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 import '../const/assets/image_assets.dart';
 import '../const/assets/svg_assets.dart';
 import '../const/color.dart';
@@ -249,7 +250,7 @@ class _CustomAppBarHomeState extends State<CustomAppBarHome> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
+print('appbar');
     return ClipPath(
       clipper: OvalBottomBorderClipper(),
       child: GestureDetector(
@@ -303,7 +304,8 @@ class _CustomAppBarHomeState extends State<CustomAppBarHome> {
                             width: 273.w,
                             child: Obx(() => TextField(
                               onChanged: (value) {
-                                widget.homeController.searchQuery.value = value;
+                                homeController.searchProduct(value);
+
 
                               },
                               controller: widget.homeController.bookSearchController,

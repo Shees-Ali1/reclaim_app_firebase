@@ -73,8 +73,21 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     //    walletController.fetchuserwallet();
   }
 
+  Future<List<Map<String, dynamic>>> fetchCategories() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('category').get();
+    return snapshot.docs
+        .map((doc) => {
+              'id': doc.id,
+              'name': doc['name'],
+            })
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('build');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBarHome(
@@ -196,40 +209,77 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
               SizedBox(
                 height: 20.h,
               ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: List.generate(
-                    catagory.length,
-                    (index) => GestureDetector(
-                      onTap: () {
-                        homeController.selectedindex.value = index;
-                      },
-                      child: Obx(() => Container(
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchCategories(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    // Show a loading indicator while waiting
+                    return CircularProgressIndicator(
+                      color: primaryColor,
+                    );
+                  } else if (snapshot.hasError) {
+                    // Handle the error
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    // Handle empty data
+                    return Text('No categories found');
+                  }
+
+                  // Use spread operator to insert 'All' category
+                  final category = [
+                    {'name': 'All'},  // 'All' category added
+                    ...snapshot.data!,
+                  ];
+
+                  return SizedBox(
+                    height: 50.h,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        itemCount:category.length ,
+                        itemBuilder:(context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            // String selectedCategoryName = category[index]['name'].toString();
+                            homeController.selectedindex.value = index;
+
+                              homeController.filterProductsByCategory(category[index]['name']);
+                      
+
+                          },
+                          child: Obx(() => Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 13.h, vertical: 11.w),
-                            // height: 44.h,
                             margin: EdgeInsets.symmetric(horizontal: 5.w),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20.r),
-                              color: homeController.selectedindex.value == index
+                              color: homeController.selectedindex.value ==
+                                  index
                                   ? primaryColor
                                   : primaryColor.withOpacity(0.10),
                             ),
                             child: Center(
-                                child: MontserratCustomText(
-                              text: catagory[index],
-                              textColor:
-                                  homeController.selectedindex.value == index
-                                      ? Colors.white
-                                      : primaryColor,
-                              fontWeight: FontWeight.w500,
-                              fontsize: 12.sp,
-                            )),
+                              child: MontserratCustomText(
+                                text: category[index]['name']
+                                    .toString(), // Change here based on your data structure
+                                textColor:
+                                homeController.selectedindex.value ==
+                                    index
+                                    ? Colors.white
+                                    : primaryColor,
+                                fontWeight: FontWeight.w500,
+                                fontsize: 12.sp,
+                              ),
+                            ),
                           )),
+                        );
+                      },),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
               SizedBox(
                 height: 20.h,
@@ -243,7 +293,8 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         color: primaryColor,
                       ),
                     );
-                  } else if (!snapshot.data!.docs.isNotEmpty) {
+                  }
+                  else if (!snapshot.data!.docs.isNotEmpty) {
                     return Column(
                       children: [
                         SizedBox(
@@ -259,32 +310,21 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         ),
                       ],
                     );
-                  } else {
+                  }
+                  else {
                     var products = snapshot.data!.docs;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      homeController.update();
-                      setState(() {});
-                    });
-                    // Step 1: Filter based on the search query
-                    homeController.filterdProduct2.value =
-                        products.where((product) {
-                      final productName =
-                          product['productName'].toString().toLowerCase();
-                      final query =
-                          homeController.searchQuery.value.toLowerCase();
-                      return productName
-                          .contains(query); // Filtering by search query
-                    }).toList();
+                    homeController.mainProductlist.assignAll(snapshot.data!.docs);
+                    homeController.filterredProduct.assignAll(snapshot.data!.docs);
 
-                    // Step 2: Apply other filters (condition, category, size, and price)
-                    homeController.filterAppointments();
-                    // homeController.update();
+                    print('beforeobxbuild');
 
                     return Obx(() {
+
+print('obxbuild');
                       return GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: homeController.filterdProduct1.length,
+                        itemCount: homeController.filterredProduct.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2, // Number of columns
                           crossAxisSpacing:
@@ -293,7 +333,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                           childAspectRatio: 0.75, // Aspect ratio of each item
                         ),
                         itemBuilder: (context, index) {
-                          var product = homeController.filterdProduct1[index];
+                          var product = homeController.filterredProduct[index];
                           return GestureDetector(
                             onTap: () {
                               Get.to(BookDetailsScreen(

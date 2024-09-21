@@ -10,6 +10,46 @@ import 'notification_controller.dart';
 class OrderController extends GetxController {
   final NotificationController notificationController =
       Get.put(NotificationController());
+
+  var orders = [].obs;
+  var productListing = {}.obs;
+  @override
+  void onInit() {
+    super.onInit();
+    fetchOrders();
+  }
+  Future<void> fetchOrders() async {
+
+    try {
+      String sellerId = FirebaseAuth.instance.currentUser!.uid; // replace with the actual seller ID
+
+      // Fetch orders where the sellerId matches the current seller
+      var orderSnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .where('sellerId', isEqualTo: sellerId)
+          .get();
+
+      orders.value = orderSnapshot.docs.map((doc) => doc.data()).toList();
+
+      // Fetch corresponding product listings for the fetched orders
+      for (var order in orders) {
+
+        var productId = order['productId'];
+        var productSnapshot = await FirebaseFirestore.instance
+            .collection('productsListing')
+            .doc(productId)
+            .get();
+
+        if (productSnapshot.exists) {
+          productListing[productId] = productSnapshot.data();
+        }
+      }
+    } catch (e) {
+      print("Error fetching orders: $e");
+    }
+  }
+
+
   RxBool orderStatus = false.obs;
   RxBool isLoading = false.obs;
   Future<void> checkOrderStatus(String orderId) async {

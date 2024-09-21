@@ -74,16 +74,13 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
                   homeController.selectedCondition.value = "All";
                   productsListingController.category.value = "All";
                   homeController.selectedSize.value = "All";
-                  homeController.sliderValue.value = 0.0;
-                  homeController.filterdProduct1.value = homeController.filterdProduct2.value;
-                  setState(() {
+                  homeController.sliderValue.value = 0.0;homeController.selectedindex.value =0;
+                  homeController.filterredProduct.assignAll(homeController.mainProductlist);
 
-                  });
+                  print(homeController.mainProductlist.value);
 
 
-                  homeController.update();
-                  Get.back();
-                  homeController.filterdProduct1.refresh();
+                   Get.back();
 
                 },
                 child: Container(
@@ -304,9 +301,9 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
               // homeController.applyFilters(homeController.authorController.text);
               homeController.filterAppointments();
 
-              setState(() {
-
-              });
+              // setState(() {
+              //
+              // });
               print('filterAppointments');
               Get.back();
             },
