@@ -434,6 +434,7 @@ class ChatMessageList extends StatelessWidget {
                                                         chat['productName'],
                                                     productPrice:
                                                         chat['productPrice'],
+                                                  brand: chat['brand'],
                                                   ));
                                               //    CustomRoute.navigateTo(context, ChatScreen(receiverUserID: chat['sellerId']));
                                             },

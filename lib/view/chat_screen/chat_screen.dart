@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 import '../../const/color.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/order_controller.dart';
@@ -21,6 +22,7 @@ class ChatScreen extends StatefulWidget {
   final String seller;
   final String productId;
   final String productName;
+  final String brand;
   final int productPrice;
   const ChatScreen({
     super.key,
@@ -33,6 +35,7 @@ class ChatScreen extends StatefulWidget {
     required this.productId,
     required this.productName,
     required this.productPrice,
+    required this.brand,
   });
 
   @override
@@ -139,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             InterCustomText(
-                              text: 'Mango',
+                              text: widget.brand,
                               textColor: Color(0xff9B9B9B),
                               fontWeight: FontWeight.w400,
                               fontsize: 11.sp,
@@ -159,34 +162,49 @@ class _ChatScreenState extends State<ChatScreen> {
                           ],
                         ),
                         Spacer(),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 5.w, vertical: 10.h),
-                          width: 55.w,
-                          // height: 49.h,
-                          decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(11.r)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              InterCustomText(
-                                text: 'Offer',
-                                textColor: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontsize: 11.sp,
-                              ),
-                              FittedBox(
-                                child: InterCustomText(
-                                  text: '20 Aed',
-                                  textColor: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontsize: 13.sp,
+                        StreamBuilder<DocumentSnapshot>(
+                          stream: orderStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              var orderData = snapshot.data!.data()
+                                  as Map<String, dynamic>?;
+                              var offerPrice =
+                                  orderData?['offers']?['offerPrice'] ?? 0;
+
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 5.w, vertical: 10.h),
+                                width: 55.w,
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(11.r),
                                 ),
-                              ),
-                            ],
-                          ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    InterCustomText(
+                                      text: 'Offer',
+                                      textColor: Colors.white,
+                                      fontWeight: FontWeight.w400,
+                                      fontsize: 11.sp,
+                                    ),
+                                    FittedBox(
+                                      child: InterCustomText(
+                                        text: offerPrice
+                                            .toString(), // Convert offerPrice to String
+                                        textColor: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontsize: 13.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return SizedBox(); // Add a fallback widget for when there's no data
+                            }
+                          },
                         )
                       ],
                     ),
@@ -213,154 +231,185 @@ class _ChatScreenState extends State<ChatScreen> {
                   dynamic order = ordersnapshot.data!.data();
                   bool isAccepted =
                       order?['offers']?['isAccepted'] == 'accepted';
-                  bool isOrdered =
-                      order?['isOrdered'];
+                  bool isOrdered = order?['isOrdered'] ?? false;
 
-                  return isOrdered == false ?Stack(
-                    children: [
-                      if (widget.seller !=
-                          FirebaseAuth.instance.currentUser!.uid)
-                        Positioned(
-                          bottom: 10.h,
-                          left: 0,
-                          right: 0,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 70.0.w),
-                            child: ElevatedButton(
-                                onPressed: () {
-                                  isAccepted
-                                      ? null
-                                      : showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            int currentOffer =
-                                                19; // Example starting value for the offer
-                                            return StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return OfferDialog(
-                                                  orderId: widget.chatId,
-                                                  currentOffer: currentOffer,
-                                                  onOfferChanged: (newOffer) {
-                                                    setState(() {
-                                                      currentOffer = newOffer;
-                                                    });
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          },
-                                        );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  maximumSize: Size(220.w, 80.h),
-                                  minimumSize: Size(120.w, 52.h),
-                                  backgroundColor: primaryColor,
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10.w, vertical: 10.h),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.r),
-                                  ),
-                                ),
-                                child: isAccepted
-                                    ? LexendCustomText(
-                                        text:
-                                            'Offer Accepted ${order['offers']['offerPrice'].toString()} Aed',
-                                        textColor: Colors.white,
-                                        fontWeight: FontWeight.w400,
-                                      )
-                                    : LexendCustomText(
-                                        text: "Make a new Offer",
-                                        textColor: Colors.white,
-                                        fontWeight: FontWeight.w400,
-                                      )),
-                          ),
-                        ),
-                      if (widget.seller ==
-                          FirebaseAuth.instance.currentUser!.uid)
-                        Positioned(
-                          bottom: 10.h,
-                          left: 0,
-                          right: 0,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 40.0.w),
-                            child: isAccepted
-                                ? Container(
-                                    margin:
-                                        EdgeInsets.symmetric(horizontal: 20.w),
-                                    width: 60,
-                                    height: 45,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20.r),
-                                      color: primaryColor,
-                                    ),
-                                    child: Center(
-                                      child: LexendCustomText(
-                                        text: "Offer accepted",
-                                        textColor: Colors.white,
-                                        fontWeight: FontWeight.w500,
+                  return isOrdered == false
+                      ? Stack(
+                          children: [
+                            if (widget.seller !=
+                                FirebaseAuth.instance.currentUser!.uid)
+                              Positioned(
+                                bottom: 10.h,
+                                left: 0,
+                                right: 0,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 70.0.w),
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        isAccepted
+                                            ? null
+                                            : showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  int currentOffer = widget
+                                                      .productPrice; // Example starting value for the offer
+                                                  return StatefulBuilder(
+                                                    builder:
+                                                        (context, setState) {
+                                                      return OfferDialog(
+                                                        orderId: widget.chatId,
+                                                        currentOffer:
+                                                            currentOffer,
+                                                        onOfferChanged:
+                                                            (newOffer) {
+                                                          setState(() {
+                                                            currentOffer =
+                                                                newOffer;
+                                                          });
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        maximumSize: Size(220.w, 80.h),
+                                        minimumSize: Size(120.w, 52.h),
+                                        backgroundColor: primaryColor,
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.w, vertical: 10.h),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.r),
+                                        ),
                                       ),
-                                    ))
-                                : ActionButtonsRow(
-                                    onAccept: () async {
-                                      try {
-                                        await FirebaseFirestore.instance
-                                            .collection('orders')
-                                            .doc(widget
-                                                .chatId) // Use the chatId to locate the specific order
-                                            .update({
-                                          'offers.isAccepted':
-                                              'accepted', // Update the offer's status to 'accepted'
-                                        });
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text('Offer accepted')),
-                                        );
-                                      } catch (error) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Error accepting offer: $error')),
-                                        );
-                                      }
-                                    },
-                                    onDecline: () async {
-                                      try {
-                                        await FirebaseFirestore.instance
-                                            .collection('orders')
-                                            .doc(widget
-                                                .chatId) // Use the chatId to locate the specific order
-                                            .update({
-                                          'offers.isAccepted':
-                                              'rejected', // Update the offer's status to 'rejected'
-                                        });
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text('Offer declined')),
-                                        );
-                                      } catch (error) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Error declining offer: $error')),
-                                        );
-                                      }
-                                    },
-                                    amount:
-                                        order != null && order['offers'] != null
-                                            ? order['offers']['offerPrice']
-                                                .toString()
-                                            : "0",
-                                    currency: 'Aed',
-                                  ),
-                          ),
-                        ),
-                    ],
-                  ):SizedBox.shrink();
+                                      child: isAccepted
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                productsListingController
+                                                    .buyProduct1(
+                                                        widget.productId,
+                                                        widget.seller,
+                                                        widget.brand,
+                                                        context,
+                                                        widget.productName,
+                                                        order['offers']
+                                                            ['offerPrice'],
+                                                        widget.image);
+                                              },
+                                              child: LexendCustomText(
+                                                text:
+                                                    'Offer Accepted ${order['offers']['offerPrice'].toString()} Aed\n        Purchase Now',
+                                                textColor: Colors.white,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            )
+                                          : LexendCustomText(
+                                              text: "Make a new Offer",
+                                              textColor: Colors.white,
+                                              fontWeight: FontWeight.w400,
+                                            )),
+                                ),
+                              ),
+                            if (widget.seller ==
+                                FirebaseAuth.instance.currentUser!.uid)
+                              Positioned(
+                                bottom: 10.h,
+                                left: 0,
+                                right: 0,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 40.0.w),
+                                  child: isAccepted
+                                      ? Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 20.w),
+                                          width: 60,
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20.r),
+                                            color: primaryColor,
+                                          ),
+                                          child: Center(
+                                            child: LexendCustomText(
+                                              text: "Offer accepted",
+                                              textColor: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ))
+                                      : ActionButtonsRow(
+                                          onAccept: () async {
+                                            try {
+                                              productsListingController
+                                                  .isLoading.value = true;
+                                              await FirebaseFirestore.instance
+                                                  .collection('orders')
+                                                  .doc(widget
+                                                      .chatId) // Use the chatId to locate the specific order
+                                                  .update({
+                                                'offers.isAccepted':
+                                                    'accepted', // Update the offer's status to 'accepted'
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content:
+                                                        Text('Offer accepted')),
+                                              );
+                                              productsListingController
+                                                  .isLoading.value = false;
+                                            } catch (error) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Error accepting offer: $error')),
+                                              );
+                                              productsListingController
+                                                  .isLoading.value = false;
+                                            }
+                                          },
+                                          onDecline: () async {
+                                            try {
+                                              await FirebaseFirestore.instance
+                                                  .collection('orders')
+                                                  .doc(widget
+                                                      .chatId) // Use the chatId to locate the specific order
+                                                  .update({
+                                                'offers.isAccepted':
+                                                    'rejected', // Update the offer's status to 'rejected'
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content:
+                                                        Text('Offer declined')),
+                                              );
+                                            } catch (error) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Error declining offer: $error')),
+                                              );
+                                            }
+                                          },
+                                          amount: order != null &&
+                                                  order['offers'] != null
+                                              ? order['offers']['offerPrice']
+                                                  .toString()
+                                              : "0",
+                                          currency: 'Aed',
+                                        ),
+                                ),
+                              ),
+                          ],
+                        )
+                      : SizedBox.shrink();
                 },
               ),
             ],

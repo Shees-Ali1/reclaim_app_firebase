@@ -1,17 +1,19 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:reclaim_firebase_app/const/color.dart';
 
+import '../../../helper/loading.dart';
 import '../../../widgets/custom_text.dart';
- // for adaptive sizing, make sure to use the package
+
+// for adaptive sizing, make sure to use the package
 // Import your custom text widget here if needed
 
 class ActionButtonsRow extends StatelessWidget {
   final VoidCallback onAccept;
   final VoidCallback onDecline;
-  final String amount;  // To pass the '19' dynamically
-  final String currency;  // To pass 'Aed' dynamically
+  final String amount; // To pass the '19' dynamically
+  final String currency; // To pass 'Aed' dynamically
 
   const ActionButtonsRow({
     Key? key,
@@ -27,25 +29,33 @@ class ActionButtonsRow extends StatelessWidget {
       // mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Accept button
-        Container(
-          width: 100.w,
-          height: 52.h,
-          decoration: BoxDecoration(
-            color: const Color(0xff24B26B),
-            borderRadius: BorderRadius.circular(30.r),
-          ),
-          child: Center(
-            child: GestureDetector(
-              onTap: onAccept,
-              child: MontserratCustomText(
-                textColor: Colors.white,
-                text: 'Accept',
-                fontWeight: FontWeight.w700,
-                fontsize: 14.sp,
+        Obx(() {
+          return Container(
+            width: 100.w,
+            height: 52.h,
+            decoration: BoxDecoration(
+              color: const Color(0xff24B26B),
+              borderRadius: BorderRadius.circular(30.r),
+            ),
+            child: Center(
+              child: GestureDetector(
+                onTap: onAccept,
+                child: productsListingController.isLoading.value ==
+                    true
+                    ? Center(
+                    child: CircularProgressIndicator(
+                      color: whiteColor,
+                    ))
+                    : MontserratCustomText(
+                  textColor: Colors.white,
+                  text: 'Accept',
+                  fontWeight: FontWeight.w700,
+                  fontsize: 14.sp,
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
         SizedBox(width: 8.w),
 
         // Amount display
@@ -82,7 +92,7 @@ class ActionButtonsRow extends StatelessWidget {
           width: 100.w,
           height: 52.h,
           decoration: BoxDecoration(
-            color:primaryColor,
+            color: primaryColor,
             borderRadius: BorderRadius.circular(30.r),
           ),
           child: Center(

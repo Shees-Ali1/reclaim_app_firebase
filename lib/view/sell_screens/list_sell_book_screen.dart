@@ -23,17 +23,16 @@ class ListSellBookScreen extends StatefulWidget {
   final String? listingId;
   final String? bookImage;
 
-  const ListSellBookScreen(
-      {super.key,
-      this.title,
-      this.bookPart,
-      this.author,
-      this.bookClass,
-      this.bookCondition,
-      this.bookPrice,
-      this.comingFromEdit,
-      this.listingId,
-      this.bookImage});
+  const ListSellBookScreen({super.key,
+    this.title,
+    this.bookPart,
+    this.author,
+    this.bookClass,
+    this.bookCondition,
+    this.bookPrice,
+    this.comingFromEdit,
+    this.listingId,
+    this.bookImage});
 
   @override
   State<ListSellBookScreen> createState() => _ListSellBookScreenState();
@@ -41,7 +40,7 @@ class ListSellBookScreen extends StatefulWidget {
 
 class _ListSellBookScreenState extends State<ListSellBookScreen> {
   final ProductsListingController productsListingController =
-      Get.find<ProductsListingController>();
+  Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
 
   @override
@@ -56,6 +55,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
 
     super.initState();
   }
+
   //
   // @override
   // void dispose() {
@@ -99,12 +99,12 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               GetBuilder<ProductsListingController>(
                   builder: (bookListingController) {
-                return bookListingController.imageFile == null
-                    ? GestureDetector(
-                        onTap: () {
-                          bookListingController.pickImage();
-                        },
-                        child: Container(
+                    return bookListingController.imageFile == null
+                        ? GestureDetector(
+                      onTap: () {
+                        bookListingController.pickImage();
+                      },
+                      child: Container(
                           width: 321.w,
                           height: 129.h,
                           alignment: Alignment.center,
@@ -113,32 +113,33 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                               border: Border.all(color: primaryColor),
                               color: primaryColor.withOpacity(0.08)),
                           child:
-                               SizedBox(
-                                  height: 65.h,
-                                  width: 68.w,
-                                  child: Image.asset(AppImages.pickImage,color: primaryColor,))
+                          SizedBox(
+                              height: 65.h,
+                              width: 68.w,
+                              child: Image.asset(
+                                AppImages.pickImage, color: primaryColor,))
 
-                        ),
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          bookListingController.pickImage();
-                        },
-                        child: Container(
-                          width: 321.w,
-                          height: 129.h,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: primaryColor),
-                              color: primaryColor.withOpacity(0.08),
-                              image: DecorationImage(
-                                  image: FileImage(
-                                      bookListingController.imageFile!),
-                                  fit: BoxFit.fill)),
-                        ),
-                      );
-              }),
+                      ),
+                    )
+                        : GestureDetector(
+                      onTap: () {
+                        bookListingController.pickImage();
+                      },
+                      child: Container(
+                        width: 321.w,
+                        height: 129.h,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.r),
+                            border: Border.all(color: primaryColor),
+                            color: primaryColor.withOpacity(0.08),
+                            image: DecorationImage(
+                                image: FileImage(
+                                    bookListingController.imageFile!),
+                                fit: BoxFit.fill)),
+                      ),
+                    );
+                  }),
               SizedBox(
                 height: 8.h,
               ),
@@ -346,7 +347,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       }).toList(),
                       onChanged: (String? newValue) {
                         // homeController.bookClass.value=newValue!;
-                        productsListingController.bookCondition.value = newValue!;
+                        productsListingController.bookCondition.value =
+                        newValue!;
                       },
                       hint: const SizedBox.shrink()),
                 );
@@ -385,34 +387,36 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
 
               GestureDetector(
-                onTap: () {
-                  widget.comingFromEdit == false
-                      ? productsListingController.addProductListing(context)
-                      : productsListingController.updateProductListing(
-                          context, widget.listingId.toString());
-                },
-                child: Container(
-                      height: 58.h,
-                      width: 322.w,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(20.r)),
-                      child:
-                      productsListingController.isLoading.value == false
-                          ?
-                      LexendCustomText(
-                              text: "Next",
-                              textColor: Colors.white,
-                              fontWeight: FontWeight.w400,
-                              fontsize: 18.sp,
-                            )
-                          : Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            )
-                  )
+                  onTap: () {
+                    widget.comingFromEdit == false
+                        ? productsListingController.addProductListing(context)
+                        : productsListingController.updateProductListing(
+                        context, widget.listingId.toString());
+                  },
+                  child: Obx(() {
+                    return Container(
+                        height: 58.h,
+                        width: 322.w,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(20.r)),
+                        child:
+                        productsListingController.isLoading.value == true
+                            ?  Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ):
+                        LexendCustomText(
+                          text: "Next",
+                          textColor: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontsize: 18.sp,
+                        )
+
+                    );
+                  })
 
               ),
               SizedBox(
@@ -430,12 +434,11 @@ class CustomSellTextField extends StatelessWidget {
   final TextInputType? keyboard;
   final Icon? suffixIcon;
 
-  const CustomSellTextField(
-      {super.key,
-      this.controller,
-      this.prefixIcon,
-      this.keyboard,
-      this.suffixIcon});
+  const CustomSellTextField({super.key,
+    this.controller,
+    this.prefixIcon,
+    this.keyboard,
+    this.suffixIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -459,17 +462,17 @@ class CustomSellTextField extends StatelessWidget {
               fillColor: primaryColor.withOpacity(0.08),
               filled: true,
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
               suffixIconColor: greenColor
-              // hintText: 'Search',
-              // hintStyle: GoogleFonts.inter(
-              //     textStyle: TextStyle(
-              //         color: Colors.white,
-              //         fontSize: 15.11.sp,
-              //         fontWeight: FontWeight.w500)),
-              ),
+            // hintText: 'Search',
+            // hintStyle: GoogleFonts.inter(
+            //     textStyle: TextStyle(
+            //         color: Colors.white,
+            //         fontSize: 15.11.sp,
+            //         fontWeight: FontWeight.w500)),
+          ),
         ),
       ),
     );

@@ -214,9 +214,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     // Show a loading indicator while waiting
-                    return CircularProgressIndicator(
-                      color: primaryColor,
-                    );
+                    return SizedBox.shrink();
                   } else if (snapshot.hasError) {
                     // Handle the error
                     return Text('Error: ${snapshot.error}');
@@ -227,7 +225,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
 
                   // Use spread operator to insert 'All' category
                   final category = [
-                    {'name': 'All'},  // 'All' category added
+                    {'name': 'All'}, // 'All' category added
                     ...snapshot.data!,
                   ];
 
@@ -239,44 +237,44 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         physics: NeverScrollableScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
-                        itemCount:category.length ,
-                        itemBuilder:(context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            // String selectedCategoryName = category[index]['name'].toString();
-                            homeController.selectedindex.value = index;
+                        itemCount: category.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // String selectedCategoryName = category[index]['name'].toString();
+                              homeController.selectedindex.value = index;
 
-                              homeController.filterProductsByCategory(category[index]['name']);
-                      
-
-                          },
-                          child: Obx(() => Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 13.h, vertical: 11.w),
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20.r),
-                              color: homeController.selectedindex.value ==
-                                  index
-                                  ? primaryColor
-                                  : primaryColor.withOpacity(0.10),
-                            ),
-                            child: Center(
-                              child: MontserratCustomText(
-                                text: category[index]['name']
-                                    .toString(), // Change here based on your data structure
-                                textColor:
-                                homeController.selectedindex.value ==
-                                    index
-                                    ? Colors.white
-                                    : primaryColor,
-                                fontWeight: FontWeight.w500,
-                                fontsize: 12.sp,
-                              ),
-                            ),
-                          )),
-                        );
-                      },),
+                              homeController.filterProductsByCategory(
+                                  category[index]['name']);
+                            },
+                            child: Obx(() => Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 13.h, vertical: 11.w),
+                                  margin: EdgeInsets.symmetric(horizontal: 5.w),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20.r),
+                                    color: homeController.selectedindex.value ==
+                                            index
+                                        ? primaryColor
+                                        : primaryColor.withOpacity(0.10),
+                                  ),
+                                  child: Center(
+                                    child: MontserratCustomText(
+                                      text: category[index]['name']
+                                          .toString(), // Change here based on your data structure
+                                      textColor:
+                                          homeController.selectedindex.value ==
+                                                  index
+                                              ? Colors.white
+                                              : primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontsize: 12.sp,
+                                    ),
+                                  ),
+                                )),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
@@ -293,8 +291,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         color: primaryColor,
                       ),
                     );
-                  }
-                  else if (!snapshot.data!.docs.isNotEmpty) {
+                  } else if (!snapshot.data!.docs.isNotEmpty) {
                     return Column(
                       children: [
                         SizedBox(
@@ -310,17 +307,17 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                         ),
                       ],
                     );
-                  }
-                  else {
+                  } else {
                     var products = snapshot.data!.docs;
-                    homeController.mainProductlist.assignAll(snapshot.data!.docs);
-                    homeController.filterredProduct.assignAll(snapshot.data!.docs);
+                    homeController.mainProductlist
+                        .assignAll(snapshot.data!.docs);
+                    homeController.filterredProduct
+                        .assignAll(snapshot.data!.docs);
 
                     print('beforeobxbuild');
 
                     return Obx(() {
-
-print('obxbuild');
+                      print('obxbuild');
                       return GridView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -381,7 +378,7 @@ Widget productCard(
     HomeController homeController) {
   return Card(
     color: primaryColor.withOpacity(0.08),
-    margin: EdgeInsets.symmetric(vertical: 10),
+    margin: EdgeInsets.symmetric(vertical: 8.h),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     elevation: 0,
     child: Column(

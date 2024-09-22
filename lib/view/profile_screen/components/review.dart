@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -194,4 +195,85 @@ class UserReviewsList extends StatelessWidget {
       },
     );
   }
+}
+void _showReplyDialog(BuildContext context, String productId, String reviewId) {
+  TextEditingController _replyController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Reply to Review'),
+        content: TextField(
+          controller: _replyController,
+          decoration: InputDecoration(hintText: 'Write your reply...'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Call the function to submit the reply
+              await submitReplyToReview(productId, reviewId, _replyController.text);
+              Navigator.of(context).pop();
+            },
+            child: Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> submitReplyToReview(String productId, String reviewId, String reply) async {
+  await FirebaseFirestore.instance
+      .collection('productReviews')
+      .doc(productId)
+      .collection('reviews')
+      .doc(reviewId)
+      .update({'reply': reply});
+}
+
+Widget reviewList(String productId) {
+  return StreamBuilder<List<Map<String, dynamic>>>(
+    stream: productsListingController.fetchProductReviews(productId),
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
+      if (!snapshot.hasData) {
+        return CircularProgressIndicator();
+      }
+      final reviews = snapshot.data!;
+
+      return ListView.builder(
+        itemCount: reviews.length,
+        itemBuilder: (context, index) {
+          final review = reviews[index];
+
+          return ListTile(
+            title: Text('Rating: ${review['rating']}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(review['reviewText']),
+                if (review['reply'] != null && review['reply'] != '')
+                  Text('Seller Reply: ${review['reply']}'),
+                TextButton(
+                  onPressed: () {
+                    _showReplyDialog(context, productId, review['reviewId']);
+                  },
+                  child: Text('Reply'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }

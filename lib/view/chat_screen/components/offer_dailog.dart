@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 
 import '../../../const/color.dart';
 import '../../../widgets/custom_text.dart';
@@ -11,10 +12,9 @@ class OfferDialog extends StatelessWidget {
   final int currentOffer;
   final Function(int) onOfferChanged;
 
-  OfferDialog(
-      {required this.currentOffer,
-      required this.onOfferChanged,
-      required this.orderId});
+  OfferDialog({required this.currentOffer,
+    required this.onOfferChanged,
+    required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -81,37 +81,55 @@ class OfferDialog extends StatelessWidget {
             ),
             SizedBox(height: 20),
             // Send Offer Button
-            ElevatedButton(
-              onPressed: () async {
-                await FirebaseFirestore.instance
-                    .collection('orders')
-                    .doc(orderId)
-                    .set({
-                  'offers': {
-                    'isAccepted': 'pending',
-                    'offerPrice': currentOffer,
+            Obx(() {
+              return ElevatedButton(
+                onPressed: () async {
+                  try {
+                    productsListingController.isLoading.value = true;
+                    await FirebaseFirestore.instance
+                        .collection('orders')
+                        .doc(orderId)
+                        .set({
+                      'offers': {
+                        'isAccepted': 'pending',
+                        'offerPrice': currentOffer,
+                      }
+                    }, SetOptions(merge: true));
+
+                    Get.snackbar('Success', 'Offer has been sent');
+
+                    Navigator.of(context).pop(); // Close the dialog
+                    productsListingController.isLoading.value = false;
+                  } catch (e) {
+
                   }
-                }, SetOptions(merge: true));
 
-                Get.snackbar('Success', 'Offer has been sent');
-
-                Navigator.of(context).pop(); // Close the dialog
-                // Handle send offer logic here
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.r),
+                  // Handle send offer logic here
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.r),
+                  ),
                 ),
-              ),
-              child: PoppinsCustomText(
-                fontWeight: FontWeight.w400,
-                text: "Send offer",
-                fontsize: 16.sp,
-                textColor: Colors.white,
-              ),
-            ),
+                child:
+                productsListingController.isLoading.value ==
+                    true
+                    ? Center(
+                    child: CircularProgressIndicator(
+                      color: whiteColor,
+
+                    ))
+                    :
+                PoppinsCustomText(
+                  fontWeight: FontWeight.w400,
+                  text: "Send offer",
+                  fontsize: 16.sp,
+                  textColor: Colors.white,
+                ),
+              );
+            }),
           ],
         ),
       ),

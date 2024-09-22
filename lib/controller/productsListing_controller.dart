@@ -395,6 +395,7 @@ class ProductsListingController extends GetxController {
   Future<void> buyProduct(
     String listingId,
     String sellerId,
+    String brand,
     BuildContext context,
     String productName,
     int purchasePrice,
@@ -402,18 +403,7 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
-      // Check if balance is zero
-
-      // int appFees = (purchasePrice * 0.2).round();
-      // int finalPrice = purchasePrice - appFees;
-      // DocumentReference docRef=   await FirebaseFirestore.instance.collection('booksListing').doc(listingId).collection('orders').add({
-      //   'bookId':listingId,
-      //   'buyerId':FirebaseAuth.instance.currentUser!.uid,
-      //   'orderDate':DateTime.now(),
-      //   'deliveryStatus':false
-      // });
       print("book bought111");
-
       DocumentReference docRef =
           await FirebaseFirestore.instance.collection('orders').add({
         // listing id is our book id
@@ -423,21 +413,19 @@ class ProductsListingController extends GetxController {
         'deliveryStatus': false,
         'isOrdered': true,
         'sellerId': sellerId,
+        'brand': brand,
         // 'buyerApproval': false,
         // 'sellerApproval': false,
         'buyingprice': purchasePrice,
         // 'appFees': appFees,
         // 'finalPrice': finalPrice,
       });
-      // await FirebaseFirestore.instance.collection('booksListing').doc(listingId).collection('orders').doc(docRef.id).set({
-      //   'orderId':docRef.id
-      // },SetOptions(merge: true)
-      // );
+
       await FirebaseFirestore.instance
           .collection('orders')
           .doc(docRef.id)
           .set({'orderId': docRef.id}, SetOptions(merge: true));
-      await wishlistController.updatebalance(purchasePrice);
+      // await wishlistController.updatebalance(purchasePrice);
       await FirebaseFirestore.instance
           .collection('userDetails')
           .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -448,10 +436,11 @@ class ProductsListingController extends GetxController {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const AlertDialog(
-              // title: Text('Hello!'),
-
-              content: BuyDialogBox());
+          return AlertDialog(
+              content: BuyDialogBox(
+            productId: listingId,
+            buyerId: FirebaseAuth.instance.currentUser!.uid,
+          ));
         },
       );
       await notificationController.sendFcmMessage(
@@ -460,18 +449,80 @@ class ProductsListingController extends GetxController {
       await notificationController.storeNotification(
           purchasePrice, docRef.id, listingId, productName, 'purchased');
 
-      await chatController.createChatConvo(listingId, docRef.id, productName,
-          sellerId, productImage, purchasePrice,'You got the order on $productName');
+      await chatController.createChatConvo(
+          listingId,
+          docRef.id,
+          productName,
+          sellerId,
+          productImage,
+          purchasePrice,
+          'You got the order on $productName',
+          brand);
       await chatController.getorderId(listingId);
-
-      // await checkUserBookOrder(listingId,sellerId);
 
       print("product bought");
       isLoading.value = false;
 
-      isLoading.value = false;
+      // isLoading.value = false;
     } catch (e) {
       print("error buying product $e");
+      isLoading.value = false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> buyProduct1(
+    String listingId,
+    String sellerId,
+    String brand,
+    BuildContext context,
+    String productName,
+    int purchasePrice,
+    String productImage,
+  ) async {
+    try {
+      isLoading.value = true;
+      print("Buying product...");
+
+      // Reference the existing order document by listingId
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('orders').doc(listingId);
+
+      // Merge changes to the existing order document
+      await docRef.set({
+        'deliveryStatus': true, // Updating delivery status to true
+        'isOrdered': true, // Updating to reflect the order has been placed
+      }, SetOptions(merge: true));
+
+      // Update the buyer's userDetails
+      await FirebaseFirestore.instance
+          .collection('userDetails')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({
+        'userPurchases': FieldValue.arrayUnion([listingId]),
+      }, SetOptions(merge: true));
+
+      // Send FCM notification to seller
+      await notificationController.sendFcmMessage(
+        'New message',
+        'Your product has been purchased',
+        sellerId,
+      );
+
+      // Store the notification in Firestore
+      await notificationController.storeNotification(
+        purchasePrice,
+        listingId,
+        listingId,
+        productName,
+        'purchased',
+      );
+
+      print("Product purchased successfully");
+      isLoading.value = false;
+    } catch (e) {
+      print("Error buying product: $e");
       isLoading.value = false;
     } finally {
       isLoading.value = false;
@@ -485,6 +536,7 @@ class ProductsListingController extends GetxController {
     String productName,
     int purchasePrice,
     String productImage,
+    String brand,
   ) async {
     try {
       isLoading.value = true;
@@ -495,12 +547,14 @@ class ProductsListingController extends GetxController {
           await FirebaseFirestore.instance.collection('orders').add({
         // listing id is our product id
         'productId': listingId,
+
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'orderDate': DateTime.now(),
         'deliveryStatus': false,
         'isOrdered': false,
         'sellerId': sellerId,
         'buyingprice': purchasePrice,
+        'brand': brand,
       });
 
       await FirebaseFirestore.instance
@@ -509,7 +563,7 @@ class ProductsListingController extends GetxController {
           .set({'orderId': docRef.id}, SetOptions(merge: true));
 
       await chatController.createChatConvo(listingId, docRef.id, productName,
-          sellerId, productImage, purchasePrice,"I want to make offer",);
+          sellerId, productImage, purchasePrice, "I want to make offer", brand);
       await chatController.getorderId(listingId);
 
       print("chat create");
@@ -584,4 +638,39 @@ class ProductsListingController extends GetxController {
       print("Error fetching seller data $e");
     }
   }
+  int rating = 0; // This will store the selected rating
+
+  // Function to update the rating when a star is tapped
+  void updateRating(int newRating) {
+    rating = newRating;
+    update(); // This will refresh the UI in GetBuilder
+  }
+
+  Future<void> submitReviewToFirestore(
+      String productId, int rating, String reviewText, String buyerId) async {
+    final reviewData = {
+      'buyerId': buyerId,
+      'rating': rating,
+      'reviewText': reviewText,
+      'timestamp': FieldValue.serverTimestamp(),
+      'reply': '', // Initially empty, seller can later reply
+    };
+
+    await FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(productId)
+        .collection('reviews')
+        .add(reviewData);
+  }
+  Stream<List<Map<String, dynamic>>> fetchProductReviews(String productId) {
+    return FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(productId)
+        .collection('reviews')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+  }
+
 }

@@ -85,8 +85,8 @@ class ChatController extends GetxController {
         String message = messageController.text;
         messageController.clear();
         print("MEssage sent");
-        // notificationController.sendFcmMessage(
-        //     "New Message", "${message}", sellerId);
+        notificationController.sendFcmMessage(
+            "New Message", "${message}", sellerId);
       }
     } catch (e) {
       print("Error sending message $e");
@@ -102,7 +102,7 @@ class ChatController extends GetxController {
 
 //   Create chat with seller when buy book
   Future<void> createChatConvo(String listingId, String orderId,
-      String productName, String sellerId,String productImage,int productPrice,String message) async {
+      String productName, String sellerId,String productImage,int productPrice,String message,String brand) async {
     try {
       // On buyer side chat creation
 
@@ -121,6 +121,7 @@ class ChatController extends GetxController {
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'person': 'buyer',
         'productImage':productImage,
+        'brand':brand,
         'productPrice':productPrice
       }, SetOptions(merge: true));
       print("chat created");
@@ -139,6 +140,8 @@ class ChatController extends GetxController {
         'productName': productName,
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'person': 'seller',
+        'brand':brand,
+
         'productImage':productImage,
         'productPrice':productPrice
 
