@@ -71,7 +71,10 @@ class _MyOrdersState extends State<MyOrders> {
                             height: 78.h,
                             width: 89.w,
                             child: product != null
-                                ? Image.network(product['productImage'],fit: BoxFit.cover,)
+                                ? Image.network(
+                                    product['productImage'],
+                                    fit: BoxFit.cover,
+                                  )
                                 : SizedBox.shrink(),
                           ),
                           SizedBox(width: 7.w),
@@ -151,6 +154,51 @@ class _MyOrdersState extends State<MyOrders> {
                             ),
                           ),
                         ],
+                      ),
+                      SizedBox(
+                        height: 5.h,
+                      ),
+                      Wrap(
+                        spacing: 3, // space between items
+                        runSpacing: 10, // space between rows
+                        children:
+                            [product['category'], product['size']].map((item) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Obx(() => Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8.w, vertical: 6.h),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20.r),
+                                      color: (item ==
+                                              homeController.selectedSize.value)
+                                          ? primaryColor
+                                          : primaryColor.withOpacity(
+                                              0.10), // Highlight background color for selected item
+                                    ),
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          MontserratCustomText(
+                                            text: item,
+                                            textColor: (item ==
+                                                    homeController
+                                                        .selectedSize.value)
+                                                ? whiteColor
+                                                : primaryColor,
+                                            fontWeight: FontWeight.w500,
+                                            fontsize: 10.sp,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),

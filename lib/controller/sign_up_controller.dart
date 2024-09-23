@@ -245,6 +245,8 @@ class SignUpController extends GetxController {
         'userPassword': passwordController.text,
         'userEmail': emailController.text,
         // 'userSchool': homeController.classOption.value,
+        'following':[],
+
         'userImage': '',
         // 'verified': false,
         'userPurchases': []

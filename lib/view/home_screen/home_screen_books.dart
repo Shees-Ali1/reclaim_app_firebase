@@ -201,51 +201,57 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                           final followingList =
                               List<String>.from(userDoc['following'] ?? []);
 
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: List.generate(
-                                followingList.length,
-                                (index) => Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.w),
-                                  child: SizedBox(
-                                    height: 60.h,
-                                    width: 60.w,
-                                    child: FutureBuilder<DocumentSnapshot>(
-                                      future: FirebaseFirestore.instance
-                                          .collection('userDetails')
-                                          .doc(followingList[index])
-                                          .get(),
-                                      builder: (context, followingSnapshot) {
-                                        if (followingSnapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return SizedBox.shrink();
+                          return followingList.isEmpty
+                              ? Center(child: Text('No Followings'))
+                              : SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: List.generate(
+                                      followingList.length,
+                                      (index) => Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w),
+                                        child: SizedBox(
+                                          height: 60.h,
+                                          width: 60.w,
+                                          child:
+                                              FutureBuilder<DocumentSnapshot>(
+                                            future: FirebaseFirestore.instance
+                                                .collection('userDetails')
+                                                .doc(followingList[index])
+                                                .get(),
+                                            builder:
+                                                (context, followingSnapshot) {
+                                              if (followingSnapshot
+                                                      .connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return SizedBox.shrink();
 // Show loading indicator
-                                        }
-                                        if (followingSnapshot.hasError) {
-                                          return Container(); // Handle error
-                                        }
+                                              }
+                                              if (followingSnapshot.hasError) {
+                                                return Container(); // Handle error
+                                              }
 
-                                        final followingUser =
-                                            followingSnapshot.data!;
-                                        return AspectRatio(
-                                          aspectRatio: 1,
-                                          child: ClipOval(
-                                            child: Image.network(
-                                              followingUser[
-                                                  'userImage'], // Use the user's image URL
-                                              fit: BoxFit.cover,
-                                            ),
+                                              final followingUser =
+                                                  followingSnapshot.data!;
+                                              return AspectRatio(
+                                                aspectRatio: 1,
+                                                child: ClipOval(
+                                                  child: Image.network(
+                                                    followingUser[
+                                                            'userImage'] ??
+                                                        '', // Use the user's image URL
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
-                                        );
-                                      },
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          );
+                                );
                         },
                       ),
                     ],

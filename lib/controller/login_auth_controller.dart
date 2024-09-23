@@ -229,6 +229,7 @@ class LoginAuthController extends GetxController {
           'userName': uName,
           // 'verified': false,
           'userPurchases':[],
+          'following':[],
           // 'userSchool':'Harker',
           "userPassword":''
           // 'pushToken': devicetoken,
