@@ -291,17 +291,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                       child: isAccepted
                                           ? GestureDetector(
                                               onTap: () {
-                                                productsListingController
-                                                    .buyProduct1(
-                                                        widget.productId,
-                                                        widget.seller,
-                                                        widget.brand,
-                                                        context,
-                                                        widget.productName,
-                                                        order['offers']
-                                                            ['offerPrice'],
-                                                        widget.image,
-                                                        order['orderId']);
+                                                if(productsListingController.isLoading.value == false){
+                                                  productsListingController
+                                                      .buyProduct1(
+                                                      widget.productId,
+                                                      widget.seller,
+                                                      widget.brand,
+                                                      context,
+                                                      widget.productName,
+                                                      order['offers']
+                                                      ['offerPrice'],
+                                                      widget.image,
+                                                      order['orderId']);
+                                                }
+
                                               },
                                               child: LexendCustomText(
                                                 text:

@@ -280,14 +280,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      await productsListingController.buyProduct(
-                          widget.bookDetail['listingId'],
-                          widget.bookDetail['sellerId'],
-                          widget.bookDetail['brand'],
-                          context,
-                          widget.bookDetail['productName'],
-                          widget.bookDetail['productPrice'],
-                          widget.bookDetail['productImage']);
+                      if(productsListingController.isLoading.value == false) {
+                        await productsListingController.buyProduct(
+                            widget.bookDetail['listingId'],
+                            widget.bookDetail['sellerId'],
+                            widget.bookDetail['brand'],
+                            context,
+                            widget.bookDetail['productName'],
+                            widget.bookDetail['productPrice'],
+                            widget.bookDetail['productImage']);
+                      }
+
                     },
                     child: Obx(() {
                       return Container(
