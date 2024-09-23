@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
+import 'package:reclaim_firebase_app/view/profile_screen/components/following.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../const/assets/image_assets.dart';
@@ -503,6 +504,19 @@ class _ProfileState extends State<Profile> {
                           CustomRoute.navigateTo(context, ReviewScreen());
                         },
                         title: 'Reviews',
+                        imgUrl: AppIcons.privacyIcon,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(context, FollowingPage());
+                        },
+                        title: 'Followings',
                         imgUrl: AppIcons.privacyIcon,
                       ),
                       SizedBox(

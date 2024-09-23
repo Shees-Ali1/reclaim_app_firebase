@@ -68,9 +68,10 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
         .collection('wishlist')
         .snapshots();
     // bookListingController.fetchUserBookListing();
-      userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
-      userController.checkIfAccountIsDeleted();
-      userController.getPurchasePrice();
+    userController
+        .checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
+    userController.checkIfAccountIsDeleted();
+    userController.getPurchasePrice();
 
     //    walletController.fetchuserwallet();
   }
@@ -170,39 +171,82 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                 // height: 1,
               ),
               Align(
-                alignment: Alignment.center,
+                alignment: Alignment.centerLeft,
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 8.h),
-
-                  // height: 1.h,
                   decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(8.r)),
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(
-                            5,
-                            (index) => Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              child: SizedBox(
-                                height: 60.h,
-                                // You can set your desired size here
-                                width: 60.w,
-                                // Same as height to maintain square shape
-                                child: AspectRatio(
-                                  aspectRatio: 1,
-                                  // This ensures the widget remains a square
-                                  child: Image.asset(AppImages.image2,
-                                      fit: BoxFit.cover),
+                      // Fetching the following users
+                      FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('userDetails')
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return SizedBox.shrink();
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+
+                          final userDoc = snapshot.data!;
+                          final followingList =
+                              List<String>.from(userDoc['following'] ?? []);
+
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: List.generate(
+                                followingList.length,
+                                (index) => Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.w),
+                                  child: SizedBox(
+                                    height: 60.h,
+                                    width: 60.w,
+                                    child: FutureBuilder<DocumentSnapshot>(
+                                      future: FirebaseFirestore.instance
+                                          .collection('userDetails')
+                                          .doc(followingList[index])
+                                          .get(),
+                                      builder: (context, followingSnapshot) {
+                                        if (followingSnapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return SizedBox.shrink();
+// Show loading indicator
+                                        }
+                                        if (followingSnapshot.hasError) {
+                                          return Container(); // Handle error
+                                        }
+
+                                        final followingUser =
+                                            followingSnapshot.data!;
+                                        return AspectRatio(
+                                          aspectRatio: 1,
+                                          child: ClipOval(
+                                            child: Image.network(
+                                              followingUser[
+                                                  'userImage'], // Use the user's image URL
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ],
                   ),
