@@ -187,38 +187,39 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               child: widget.bookDetail['sellerId'] ==
                   FirebaseAuth.instance.currentUser!.uid
                   ? GestureDetector(
-                    onTap: () {
-                      productsListingController.removeListing(
-                          widget.bookDetail['listingId'],
-                          widget.bookDetail['sellerId'],
-                          widget.bookDetail['productName']);
-                    },
-                    child: Obx(() {
-                      return Center(
-                        child: Container(
-                          height: 58.h,
-                          width: 250.w,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(20.r)),
-                          child: productsListingController.isLoading.value ==
-                              true
-                              ? Center(
-                              child: CircularProgressIndicator(
-                                color: whiteColor,
-                              ))
-                              : MontserratCustomText(
-                            text: "Cancel This Listing",
-                            textColor: Colors.white,
-                            fontWeight: FontWeight.w400,
-                            fontsize: 16.sp,
-                          ),
-                        ),
-                      );
-                    }),
-                  )
-                  : chatController.isOrdered.value == true
+                onTap: () {
+                  productsListingController.removeListing(
+                      widget.bookDetail['listingId'],
+                      widget.bookDetail['sellerId'],
+                      widget.bookDetail['productName']);
+                },
+                child: Obx(() {
+                  return Center(
+                    child: Container(
+                      height: 58.h,
+                      width: 250.w,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.circular(20.r)),
+                      child: productsListingController.isLoading.value ==
+                          true
+                          ? Center(
+                          child: CircularProgressIndicator(
+                            color: whiteColor,
+                          ))
+                          : MontserratCustomText(
+                        text: "Cancel This Listing",
+                        textColor: Colors.white,
+                        fontWeight: FontWeight.w400,
+                        fontsize: 16.sp,
+                      ),
+                    ),
+                  );
+                }),
+              )
+                  : userController.userPurchases
+                  .contains(widget.bookDetail['listingId'])
                   ? Center(
                 child: Container(
                   height: 58.h,
@@ -244,47 +245,45 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     onTap: () async {
                       await productsListingController
                           .createchatwithoutroffer(
-                          widget.bookDetail['listingId'],
-                          widget.bookDetail['sellerId'],
-                          context,
-                          widget.bookDetail['productName'],
-                          widget.bookDetail['productPrice'],
-                          widget.bookDetail['productImage'],
+                        widget.bookDetail['listingId'],
+                        widget.bookDetail['sellerId'],
+                        context,
+                        widget.bookDetail['productName'],
+                        widget.bookDetail['productPrice'],
+                        widget.bookDetail['productImage'],
                         widget.bookDetail['brand'],
-
                       );
                     },
-                    child: Container(
-                      height: 58.h,
-                      width: 155.w,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: Color(0xffFFB9B9),
-                          borderRadius: BorderRadius.circular(20.r)),
-                      child:
-                      productsListingController.isLoading.value ==
-                          true
-                          ? Center(
-                          child: CircularProgressIndicator(
-                            color: whiteColor,
-                          ))
-                          :
-                      MontserratCustomText(
-                        text: 'Make offer',
-                        textColor: primaryColor,
-                        fontWeight: FontWeight.w500,
-                        fontsize: 16.sp,
-                      ),
-                    ),
+                    child: Obx(() {
+                      return Container(
+                        height: 58.h,
+                        width: 155.w,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            color: Color(0xffFFB9B9),
+                            borderRadius: BorderRadius.circular(20.r)),
+                        child:
+                        productsListingController.offerLoadind.value ==
+                            true
+                            ? Center(
+                            child: CircularProgressIndicator(
+                              color: whiteColor,
+                            ))
+                            : MontserratCustomText(
+                          text: 'Make offer',
+                          textColor: primaryColor,
+                          fontWeight: FontWeight.w500,
+                          fontsize: 16.sp,
+                        ),
+                      );
+                    }),
                   ),
                   GestureDetector(
                     onTap: () async {
-                   await   productsListingController.buyProduct(
-
+                      await productsListingController.buyProduct(
                           widget.bookDetail['listingId'],
                           widget.bookDetail['sellerId'],
                           widget.bookDetail['brand'],
-
                           context,
                           widget.bookDetail['productName'],
                           widget.bookDetail['productPrice'],
@@ -298,9 +297,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                             color: primaryColor,
-                            borderRadius: BorderRadius.circular(20.r)),
-                        child:
-                        productsListingController.isLoading.value ==
+                            borderRadius:
+                            BorderRadius.circular(20.r)),
+                        child: productsListingController
+                            .isLoading.value ==
                             true
                             ? Center(
                             child: CircularProgressIndicator(

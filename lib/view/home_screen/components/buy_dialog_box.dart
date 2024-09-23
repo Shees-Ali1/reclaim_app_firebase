@@ -16,9 +16,9 @@ import '../../chat_screen/main_chat.dart';
 import '../../nav_bar/app_nav_bar.dart';
 
 class BuyDialogBox extends StatefulWidget {
-  final String productId;
+  final String sellerId;
   final String buyerId;
-  const BuyDialogBox({super.key, required this.productId, required this.buyerId});
+  const BuyDialogBox({super.key, required this.sellerId, required this.buyerId});
 
   @override
   State<BuyDialogBox> createState() => _BuyDialogBoxState();
@@ -142,7 +142,7 @@ class _BuyDialogBoxState extends State<BuyDialogBox> {
                               onPressed: () async {
                                 // Submit the review with the current rating and review text
                                 await Get.find<ProductsListingController>().submitReviewToFirestore(
-                                    widget.productId,
+                                    widget.sellerId,
                                     Get.find<ProductsListingController>().rating,
                                     _reviewController.text,
                                     widget.buyerId

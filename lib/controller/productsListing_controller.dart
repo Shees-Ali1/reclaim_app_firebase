@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
 import '../const/color.dart';
+import '../view/chat_screen/chat_screen.dart';
 import '../view/home_screen/components/buy_dialog_box.dart';
 import '../view/sell_screens/approval_sell_screen.dart';
 import '../widgets/custom_route.dart';
@@ -238,6 +239,7 @@ class ProductsListingController extends GetxController {
           'brand': brandController.text,
           'category': category.value,
           'size': size.value,
+          // 'sold': false,
           // 'bookClass': classNameController.text,
           'productCondition': bookCondition.value,
           'productPrice': int.tryParse(priceController.text) ?? 0,
@@ -392,6 +394,7 @@ class ProductsListingController extends GetxController {
 
 // **************buy book**********
   RxBool isLoading = false.obs;
+  RxBool offerLoadind = false.obs;
   Future<void> buyProduct(
     String listingId,
     String sellerId,
@@ -403,6 +406,7 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
+
       print("book bought111");
       DocumentReference docRef =
           await FirebaseFirestore.instance.collection('orders').add({
@@ -412,6 +416,7 @@ class ProductsListingController extends GetxController {
         'orderDate': DateTime.now(),
         'deliveryStatus': false,
         'isOrdered': true,
+
         'sellerId': sellerId,
         'brand': brand,
         // 'buyerApproval': false,
@@ -438,7 +443,7 @@ class ProductsListingController extends GetxController {
         builder: (BuildContext context) {
           return AlertDialog(
               content: BuyDialogBox(
-            productId: listingId,
+            sellerId: sellerId,
             buyerId: FirebaseAuth.instance.currentUser!.uid,
           ));
         },
@@ -473,21 +478,21 @@ class ProductsListingController extends GetxController {
   }
 
   Future<void> buyProduct1(
-    String listingId,
-    String sellerId,
-    String brand,
-    BuildContext context,
-    String productName,
-    int purchasePrice,
-    String productImage,
-  ) async {
+      String listingId,
+      String sellerId,
+      String brand,
+      BuildContext context,
+      String productName,
+      int purchasePrice,
+      String productImage,
+      String orderId) async {
     try {
       isLoading.value = true;
       print("Buying product...");
 
       // Reference the existing order document by listingId
       DocumentReference docRef =
-          FirebaseFirestore.instance.collection('orders').doc(listingId);
+          FirebaseFirestore.instance.collection('orders').doc(orderId);
 
       // Merge changes to the existing order document
       await docRef.set({
@@ -502,7 +507,16 @@ class ProductsListingController extends GetxController {
           .set({
         'userPurchases': FieldValue.arrayUnion([listingId]),
       }, SetOptions(merge: true));
-
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              content: BuyDialogBox(
+            sellerId: sellerId,
+            buyerId: FirebaseAuth.instance.currentUser!.uid,
+          ));
+        },
+      );
       // Send FCM notification to seller
       await notificationController.sendFcmMessage(
         'New message',
@@ -539,42 +553,67 @@ class ProductsListingController extends GetxController {
     String brand,
   ) async {
     try {
-      isLoading.value = true;
-
-      print("chat create1");
-
-      DocumentReference docRef =
-          await FirebaseFirestore.instance.collection('orders').add({
-        // listing id is our product id
-        'productId': listingId,
-
-        'buyerId': FirebaseAuth.instance.currentUser!.uid,
-        'orderDate': DateTime.now(),
-        'deliveryStatus': false,
-        'isOrdered': false,
-        'sellerId': sellerId,
-        'buyingprice': purchasePrice,
-        'brand': brand,
-      });
-
-      await FirebaseFirestore.instance
+      offerLoadind.value = true;
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('orders')
-          .doc(docRef.id)
-          .set({'orderId': docRef.id}, SetOptions(merge: true));
+          .where(
+            'buyerId',
+            isEqualTo: FirebaseAuth.instance.currentUser!.uid,
+          )
+          .where('productId', isEqualTo: listingId)
+          .get();
+      print("chat create1");
+      if (querySnapshot.docs.first.exists) {
+        Get.to(
+          ChatScreen(
+            sellerId: sellerId == FirebaseAuth.instance.currentUser!.uid
+                ? querySnapshot.docs.first['buyerId']
+                : sellerId,
+            buyerId: FirebaseAuth.instance.currentUser!.uid,
+            productName: productName,
+            brand: brand,
+            image:productImage,
+            chatName:'Make Offer $productName',
+            chatId: querySnapshot.docs.first.id,
+            seller: sellerId,
+            productId: listingId,
+            productPrice: purchasePrice,
+          ),
+        );
+      }else{
+        DocumentReference docRef =
+        await FirebaseFirestore.instance.collection('orders').add({
+          // listing id is our product id
+          'productId': listingId,
 
-      await chatController.createChatConvo(listingId, docRef.id, productName,
-          sellerId, productImage, purchasePrice, "I want to make offer", brand);
-      await chatController.getorderId(listingId);
+          'buyerId': FirebaseAuth.instance.currentUser!.uid,
+          'orderDate': DateTime.now(),
+          'deliveryStatus': false,
+          'isOrdered': false,
+          'sellerId': sellerId,
+          'buyingprice': purchasePrice,
+          'brand': brand,
+        });
 
-      print("chat create");
-      isLoading.value = false;
+        await FirebaseFirestore.instance
+            .collection('orders')
+            .doc(docRef.id)
+            .set({'orderId': docRef.id}, SetOptions(merge: true));
 
-      isLoading.value = false;
+        await chatController.createChatConvo(listingId, docRef.id, productName,
+            sellerId, productImage, purchasePrice, "I want to make offer", brand);
+        await chatController.getorderId(listingId);
+
+        print("chat create");
+        Get.snackbar('Success', 'Chat Created');
+      }
+
+      offerLoadind.value = false;
     } catch (e) {
       print("error chat create$e");
-      isLoading.value = false;
+      offerLoadind.value = false;
     } finally {
-      isLoading.value = false;
+      offerLoadind.value = false;
     }
   }
 
@@ -638,6 +677,7 @@ class ProductsListingController extends GetxController {
       print("Error fetching seller data $e");
     }
   }
+
   int rating = 0; // This will store the selected rating
 
   // Function to update the rating when a star is tapped
@@ -647,30 +687,95 @@ class ProductsListingController extends GetxController {
   }
 
   Future<void> submitReviewToFirestore(
-      String productId, int rating, String reviewText, String buyerId) async {
+      String sellerId, int rating, String reviewText, String buyerId) async {
+    // Create a reference to the new review document without adding data yet
+    final docRef = FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(sellerId)
+        .collection('reviews')
+        .doc();
+
+    // Create review data with the generated reviewId
     final reviewData = {
       'buyerId': buyerId,
       'rating': rating,
       'reviewText': reviewText,
       'timestamp': FieldValue.serverTimestamp(),
-      'reply': '', // Initially empty, seller can later reply
+      'reply': '',
+      'likeCount': 0,
+      'likedBy': [],
+      'reviewId': docRef.id, // Use the generated document ID as the reviewId
     };
 
-    await FirebaseFirestore.instance
-        .collection('productReviews')
-        .doc(productId)
-        .collection('reviews')
-        .add(reviewData);
-  }
-  Stream<List<Map<String, dynamic>>> fetchProductReviews(String productId) {
-    return FirebaseFirestore.instance
-        .collection('productReviews')
-        .doc(productId)
-        .collection('reviews')
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) =>
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+    // Add the review data to Firestore
+    await docRef.set(reviewData);
   }
 
+  Future<void> likeReview(String sellerId, String reviewId) async {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(sellerId)
+        .collection('reviews')
+        .doc(reviewId)
+        .set({
+      'likedBy': FieldValue.arrayUnion([currentUserId]),
+      'likeCount': FieldValue.increment(1), // Increment like count
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> unlikeReview(String sellerId, String reviewId) async {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Update the review document to remove the user from likedBy and decrement the like count
+    await FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(sellerId)
+        .collection('reviews')
+        .doc(reviewId)
+        .set({
+      'likedBy': FieldValue.arrayRemove([currentUserId]),
+      'likeCount': FieldValue.increment(-1), // Decrement like count
+    }, SetOptions(merge: true));
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchProductReviews() async* {
+    // Fetch reviews for the current user
+    var reviewsSnapshot = FirebaseFirestore.instance
+        .collection('productReviews')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('reviews')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+
+    await for (var snapshot in reviewsSnapshot) {
+      List<Map<String, dynamic>> enrichedReviews = [];
+
+      for (var doc in snapshot.docs) {
+        var review = doc.data();
+        var buyerId = review['buyerId'];
+
+        // Fetch buyer's name and image based on buyerId
+        var buyerDoc = await FirebaseFirestore.instance
+            .collection(
+                'userDetails') // Assuming the users are stored in 'users' collection
+            .doc(buyerId)
+            .get();
+
+        var buyerData = buyerDoc.data();
+
+        if (buyerData != null) {
+          review['buyerName'] =
+              buyerData['userName'] ?? 'Unknown'; // Ensure fallback
+          review['buyerImage'] = buyerData['userImage'] ??
+              'https://via.placeholder.com/150'; // Default image
+        }
+
+        enrichedReviews.add(review);
+      }
+
+      // Yield the updated list with buyer details
+      yield enrichedReviews;
+    }
+  }
 }

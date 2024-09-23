@@ -171,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               var offerPrice =
                                   orderData?['offers']?['offerPrice'] ?? 0;
 
-                              return Container(
+                              return  Container(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 5.w, vertical: 10.h),
                                 width: 55.w,
@@ -179,7 +179,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                   color: primaryColor,
                                   borderRadius: BorderRadius.circular(11.r),
                                 ),
-                                child: Column(
+                                child:
+
+                                Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -298,7 +300,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         widget.productName,
                                                         order['offers']
                                                             ['offerPrice'],
-                                                        widget.image);
+                                                        widget.image,
+                                                        order['orderId']);
                                               },
                                               child: LexendCustomText(
                                                 text:
@@ -414,65 +417,95 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ],
           )),
-          Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(29.5.r),
-                  ),
-                  width: 293.w,
-                  height: 54.h,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 4.w,
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: messageController,
-                          decoration: InputDecoration(
-                            contentPadding:
-                                EdgeInsets.only(left: 10.w, bottom: 5.h),
-                            hintText: 'Type your message',
-                            hintStyle: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w400,
+          StreamBuilder<DocumentSnapshot>(
+              stream: orderStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox.shrink();
+                } else if (snapshot.hasError || !snapshot.hasData) {
+                  return SizedBox.shrink();
+                } else if (!snapshot.data!.exists) {
+                  return SizedBox.shrink();
+                 } else{
+                  dynamic orderdata = snapshot.data!.data();
+                  if(orderdata['deliveryStatus'] == false){
+                    return Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(29.5.r),
                             ),
-                            border: InputBorder.none,
+                            width: 293.w,
+                            height: 54.h,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 4.w,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    controller: messageController,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                      EdgeInsets.only(left: 10.w, bottom: 5.h),
+                                      hintText: 'Type your message',
+                                      hintStyle: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 8.w,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    chatController.sendmessage(
-                        messageController, widget.chatId, widget.sellerId);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: primaryColor,
-                    ),
-                    height: 53.h,
-                    width: 53.w,
-                    child: Center(
-                      child: Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
+                          SizedBox(
+                            width: 8.w,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              chatController.sendmessage(messageController,
+                                  widget.chatId, widget.sellerId);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: primaryColor,
+                              ),
+                              height: 53.h,
+                              width: 53.w,
+                              child: Center(
+                                child: Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]);
+                  }else{
+                 return   Container(
+                        height: 30.h,
+                        width: 310.w,
+                        decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(12.r)),
+                        child: Center(
+                            child: LexendCustomText(
+                              text: 'You can\'t send messages to this group',
+                              textColor: whiteColor,
+                              fontWeight: FontWeight.w400,
+                            )));
+                  }
+
+                }
+
+              }),
           SizedBox(
             height: 19.h,
           ),

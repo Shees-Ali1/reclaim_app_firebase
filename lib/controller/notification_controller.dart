@@ -21,7 +21,7 @@ class NotificationController extends GetxController {
       'time': DateTime.timestamp(),
       'price': price,
       'orderId': orderId,
-      'bookId': productId,
+      'productId': productId,
       'notificationType':notificationType
     });
     await FirebaseFirestore.instance

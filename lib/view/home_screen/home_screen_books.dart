@@ -68,8 +68,10 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
         .collection('wishlist')
         .snapshots();
     // bookListingController.fetchUserBookListing();
-    //  userController.approveProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
-    //    userController.checkIfAccountIsDeleted();
+      userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
+      userController.checkIfAccountIsDeleted();
+      userController.getPurchasePrice();
+
     //    walletController.fetchuserwallet();
   }
 

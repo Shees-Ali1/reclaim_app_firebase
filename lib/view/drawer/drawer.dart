@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/view/wishlist/wishlist.dart';
 
 import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
@@ -81,7 +82,7 @@ class MyDrawer extends StatelessWidget {
               text: 'Favourites',
               image: AppIcons.favourite,
               onTap: () {
-                // CustomRoute.navigateTo(context, const Wallet());
+               CustomRoute.navigateTo(context, const Wishlist());
               },
             ),
             DrawerItemsWidget(
