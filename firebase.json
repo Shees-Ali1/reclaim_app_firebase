@@ -1,1 +1,38 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"reclaimapp-fc1b9","appId":"1:283889365166:android:63456322de87163f8b3d3f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"reclaimapp-fc1b9","configurations":{"android":"1:283889365166:android:63456322de87163f8b3d3f","ios":"1:283889365166:ios:343c487c081db7518b3d3f","macos":"1:283889365166:ios:343c487c081db7518b3d3f","web":"1:283889365166:web:a50c4e7f468b15ce8b3d3f","windows":"1:283889365166:web:a01ecae0d14c207b8b3d3f"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "reclaimapp-fc1b9",
+          "appId": "1:283889365166:android:63456322de87163f8b3d3f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "reclaimapp-fc1b9",
+          "configurations": {
+            "android": "1:283889365166:android:63456322de87163f8b3d3f",
+            "ios": "1:283889365166:ios:343c487c081db7518b3d3f",
+            "macos": "1:283889365166:ios:343c487c081db7518b3d3f",
+            "web": "1:283889365166:web:a50c4e7f468b15ce8b3d3f",
+            "windows": "1:283889365166:web:a01ecae0d14c207b8b3d3f"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
