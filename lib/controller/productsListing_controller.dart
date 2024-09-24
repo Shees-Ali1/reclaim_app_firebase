@@ -452,7 +452,9 @@ class ProductsListingController extends GetxController {
           'New message', 'You got the order', sellerId);
 
       await notificationController.storeNotification(
-          purchasePrice, docRef.id, listingId, productName, 'purchased');
+          purchasePrice, docRef.id, listingId, productName, 'purchased',sellerId);
+      await notificationController.sendnotificationtoseller(
+          purchasePrice, docRef.id, listingId, productName, 'seller',sellerId);
 
       await chatController.createChatConvo(
           listingId,
@@ -530,9 +532,10 @@ class ProductsListingController extends GetxController {
         listingId,
         listingId,
         productName,
-        'purchased',
+        'purchased',sellerId
       );
-
+      await notificationController.sendnotificationtoseller(
+          purchasePrice, docRef.id, listingId, productName, 'seller',sellerId);
       print("Product purchased successfully");
       isLoading.value = false;
     } catch (e) {
