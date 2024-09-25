@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,8 +45,9 @@ class _MyOrdersState extends State<MyOrders> {
         }
 
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
           child: ListView.builder(
+            shrinkWrap: true,
             itemCount: orderController.orders.length,
             itemBuilder: (context, index) {
               var order = orderController.orders[index];
@@ -71,9 +73,15 @@ class _MyOrdersState extends State<MyOrders> {
                             height: 78.h,
                             width: 89.w,
                             child: product != null
-                                ? Image.network(
-                                    product['productImage'],
+                                ? CachedNetworkImage(
+                                    imageUrl: product['productImages'][0],
                                     fit: BoxFit.cover,
+                                    placeholder: (context, url) => Center(
+                                        child: CircularProgressIndicator(
+                                      color: primaryColor,
+                                    )), // Loading indicator
+                                    errorWidget: (context, url, error) =>
+                                        Icon(Icons.error), // Error icon
                                   )
                                 : SizedBox.shrink(),
                           ),

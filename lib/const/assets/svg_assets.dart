@@ -16,8 +16,11 @@ class AppIcons{
   static const profile = 'assets/svg/profile.svg';
   static const shopping = 'assets/svg/shopping.svg';
   static const disc = 'assets/svg/disc.svg';
+  static const backIcon = 'assets/svg/backIcon.svg';
   static const dollar = 'assets/svg/dollar.svg';
   static const topup = 'assets/svg/topup.svg';
+  static const following = 'assets/svg/following.svg';
+  static const review = 'assets/svg/review.svg';
   static const favourite = 'assets/svg/favourite.svg';
 
 

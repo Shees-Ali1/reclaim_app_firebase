@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
 import 'helper/bindings.dart';
-
 import 'view/splash/splash_sceen.dart';
 
 Future<void> main() async {

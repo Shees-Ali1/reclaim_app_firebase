@@ -504,7 +504,7 @@ class _ProfileState extends State<Profile> {
                           CustomRoute.navigateTo(context, ReviewScreen());
                         },
                         title: 'Reviews',
-                        imgUrl: AppIcons.privacyIcon,
+                        imgUrl: AppIcons.review,
                       ),
                       SizedBox(
                         height: 9.h,
@@ -517,7 +517,7 @@ class _ProfileState extends State<Profile> {
                           CustomRoute.navigateTo(context, FollowingPage());
                         },
                         title: 'Followings',
-                        imgUrl: AppIcons.privacyIcon,
+                        imgUrl: AppIcons.following,
                       ),
                       SizedBox(
                         height: 9.h,

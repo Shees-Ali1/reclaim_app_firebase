@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,6 +60,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     // TODO: implement initState
     print("home");
     super.initState();
+    homeController.bookSearchController.clear();
     userController.fetchUserData();
     productlisting =
         FirebaseFirestore.instance.collection('productsListing').snapshots();
@@ -370,40 +372,61 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
 
                     return Obx(() {
                       print('obxbuild');
-                      return GridView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: homeController.filterredProduct.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, // Number of columns
-                          crossAxisSpacing:
-                              8.0, // Horizontal space between items
-                          mainAxisSpacing: 8.0, // Vertical space between items
-                          childAspectRatio: 0.75, // Aspect ratio of each item
-                        ),
-                        itemBuilder: (context, index) {
-                          var product = homeController.filterredProduct[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Get.to(BookDetailsScreen(
-                                bookDetail: product, // Pass the product data
-                                index: index,
-                                comingfromSellScreen: false,
-                              ));
-                            },
-                            child: productCard(
-                              product.id,
-                              product['productCondition'],
-                              product['brand'],
-                              product['productName'],
-                              product['productPrice'],
-                              product['productImage'],
-                              context,
-                              homeController,
-                            ),
-                          );
-                        },
-                      );
+                      return homeController.filterredProduct.isEmpty
+                          ? Column(
+                              children: [
+                                SizedBox(
+                                  height: 70.h,
+                                ),
+                                Center(
+                                  child: InterCustomText(
+                                    text: "No categories found",
+                                    textColor: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontsize: 18.sp,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : GridView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: homeController.filterredProduct.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2, // Number of columns
+                                crossAxisSpacing:
+                                    8.0, // Horizontal space between items
+                                mainAxisSpacing:
+                                    8.0, // Vertical space between items
+                                childAspectRatio:
+                                    0.75, // Aspect ratio of each item
+                              ),
+                              itemBuilder: (context, index) {
+                                var product =
+                                    homeController.filterredProduct[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Get.to(BookDetailsScreen(
+                                      bookDetail:
+                                          product, // Pass the product data
+                                      index: index,
+                                      comingfromSellScreen: false,
+                                    ));
+                                  },
+                                  child: productCard(
+                                    product.id,
+                                    product['productCondition'],
+                                    product['brand'],
+                                    product['productName'],
+                                    product['productPrice'],
+                                    product['productImages'][0],
+                                    context,
+                                    homeController,
+                                  ),
+                                );
+                              },
+                            );
                     });
                   }
                 },
@@ -444,11 +467,13 @@ Widget productCard(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: SizedBox(
                 height: 120.h,
-                child: Image.network(
-                  imagePath,
-                  fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  imageUrl: imagePath,
+                  fit: BoxFit.fill,
                   width: double.infinity,
-                ),
+                  placeholder: (context, url) => Center(child: CircularProgressIndicator(color: primaryColor,)), // Loading indicator
+                  errorWidget: (context, url, error) => Icon(Icons.error), // Error icon
+                )
               ),
             ),
             Positioned(
@@ -471,26 +496,32 @@ Widget productCard(
             Positioned(
               right: 0,
               bottom: -20,
-              child: Container(
-                padding: EdgeInsets.zero,
-                // width: 36.w,
-                // height: 36.h,
-                decoration:
-                    BoxDecoration(color: primaryColor, shape: BoxShape.circle),
-                child: Obx(() => IconButton(
-                      icon: Icon(
-                        size: 22,
-                        homeController.isFavorited(productId)
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: homeController.isFavorited(productId)
-                            ? Colors.white
-                            : Colors.white,
-                      ),
-                      onPressed: () {
-                        homeController.toggleFavorite(productId);
-                      },
-                    )),
+              child: GestureDetector(
+                onTap: () {
+                  homeController.toggleFavorite(productId);
+
+                },
+                child: Container(
+                  padding: EdgeInsets.zero,
+                  // width: 36.w,
+                  // height: 36.h,
+                  decoration:
+                      BoxDecoration(color: primaryColor, shape: BoxShape.circle),
+                  child: Obx(() => IconButton(
+                        icon: Icon(
+                          size: 22,
+                          homeController.isFavorited(productId)
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: homeController.isFavorited(productId)
+                              ? Colors.white
+                              : Colors.white,
+                        ),
+                        onPressed: () {
+                          homeController.toggleFavorite(productId);
+                        },
+                      )),
+                ),
               ),
             ),
           ],
@@ -573,7 +604,7 @@ class _FavouriteProductState extends State<FavouriteProduct> {
               child: AspectRatio(
                 aspectRatio: 1,
                 child: Image.network(
-                  productData['productImage'], // Product image URL
+                  productData['productImages'][0], // Product image URL
                   fit: BoxFit.cover,
                 ),
               ),

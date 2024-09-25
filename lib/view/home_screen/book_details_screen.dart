@@ -5,22 +5,25 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../const/color.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/home_controller.dart';
 import '../../controller/user_controller.dart';
 import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final dynamic bookDetail;
   final int index;
   final bool comingfromSellScreen;
 
-  const BookDetailsScreen({super.key,
-    required this.bookDetail,
-    required this.index,
-    required this.comingfromSellScreen});
+  const BookDetailsScreen(
+      {super.key,
+      required this.bookDetail,
+      required this.index,
+      required this.comingfromSellScreen});
 
   @override
   State<BookDetailsScreen> createState() => _BookDetailsScreenState();
@@ -28,7 +31,7 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   final ProductsListingController productsListingController =
-  Get.find<ProductsListingController>();
+      Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
   final UserController userController = Get.find<UserController>();
   final ChatController chatController = Get.find<ChatController>();
@@ -43,6 +46,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     super.initState();
   }
 
+  final PageController _pageController = PageController();
   final List<String> items = [
     'Size UK 14',
     'Women',
@@ -50,9 +54,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     'TopShop',
     'Open for negotiation',
   ];
+  @override
+  void dispose() {
+    _pageController.dispose(); // Dispose the controller when done
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> productImages = widget.bookDetail['productImages'];
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -63,20 +73,60 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               children: [
                 Padding(
                   padding: EdgeInsets.only(left: 10),
-                  child: SafeArea(
-                    child: const CustomBackButton(),
-                  ),
+                  child: const CustomBackButton(),
                 ),
                 Center(
-                  child: Container(
-                      height: 400.h,
-                      width: 275.w,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.r),
-                          image: DecorationImage(
-                              fit: BoxFit.fill,
-                              image: NetworkImage(
-                                  widget.bookDetail['productImage'])))),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 400.h,
+                        width: 275.w,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: productImages.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: productImages[index],
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    image: DecorationImage(
+                                      fit: BoxFit.contain,
+                                      image: imageProvider,
+                                    ),
+                                  ),
+                                ),
+                                placeholder: (context, url) => Center(
+                                  child: CircularProgressIndicator(
+                                    color: primaryColor,
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Center(
+                                  child: Icon(Icons.error),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      SmoothPageIndicator(
+                        controller: _pageController,
+                        count: productImages.length,
+                        effect: ExpandingDotsEffect(
+                          dotHeight: 8,
+                          dotWidth: 8,
+                          activeDotColor: primaryColor,
+                          dotColor: Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -130,28 +180,27 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Obx(() =>
-                                  Container(
+                              Obx(() => Container(
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 8.w, vertical: 6.h),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(20.r),
                                       color: (item ==
-                                          homeController.selectedSize.value)
+                                              homeController.selectedSize.value)
                                           ? primaryColor
                                           : primaryColor.withOpacity(
-                                          0.10), // Highlight background color for selected item
+                                              0.10), // Highlight background color for selected item
                                     ),
                                     child: Center(
                                       child: Column(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           MontserratCustomText(
                                             text: item,
                                             textColor: (item ==
-                                                homeController
-                                                    .selectedSize.value)
+                                                    homeController
+                                                        .selectedSize.value)
                                                 ? whiteColor
                                                 : primaryColor,
                                             fontWeight: FontWeight.w500,
@@ -185,141 +234,142 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 28.0),
               child: widget.bookDetail['sellerId'] ==
-                  FirebaseAuth.instance.currentUser!.uid
+                      FirebaseAuth.instance.currentUser!.uid
                   ? GestureDetector(
-                onTap: () {
-                  productsListingController.removeListing(
-                      widget.bookDetail['listingId'],
-                      widget.bookDetail['sellerId'],
-                      widget.bookDetail['productName']);
-                },
-                child: Obx(() {
-                  return Center(
-                    child: Container(
-                      height: 58.h,
-                      width: 250.w,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(20.r)),
-                      child: productsListingController.isLoading.value ==
-                          true
-                          ? Center(
-                          child: CircularProgressIndicator(
-                            color: whiteColor,
-                          ))
-                          : MontserratCustomText(
-                        text: "Cancel This Listing",
-                        textColor: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontsize: 16.sp,
-                      ),
-                    ),
-                  );
-                }),
-              )
-                  : userController.userPurchases
-                  .contains(widget.bookDetail['listingId'])
-                  ? Center(
-                child: Container(
-                  height: 58.h,
-                  width: 250.w,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: BorderRadius.circular(20.r)),
-                  child: MontserratCustomText(
-                    text: "Purchased", // Show purchased message
-                    textColor: Colors.white,
-                    fontWeight: FontWeight.w500,
-
-                    fontsize: 16.sp,
-                  ),
-                ),
-              )
-                  : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      await productsListingController
-                          .createchatwithoutroffer(
-                        widget.bookDetail['listingId'],
-                        widget.bookDetail['sellerId'],
-                        context,
-                        widget.bookDetail['productName'],
-                        widget.bookDetail['productPrice'],
-                        widget.bookDetail['productImage'],
-                        widget.bookDetail['brand'],
-                      );
-                    },
-                    child: Obx(() {
-                      return Container(
-                        height: 58.h,
-                        width: 155.w,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: Color(0xffFFB9B9),
-                            borderRadius: BorderRadius.circular(20.r)),
-                        child:
-                        productsListingController.offerLoadind.value ==
-                            true
-                            ? Center(
-                            child: CircularProgressIndicator(
-                              color: whiteColor,
-                            ))
-                            : MontserratCustomText(
-                          text: 'Make offer',
-                          textColor: primaryColor,
-                          fontWeight: FontWeight.w500,
-                          fontsize: 16.sp,
-                        ),
-                      );
-                    }),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      if(productsListingController.isLoading.value == false) {
-                        await productsListingController.buyProduct(
+                      onTap: () {
+                        productsListingController.removeListing(
                             widget.bookDetail['listingId'],
                             widget.bookDetail['sellerId'],
-                            widget.bookDetail['brand'],
-                            context,
-                            widget.bookDetail['productName'],
-                            widget.bookDetail['productPrice'],
-                            widget.bookDetail['productImage']);
-                      }
+                            widget.bookDetail['productName']);
+                      },
+                      child: Obx(() {
+                        return Center(
+                          child: Container(
+                            height: 58.h,
+                            width: 250.w,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(20.r)),
+                            child: productsListingController.isLoading.value ==
+                                    true
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                    color: whiteColor,
+                                  ))
+                                : MontserratCustomText(
+                                    text: "Cancel This Listing",
+                                    textColor: Colors.white,
+                                    fontWeight: FontWeight.w400,
+                                    fontsize: 16.sp,
+                                  ),
+                          ),
+                        );
+                      }),
+                    )
+                  : userController.userPurchases
+                          .contains(widget.bookDetail['listingId'])
+                      ? Center(
+                          child: Container(
+                            height: 58.h,
+                            width: 250.w,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(20.r)),
+                            child: MontserratCustomText(
+                              text: "Purchased", // Show purchased message
+                              textColor: Colors.white,
+                              fontWeight: FontWeight.w500,
 
-                    },
-                    child: Obx(() {
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: 58.h,
-                        width: 155.w,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius:
-                            BorderRadius.circular(20.r)),
-                        child: productsListingController
-                            .isLoading.value ==
-                            true
-                            ? Center(
-                            child: CircularProgressIndicator(
-                              color: whiteColor,
-                            ))
-                            : MontserratCustomText(
-                          text: 'Purchase',
-                          textColor: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontsize: 16.sp,
+                              fontsize: 16.sp,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                await productsListingController
+                                    .createchatwithoutroffer(
+                                  widget.bookDetail['listingId'],
+                                  widget.bookDetail['sellerId'],
+                                  context,
+                                  widget.bookDetail['productName'],
+                                  widget.bookDetail['productPrice'],
+                                  widget.bookDetail['productImages'][0],
+                                  widget.bookDetail['brand'],
+                                );
+                              },
+                              child: Obx(() {
+                                return Container(
+                                  height: 58.h,
+                                  width: 155.w,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xffFFB9B9),
+                                      borderRadius:
+                                          BorderRadius.circular(20.r)),
+                                  child: productsListingController
+                                              .offerLoadind.value ==
+                                          true
+                                      ? Center(
+                                          child: CircularProgressIndicator(
+                                          color: whiteColor,
+                                        ))
+                                      : MontserratCustomText(
+                                          text: 'Make offer',
+                                          textColor: primaryColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontsize: 16.sp,
+                                        ),
+                                );
+                              }),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                if (productsListingController.isLoading.value ==
+                                    false) {
+                                  await productsListingController.buyProduct(
+                                      widget.bookDetail['listingId'],
+                                      widget.bookDetail['sellerId'],
+                                      widget.bookDetail['brand'],
+                                      context,
+                                      widget.bookDetail['productName'],
+                                      widget.bookDetail['productPrice'],
+                                      widget.bookDetail['productImages'][0]);
+                                }
+                              },
+                              child: Obx(() {
+                                return Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  height: 58.h,
+                                  width: 155.w,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                      color: primaryColor,
+                                      borderRadius:
+                                          BorderRadius.circular(20.r)),
+                                  child: productsListingController
+                                              .isLoading.value ==
+                                          true
+                                      ? Center(
+                                          child: CircularProgressIndicator(
+                                          color: whiteColor,
+                                        ))
+                                      : MontserratCustomText(
+                                          text: 'Purchase',
+                                          textColor: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontsize: 16.sp,
+                                        ),
+                                );
+                              }),
+                            ),
+                          ],
                         ),
-                      );
-                    }),
-                  ),
-                ],
-              ),
             ),
             SizedBox(
               height: 10.h,

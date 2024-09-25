@@ -1,0 +1,7 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<ellipse opacity="0.2" cx="24.96" cy="24.9458" rx="24.96" ry="24.9458" fill="#FF5D5D"/>
+<path d="M28 34V32C28 30.9391 27.5786 29.9217 26.8284 29.1716C26.0783 28.4214 25.0609 28 24 28H16C14.9391 28 13.9217 28.4214 13.1716 29.1716C12.4214 29.9217 12 30.9391 12 32V34" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M20 24C22.2091 24 24 22.2091 24 20C24 17.7909 22.2091 16 20 16C17.7909 16 16 17.7909 16 20C16 22.2091 17.7909 24 20 24Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M40 34V32C40 30.9391 39.5786 29.9217 38.8284 29.1716C38.0783 28.4214 37.0609 28 36 28H28C26.9391 28 25.9217 28.4214 25.1716 29.1716C24.4214 29.9217 24 30.9391 24 32V34" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M32 24C34.2091 24 36 22.2091 36 20C36 17.7909 34.2091 16 32 16C29.7909 16 28 17.7909 28 20C28 22.2091 29.7909 24 32 24Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

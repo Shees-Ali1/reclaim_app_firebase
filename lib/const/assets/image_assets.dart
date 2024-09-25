@@ -27,6 +27,7 @@ class AppImages {
   static const profile3 = 'assets/images/profile3.png';
   static const onlinedot = 'assets/images/onlinedot.png';
   static const upload = 'assets/images/upload.png';
+  static const back = 'assets/images/back.png';
   static const backbutton = 'assets/images/backbutton.png';
   static const walmart = 'assets/images/walmart.png';
   static const image1 = 'assets/images/image1.jpg';

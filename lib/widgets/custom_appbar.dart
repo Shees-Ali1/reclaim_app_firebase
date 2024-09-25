@@ -32,7 +32,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-
         ),
         child: SafeArea(
           child: Column(
@@ -46,12 +45,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   SizedBox(
                     width: 15.w,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      homeController.openDrawer();
-                    },
-                    child: SvgPicture.asset(AppIcons.drawericon),
-                  ),
+                  Obx(() => GestureDetector(
+                        onTap: () {
+                          if (homeController.isWishlistScreen.value) {
+                            // Show custom back button when on Wishlist screen
+                            Navigator.pop(context); // Handles back navigation
+                          } else {
+                            // Otherwise, open the drawer
+                            homeController.openDrawer();
+                          }
+                        },
+                        child: SvgPicture.asset(
+                          homeController.isWishlistScreen.value
+                              ? AppIcons
+                                  .backIcon // Replace with your custom back icon
+                              : AppIcons.drawericon, // Default drawer icon
+                        ),
+                      )),
                   SizedBox(
                     width: 20.w,
                   ),
@@ -112,12 +122,10 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-
         ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               SizedBox(
                 height: 10.h,
@@ -131,11 +139,17 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
                   SizedBox(
                     width: 20.w,
                   ),
-                  InterCustomText(
-                    text: text,
-                    textColor: Colors.white,
-                    fontsize: 20.sp,
-                    fontWeight: FontWeight.w600,
+                  SizedBox(
+                    width: 180.w,
+
+                    child: InterCustomText(
+                      maxLines: 2,
+                      height: 1,
+                      text: text,
+                      textColor: Colors.white,
+                      fontsize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const Spacer(),
                   GestureDetector(
@@ -158,7 +172,6 @@ class CustomAppBar1 extends StatelessWidget implements PreferredSizeWidget {
                     width: 23.w,
                   ),
                 ],
-
               ),
               SizedBox(
                 height: 20.h,
@@ -189,12 +202,10 @@ class CustomAppBar2 extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.only(bottom: 20.h), // Adjust padding as needed
         decoration: const BoxDecoration(
           color: primaryColor,
-
         ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               SizedBox(
                 height: 10.h,
@@ -250,7 +261,7 @@ class _CustomAppBarHomeState extends State<CustomAppBarHome> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-print('appbar');
+    print('appbar');
     return ClipPath(
       clipper: OvalBottomBorderClipper(),
       child: GestureDetector(
@@ -289,56 +300,57 @@ print('appbar');
                         SizedBox(width: 10.w),
                         GestureDetector(
                             onTap: () {
-                              CustomRoute.navigateTo(context, const NotificationScreen());
+                              CustomRoute.navigateTo(
+                                  context, const NotificationScreen());
                             },
                             child: SvgPicture.asset(AppIcons.notificationIcon)),
                         SizedBox(width: 23.w),
                       ],
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 20.0.h,bottom: 20.h),
+                      padding: EdgeInsets.only(top: 20.0.h, bottom: 20.h),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
                             width: 273.w,
                             child: Obx(() => TextField(
-                              onChanged: (value) {
-                                homeController.searchProduct(value);
-
-
-                              },
-                              controller: widget.homeController.bookSearchController,
-                              focusNode: searchFocusNode,
-                              style: GoogleFonts.inter(
-                                  textStyle: TextStyle(
+                                  onChanged: (value) {
+                                    homeController.searchProduct(value);
+                                  },
+                                  controller: widget
+                                      .homeController.bookSearchController,
+                                  focusNode: searchFocusNode,
+                                  style: GoogleFonts.inter(
+                                      textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15.11.sp,
+                                          fontWeight: FontWeight.w500)),
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.r),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    fillColor: Colors.black.withOpacity(0.45),
+                                    filled: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 10.w, vertical: 15.h),
+                                    prefixIcon: const Icon(
+                                      Icons.search,
                                       color: Colors.white,
-                                      fontSize: 15.11.sp,
-                                      fontWeight: FontWeight.w500)),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20.r),
-                                  borderSide: BorderSide.none,
-                                ),
-                                fillColor: Colors.black.withOpacity(0.45),
-                                filled: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10.w, vertical: 15.h),
-                                prefixIcon: const Icon(
-                                  Icons.search,
-                                  color: Colors.white,
-                                ),
-                                hintText: 'Search',
-                                hintStyle: GoogleFonts.inter(
-                                    textStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15.11.sp,
-                                        fontWeight: FontWeight.w500)),
-                                errorText: widget.homeController.errorText.value.isEmpty
-                                    ? null
-                                    : widget.homeController.errorText.value,
-                              ),
-                            )),
+                                    ),
+                                    hintText: 'Search',
+                                    hintStyle: GoogleFonts.inter(
+                                        textStyle: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15.11.sp,
+                                            fontWeight: FontWeight.w500)),
+                                    errorText: widget.homeController.errorText
+                                            .value.isEmpty
+                                        ? null
+                                        : widget.homeController.errorText.value,
+                                  ),
+                                )),
                           ),
                           SizedBox(width: 8.w),
                           GestureDetector(
@@ -388,15 +400,14 @@ print('appbar');
 
   @override
   Size get preferredSize => Size.fromHeight(
-    Get.width <= 375
-        ? 210.h
-        : Get.width <= 400
-        ? 205.h
-        : Get.width <= 440
-        ? 195.h
-        : Get.width <= 768
-        ? 250.h
-        : 280.h,
-  );
+        Get.width <= 375
+            ? 210.h
+            : Get.width <= 400
+                ? 205.h
+                : Get.width <= 440
+                    ? 195.h
+                    : Get.width <= 768
+                        ? 250.h
+                        : 280.h,
+      );
 }
-

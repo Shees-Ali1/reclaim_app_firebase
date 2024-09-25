@@ -9,6 +9,7 @@ class HomeController extends GetxController {
 
   // var selectedindex = 0.obs;
   var favorites = <String>[].obs;
+  RxBool isWishlistScreen =false.obs;
   RxString searchQuery = ''.obs;
   Future<void> fetchWishlist() async {
     var userId = FirebaseAuth.instance.currentUser!.uid;

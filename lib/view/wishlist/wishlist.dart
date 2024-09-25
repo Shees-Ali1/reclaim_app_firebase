@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -69,84 +70,85 @@ class _WishlistState extends State<Wishlist> {
         ),
         body: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 10.h),
-              child:
+          padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 10.h),
+          child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                SizedBox(
-                  height: 17.h,
-                ),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: wishlistController.fetchWishlistProducts(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Center(child: CircularProgressIndicator(
-                        color: primaryColor,
-                      ));
-                    } else if (snapshot.data!.isEmpty) {
-                      return Column(
-                        children: [
-                          SizedBox(
-                            height: 190.h,
-                          ),
-                          Center(
-                            child: InterCustomText(
-                              text: 'No Wishlist',
-                              textColor: Color(0xff222222),
-                              fontWeight: FontWeight.w700,
-                              fontsize: 20.sp,
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      wishlistController.favorites1.value =
+            SizedBox(
+              height: 17.h,
+            ),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: wishlistController.fetchWishlistProducts(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                      child: CircularProgressIndicator(
+                    color: primaryColor,
+                  ));
+                } else if (snapshot.data!.isEmpty) {
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 190.h,
+                      ),
+                      Center(
+                        child: InterCustomText(
+                          text: 'No Wishlist',
+                          textColor: Color(0xff222222),
+                          fontWeight: FontWeight.w700,
+                          fontsize: 20.sp,
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  wishlistController.favorites1.value =
                       snapshot.data!; // List of products
 
-                      return Obx(() {
-                        return GridView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: wishlistController.favorites1.value.length,
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            // Number of columns
-                            crossAxisSpacing: 8.0,
-                            // Horizontal space between items
-                            mainAxisSpacing: 8.0,
-                            // Vertical space between items
-                            childAspectRatio: 0.75, // Aspect ratio of each item
-                          ),
-                          itemBuilder: (context, index) {
-                            var product = wishlistController
-                                .favorites1[index]; // Get the product map
+                  return Obx(() {
+                    return GridView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: wishlistController.favorites1.value.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        // Number of columns
+                        crossAxisSpacing: 8.0,
+                        // Horizontal space between items
+                        mainAxisSpacing: 8.0,
+                        // Vertical space between items
+                        childAspectRatio: 0.75, // Aspect ratio of each item
+                      ),
+                      itemBuilder: (context, index) {
+                        var product = wishlistController
+                            .favorites1[index]; // Get the product map
 
-                            return productCard(
-                              product[
-                              'listingId'],
-                              // Accessing the correct keys from the product map
-                              product['productCondition'],
-                              product['brand'],
-                              product['productName'],
-                              product['productPrice'],
-                              product['productImage'],
-                              context,
-                              homeController,
-                            );
-                          },
+                        return productCard(
+                          product['listingId'],
+                          // Accessing the correct keys from the product map
+                          product['productCondition'],
+                          product['brand'],
+                          product['productName'],
+                          product['productPrice'],
+                          product['productImages'][0],
+                          context,
+                          homeController,
                         );
-                      });
-                    }
-                  },
-                ),
-                SizedBox(
-                  height: 20.h,
-                )
-              ]),
-            )));
+                      },
+                    );
+                  });
+                }
+              },
+            ),
+            SizedBox(
+              height: 20.h,
+            )
+          ]),
+        )));
   }
 }
 
-Widget productCard(String productId,
+Widget productCard(
+    String productId,
     String status,
     String brand,
     String title,
@@ -169,13 +171,18 @@ Widget productCard(String productId,
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               child: SizedBox(
-                height: 120.h,
-                child: Image.network(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
+                  height: 120.h,
+                  child: CachedNetworkImage(
+                    imageUrl: imagePath,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    placeholder: (context, url) => Center(
+                        child: CircularProgressIndicator(
+                      color: primaryColor,
+                    )), // Loading indicator
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.error), // Error icon
+                  )),
             ),
             Positioned(
               top: 8,

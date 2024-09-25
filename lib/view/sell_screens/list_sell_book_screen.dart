@@ -23,16 +23,17 @@ class ListSellBookScreen extends StatefulWidget {
   final String? listingId;
   final String? bookImage;
 
-  const ListSellBookScreen({super.key,
-    this.title,
-    this.bookPart,
-    this.author,
-    this.bookClass,
-    this.bookCondition,
-    this.bookPrice,
-    this.comingFromEdit,
-    this.listingId,
-    this.bookImage});
+  const ListSellBookScreen(
+      {super.key,
+      this.title,
+      this.bookPart,
+      this.author,
+      this.bookClass,
+      this.bookCondition,
+      this.bookPrice,
+      this.comingFromEdit,
+      this.listingId,
+      this.bookImage});
 
   @override
   State<ListSellBookScreen> createState() => _ListSellBookScreenState();
@@ -40,18 +41,22 @@ class ListSellBookScreen extends StatefulWidget {
 
 class _ListSellBookScreenState extends State<ListSellBookScreen> {
   final ProductsListingController productsListingController =
-  Get.find<ProductsListingController>();
+      Get.find<ProductsListingController>();
   final HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     // TODO: implement initState
-    print(widget.bookImage);
-    // bookListingController.titleController.text = widget.title!;
-    // bookListingController.bookPartController.text = widget.bookPart!;
-    // bookListingController.authorController.text = widget.author!;
-    // bookListingController.classNameController.text = widget.bookClass!;
-    // bookListingController.priceController.text = widget.bookPrice!.toString();
+    // print(widget.bookImage);
+    productsListingController.titleController.clear();
+    productsListingController.imageFiles.clear();
+    productsListingController.brandController.clear();
+    productsListingController.DescriptionController.clear();
+    productsListingController.classNameController.clear();
+    productsListingController.priceController.clear();
+    productsListingController.category.value = 'Accessories';
+    productsListingController.bookCondition.value = 'New';
+    productsListingController.size.value = '3XS';
 
     super.initState();
   }
@@ -59,11 +64,10 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
   //
   // @override
   // void dispose() {
-  //   bookListingController.titleController.dispose();
-  //   bookListingController.bookPartController.dispose();
-  //   bookListingController.authorController.dispose();
-  //   // bookListingController.classNameController.dispose();
-  //   bookListingController.priceController.dispose();
+  //   productsListingController.titleController.dispose();
+  //
+  //   productsListingController.classNameController.dispose();
+  //   productsListingController.priceController.dispose();
   //   super.dispose();
   // }
 
@@ -98,48 +102,84 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                 height: 12.h,
               ),
               GetBuilder<ProductsListingController>(
-                  builder: (bookListingController) {
-                    return bookListingController.imageFile == null
-                        ? GestureDetector(
-                      onTap: () {
-                        bookListingController.pickImage();
-                      },
-                      child: Container(
-                          width: 321.w,
-                          height: 129.h,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: primaryColor),
-                              color: primaryColor.withOpacity(0.08)),
-                          child:
-                          SizedBox(
-                              height: 65.h,
-                              width: 68.w,
-                              child: Image.asset(
-                                AppImages.pickImage, color: primaryColor,))
+                builder: (bookListingController) {
+                  return GridView.builder(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: bookListingController.imageFiles.length + 1,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 6,
+                        crossAxisSpacing: 6,
+                        mainAxisExtent: 140
+                        // childAspectRatio: 1,
+                        ),
+                    itemBuilder: (context, index) {
+                      if (index == bookListingController.imageFiles.length) {
+                        // Display add image option if the limit of 3 is not reached
+                        return GestureDetector(
+                            onTap: () {
+                              if (bookListingController.imageFiles.length < 3) {
+                                bookListingController.pickImage();
+                              }
+                            },
+                            child: bookListingController.imageFiles.length < 3
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.r),
+                                      border: Border.all(color: primaryColor),
+                                      color: primaryColor.withOpacity(0.08),
+                                    ),
+                                    child: SizedBox(
+                                      height: 65.h,
+                                      width: 68.w,
+                                      child: Image.asset(
+                                        AppImages.pickImage,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox.shrink());
+                      } else {
+                        // Display the selected image with a remove option
+                        return Stack(
+                          children: [
+                            Container(
+                              // width: 321.w,
+                              // height: 129.h,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.r),
+                                border: Border.all(color: primaryColor),
+                                color: primaryColor.withOpacity(0.08),
+                                image: DecorationImage(
+                                  image: FileImage(productsListingController
+                                      .imageFiles[index]!),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 5,
+                              right: 5,
+                              child: GestureDetector(
+                                onTap: () {
+                                  bookListingController.removeImage(index);
+                                },
+                                child: Icon(Icons.close, color: primaryColor),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
 
-                      ),
-                    )
-                        : GestureDetector(
-                      onTap: () {
-                        bookListingController.pickImage();
-                      },
-                      child: Container(
-                        width: 321.w,
-                        height: 129.h,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.r),
-                            border: Border.all(color: primaryColor),
-                            color: primaryColor.withOpacity(0.08),
-                            image: DecorationImage(
-                                image: FileImage(
-                                    bookListingController.imageFile!),
-                                fit: BoxFit.fill)),
-                      ),
-                    );
-                  }),
               SizedBox(
                 height: 8.h,
               ),
@@ -202,35 +242,54 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               Obx(() {
+                // Check if the current category value exists in the items list
+                String? currentCategory =
+                    productsListingController.category.value;
+                if (!productsListingController.categorys
+                    .contains(currentCategory)) {
+                  // If not, set it to a default value, e.g., the first item or null
+                  currentCategory =
+                      productsListingController.categorys.isNotEmpty
+                          ? productsListingController.categorys[0]
+                          : null;
+                  productsListingController.category.value =
+                      currentCategory!; // Set the default value
+                }
+
                 return Container(
                   height: 50.h,
                   width: 327.w,
                   alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20.r)),
+                    color: primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
                   child: DropdownButton<String>(
-                      underline: const SizedBox.shrink(),
-                      isExpanded: true,
-                      value: productsListingController.category.value,
-                      items: productsListingController.categorys
-                          .map((String option) {
-                        return DropdownMenuItem<String>(
-                          value: option,
-                          child: RalewayCustomText(
-                              text: option,
-                              textColor: primaryColor,
-                              fontWeight: FontWeight.w700),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        // homeController.bookClass.value=newValue!;
-                        productsListingController.category.value = newValue!;
-                      },
-                      hint: const SizedBox.shrink()),
+                    underline: const SizedBox.shrink(),
+                    isExpanded: true,
+                    value: currentCategory,
+                    items: productsListingController.categorys
+                        .map((String option) {
+                      return DropdownMenuItem<String>(
+                        value: option,
+                        child: RalewayCustomText(
+                          text: option,
+                          textColor: primaryColor,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        productsListingController.category.value = newValue;
+                      }
+                    },
+                    hint: const SizedBox.shrink(),
+                  ),
                 );
               }),
+
               SizedBox(
                 height: 6.h,
               ),
@@ -262,8 +321,8 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       underline: const SizedBox.shrink(),
                       isExpanded: true,
                       value: productsListingController.size.value,
-                      items: productsListingController.sizes
-                          .map((String option) {
+                      items:
+                          productsListingController.sizes.map((String option) {
                         return DropdownMenuItem<String>(
                           value: option,
                           child: RalewayCustomText(
@@ -348,7 +407,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                       onChanged: (String? newValue) {
                         // homeController.bookClass.value=newValue!;
                         productsListingController.bookCondition.value =
-                        newValue!;
+                            newValue!;
                       },
                       hint: const SizedBox.shrink()),
                 );
@@ -386,39 +445,32 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                 height: 16.h,
               ),
 
-              GestureDetector(
-                  onTap: () {
-                    widget.comingFromEdit == false
-                        ? productsListingController.addProductListing(context)
-                        : productsListingController.updateProductListing(
+              GestureDetector(onTap: () {
+                widget.comingFromEdit == false
+                    ? productsListingController.addProductListing(context)
+                    : productsListingController.updateProductListing(
                         context, widget.listingId.toString());
-                  },
-                  child: Obx(() {
-                    return Container(
-                        height: 58.h,
-                        width: 322.w,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: primaryColor,
-                            borderRadius: BorderRadius.circular(20.r)),
-                        child:
-                        productsListingController.isLoading.value == true
-                            ?  Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        ):
-                        LexendCustomText(
-                          text: "Next",
-                          textColor: Colors.white,
-                          fontWeight: FontWeight.w400,
-                          fontsize: 18.sp,
-                        )
-
-                    );
-                  })
-
-              ),
+              }, child: Obx(() {
+                return Container(
+                    height: 58.h,
+                    width: 322.w,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(20.r)),
+                    child: productsListingController.isLoading.value == true
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          )
+                        : LexendCustomText(
+                            text: "Next",
+                            textColor: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontsize: 18.sp,
+                          ));
+              })),
               SizedBox(
                 height: 32.h,
               ),
@@ -434,11 +486,12 @@ class CustomSellTextField extends StatelessWidget {
   final TextInputType? keyboard;
   final Icon? suffixIcon;
 
-  const CustomSellTextField({super.key,
-    this.controller,
-    this.prefixIcon,
-    this.keyboard,
-    this.suffixIcon});
+  const CustomSellTextField(
+      {super.key,
+      this.controller,
+      this.prefixIcon,
+      this.keyboard,
+      this.suffixIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -462,17 +515,17 @@ class CustomSellTextField extends StatelessWidget {
               fillColor: primaryColor.withOpacity(0.08),
               filled: true,
               contentPadding:
-              EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
               suffixIconColor: greenColor
-            // hintText: 'Search',
-            // hintStyle: GoogleFonts.inter(
-            //     textStyle: TextStyle(
-            //         color: Colors.white,
-            //         fontSize: 15.11.sp,
-            //         fontWeight: FontWeight.w500)),
-          ),
+              // hintText: 'Search',
+              // hintStyle: GoogleFonts.inter(
+              //     textStyle: TextStyle(
+              //         color: Colors.white,
+              //         fontSize: 15.11.sp,
+              //         fontWeight: FontWeight.w500)),
+              ),
         ),
       ),
     );

@@ -31,11 +31,14 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+
     Future.delayed(const Duration(seconds: 2), () {
        Get.offAll(OnBoarding());
        loginAuthController.checkUserLogin();
       notificationServices.requestNotificationPermission();
       notificationServices.firebaseInit(context);
+       userController.userPurchases();
+       userController.getPurchasePrice();
 
       userController.getDeviceStoreToken();
       FirebaseMessaging.onBackgroundMessage(notificationServices.firebaseMessagingBackgroundHandler);

@@ -58,6 +58,8 @@ dependencies:
   another_xlider: ^3.0.2
   shimmer:
   flutter_rating_bar: ^4.0.1
+  cached_network_image:
+  path_provider:
 
 
 dev_dependencies:

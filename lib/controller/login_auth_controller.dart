@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -157,12 +158,14 @@ class LoginAuthController extends GetxController {
       print("User is not login $e");
     }
   }
+  RxBool isLoading = false.obs;
 
   GoogleSignInAccount? _user;
   GoogleSignInAccount get user => _user!;
 
   Future<void> handleGoogleSignIn() async {
     try {
+      isLoading.value = true;
       final auth = FirebaseAuth.instance;
       final _firestore = FirebaseFirestore.instance; // Initialize Firestore
 
@@ -186,17 +189,7 @@ class LoginAuthController extends GetxController {
       final user = userCredential.user!;
       final uid = user.uid;
 
-      // if (user != null) {
-      //   String? deviceToken = await FirebaseMessaging.instance.getToken();
-      //   if (deviceToken != null) {
-      //     await FirebaseFirestore.instance
-      //         .collection('userDetails')
-      //         .doc(user.uid)
-      //         .update({
-      //       'deviceToken': deviceToken,
-      //     });
-      //   }
-      // }
+
       // Check if the user already exists in the Firestore collection
       final userDoc = await _firestore.collection('userDetails').doc(uid).get();
       if (!userDoc.exists) {
@@ -204,7 +197,15 @@ class LoginAuthController extends GetxController {
         String? uName = user.displayName;
         String? uEmail = user.email;
         String? uPhoto = user.photoURL;
-
+        String? fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          await FirebaseFirestore.instance
+              .collection('userDetails')
+              .doc(user.uid)
+              .set({
+            'fcmToken': fcmToken,
+          },SetOptions(merge: true));
+        }
         // if (uPhoto != null) {
         //   print('Photo URL: $uPhoto');
         // } else {
@@ -231,9 +232,9 @@ class LoginAuthController extends GetxController {
           'userPurchases':[],
           'following':[],
           // 'userSchool':'Harker',
-          "userPassword":''
-          // 'pushToken': devicetoken,
-        });
+          "userPassword":'',
+
+        },SetOptions(merge: true));
         // await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
         //     {
         //       'balance':0,
@@ -245,9 +246,13 @@ class LoginAuthController extends GetxController {
         // _authController.fromLogin.value = true;
         // Navigator.of(context).pop();
         // Get.offAll(const MainAuthProgressScreen());
+    Get.snackbar('Welcome', 'Welcome Back');
+
         Get.back();
         // Proceed with navigation or other actions
         Get.offAll(BottomNavBar());
+
+
       } else {
         Get.back();
         // Proceed with navigation or other actions
@@ -255,7 +260,8 @@ class LoginAuthController extends GetxController {
       }
     } catch (e) {
       print("error sign in with googleee $e");
+    }finally {
+      isLoading.value = false;
     }
-    // Get.snackbar('Welcome', 'Welcome Back');
   }
 }

@@ -10,6 +10,7 @@ import '../../const/assets/svg_assets.dart';
 import '../../const/color.dart';
 import '../../controller/login_auth_controller.dart';
 import '../../controller/user_controller.dart';
+import '../../helper/loading.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_route.dart';
 import '../../widgets/custom_text.dart';
@@ -82,7 +83,8 @@ class MyDrawer extends StatelessWidget {
               text: 'Favourites',
               image: AppIcons.favourite,
               onTap: () {
-               CustomRoute.navigateTo(context, const Wishlist());
+                CustomRoute.navigateTo(context, const Wishlist());
+                homeController.isWishlistScreen.value = true; // Set this when navigating to Wishlist
               },
             ),
             DrawerItemsWidget(

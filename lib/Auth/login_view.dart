@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,190 +29,195 @@ class LoginView extends StatelessWidget {
       },
       child: Scaffold(
           body: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          SizedBox(
-            height: 100.h,
-          ),
-          Center(
-            child: LexendCustomText(
-                text: 'Login',
-                fontWeight: FontWeight.w500,
-                fontsize: 24.sp,
-                textColor: primaryColor
-            ),
-          ),
-          SizedBox(
-            height: 10.h,
-          ),
-          Center(
-            child: LexendCustomText(
-              text: 'Welcome back! Please enter your details.',
-              fontWeight: FontWeight.w500,
-              fontsize: 12.sp,
-              textColor: const Color(0xff808B9A),
-            ),
-          ),
-          // Logo(),
-          SizedBox(
-            height: 80.h,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25.sp),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LexendCustomText(
-                  text: 'Enter Your Email',
-                  fontWeight: FontWeight.w500,
-                  fontsize: 16.sp,
-                  textColor: const Color(0xff1E1E1E),
-                ),
-                SizedBox(
-                  height: 8.h,
-                ),
-                InputField(
-                  errorText: loginVM.errorText.value.isEmpty
-                      ? null
-                      : loginVM.errorText.value,
-
-                  controller: loginVM.emailController,
-                  hint: 'Enter Email',
-                  keyboard: TextInputType.emailAddress,
-                  hintStyle: TextStyle(fontSize: 16.sp, color: Colors.black54),
-                ),
-                SizedBox(
-                  height: 8.h,
-                ),
-                LexendCustomText(
-                  text: 'Enter Your Password',
-                  fontWeight: FontWeight.w500,
-                  fontsize: 16.sp,
-                  textColor: const Color(0xff1E1E1E),
-                ),
-                SizedBox(
-                  height: 8.h,
-                ),
-                Obx(() {
-                  return PasswordField(
-                    errorText: loginVM.errorText.value.isEmpty
-                        ? null
-                        : loginVM.errorText.value,
-                    onTap: () => loginVM.eyeIconLogin(),
-                    controller: loginVM.passwordController,
-                    keyboard: TextInputType.text,
-                    isObscure: !loginVM.loginObscure.value,
-                    trailIcon: loginVM.loginObscure.value
-                        ? SvgPicture.asset(AppIcons.passwordeyeIcon)
-                        : const Icon(
-                            Icons.visibility_off_outlined,
-                            size: 20,
-                          ),
-                    hintStyle:
-                        TextStyle(fontSize: 16.sp, color: Colors.black54),
-                    hint: 'Enter Password',
-                  );
-                }),
-                SizedBox(
-                  height: 17.h,
-                ),
-                CustomButton(
-                  text: 'Login',
-                  onPressed: () {
-                    // CustomRoute.navigateTo(context, const BottomNavBar());
-
-                    if (loginVM.emailController.text.isEmpty || loginVM.passwordController.text.isEmpty) {
-                      Get.snackbar(
-                        "Error", // title
-                        "Email and password cannot be empty", // message
-
-
-                      );
-                    }
-                    else {
-                       loginVM.loginUser();
-                      // CustomRoute.navigateTo(context, const BottomNavBar());
-                      // Handle successful login navigation if needed
-                    }
-                  },
-                  backgroundColor: primaryColor, // Example color
-                  textColor: Colors.white,
-                ),
-                SizedBox(
-                  height: 17.h,
-                ),
-                Center(
-                  child: LexendCustomText(
-                    text: 'or Login via',
+                crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SizedBox(
+                height: 100.h,
+              ),
+              Center(
+                child: LexendCustomText(
+                    text: 'Login',
                     fontWeight: FontWeight.w500,
-                    fontsize: 16.sp,
-                    textColor: const Color(0xff3C3C43).withOpacity(0.6),
-                  ),
+                    fontsize: 24.sp,
+                    textColor: primaryColor),
+              ),
+              SizedBox(
+                height: 10.h,
+              ),
+              Center(
+                child: LexendCustomText(
+                  text: 'Welcome back! Please enter your details.',
+                  fontWeight: FontWeight.w500,
+                  fontsize: 12.sp,
+                  textColor: const Color(0xff808B9A),
                 ),
-                SizedBox(
-                  height: 4.h,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    loginVM.handleGoogleSignIn();
-                  },
-                  child: Center(
-                    child: Container(
-                      width: 154.w,
-                      height: 61.h,
-                      decoration: BoxDecoration(
-                          color: Color(0xffE1E9E6),
-                          borderRadius: BorderRadius.circular(15.r)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(AppIcons.googleIcon),
-                          SizedBox(
-                            width: 12.w,
-                          ),
-                          WorkSansCustomText(
-                            text: 'Google',
-                            textColor: const Color(0xff475569),
-                            fontWeight: FontWeight.w400,
-                            fontsize: 20.sp,
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 30.h,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              // Logo(),
+              SizedBox(
+                height: 80.h,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.sp),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LexendCustomText(
-                      text: 'Doesn’t have account?',
-                      fontWeight: FontWeight.w400,
-                      fontsize: 14.sp,
-                      textColor: const Color(0xff3C3C43).withOpacity(0.6),
+                      text: 'Enter Your Email',
+                      fontWeight: FontWeight.w500,
+                      fontsize: 16.sp,
+                      textColor: const Color(0xff1E1E1E),
                     ),
                     SizedBox(
-                      width: 6.w,
+                      height: 8.h,
+                    ),
+                    InputField(
+                      errorText: loginVM.errorText.value.isEmpty
+                          ? null
+                          : loginVM.errorText.value,
+                      controller: loginVM.emailController,
+                      hint: 'Enter Email',
+                      keyboard: TextInputType.emailAddress,
+                      hintStyle: TextStyle(
+                          fontSize: 16.sp, color: Colors.black54),
+                    ),
+                    SizedBox(
+                      height: 8.h,
+                    ),
+                    LexendCustomText(
+                      text: 'Enter Your Password',
+                      fontWeight: FontWeight.w500,
+                      fontsize: 16.sp,
+                      textColor: const Color(0xff1E1E1E),
+                    ),
+                    SizedBox(
+                      height: 8.h,
+                    ),
+                    Obx(() {
+                      return PasswordField(
+                        errorText: loginVM.errorText.value.isEmpty
+                            ? null
+                            : loginVM.errorText.value,
+                        onTap: () => loginVM.eyeIconLogin(),
+                        controller: loginVM.passwordController,
+                        keyboard: TextInputType.text,
+                        isObscure: !loginVM.loginObscure.value,
+                        trailIcon: loginVM.loginObscure.value
+                            ? SvgPicture.asset(AppIcons.passwordeyeIcon)
+                            : const Icon(
+                          Icons.visibility_off_outlined,
+                          size: 20,
+                        ),
+                        hintStyle:
+                        TextStyle(fontSize: 16.sp, color: Colors.black54),
+                        hint: 'Enter Password',
+                      );
+                    }),
+                    SizedBox(
+                      height: 17.h,
+                    ),
+                    CustomButton(
+                      text: 'Login',
+                      onPressed: () {
+                        // CustomRoute.navigateTo(context, const BottomNavBar());
+
+                        if (loginVM.emailController.text.isEmpty ||
+                            loginVM.passwordController.text.isEmpty) {
+                          Get.snackbar(
+                            "Error", // title
+                            "Email and password cannot be empty", // message
+                          );
+                        } else {
+                          loginVM.loginUser();
+                          // CustomRoute.navigateTo(context, const BottomNavBar());
+                          // Handle successful login navigation if needed
+                        }
+                      },
+                      backgroundColor: primaryColor, // Example color
+                      textColor: Colors.white,
+                    ),
+                    SizedBox(
+                      height: 17.h,
+                    ),
+                    Center(
+                      child: LexendCustomText(
+                        text: 'or Login via',
+                        fontWeight: FontWeight.w500,
+                        fontsize: 16.sp,
+                        textColor: const Color(0xff3C3C43).withOpacity(0.6),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 4.h,
                     ),
                     GestureDetector(
                       onTap: () {
-                        CustomRoute.navigateTo(context, const Register());
+                        loginVM.handleGoogleSignIn();
                       },
-                      child: LexendCustomText(
-                        text: 'Register',
-                        fontWeight: FontWeight.w400,
-                        fontsize: 14.sp,
-                        textColor: primaryColor,
-                      ),
+                      child: Obx(() {
+                        return Center(
+                          child: Container(
+                            width: 154.w,
+                            height: 61.h,
+                            decoration: BoxDecoration(
+                                color: Color(0xffE1E9E6),
+                                borderRadius: BorderRadius.circular(15.r)),
+                            child: loginVM.isLoading.value == true
+                                ? Center(
+                                child: CircularProgressIndicator(
+                                  color: primaryColor,
+                                ))
+                                : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(AppIcons.googleIcon),
+                                SizedBox(
+                                  width: 12.w,
+                                ),
+                                WorkSansCustomText(
+                                  text: 'Google',
+                                  textColor: const Color(0xff475569),
+                                  fontWeight: FontWeight.w400,
+                                  fontsize: 20.sp,
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    SizedBox(
+                      height: 30.h,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LexendCustomText(
+                          text: 'Doesn’t have account?',
+                          fontWeight: FontWeight.w400,
+                          fontsize: 14.sp,
+                          textColor: const Color(0xff3C3C43).withOpacity(0.6),
+                        ),
+                        SizedBox(
+                          width: 6.w,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            CustomRoute.navigateTo(context, const Register());
+                          },
+                          child: LexendCustomText(
+                            text: 'Register',
+                            fontWeight: FontWeight.w400,
+                            fontsize: 14.sp,
+                            textColor: primaryColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        ]),
-      )),
+              ),
+            ]),
+          )),
     );
   }
 }

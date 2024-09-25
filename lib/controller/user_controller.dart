@@ -242,6 +242,7 @@ class UserController extends GetxController {
 
         print('Total sale price: $totalSalePrice');
       } else {
+        totalSalePrice.value=0.0;
         print("No orders or data");
       }
     } catch (e) {

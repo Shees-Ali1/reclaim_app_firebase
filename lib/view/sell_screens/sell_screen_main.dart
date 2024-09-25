@@ -38,6 +38,7 @@ class _SellScreenMainState extends State<SellScreenMain> {
     super.initState();
     productsListingController.fetchUserProductListing();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,13 +170,17 @@ class _SellScreenMainState extends State<SellScreenMain> {
                                   SizedBox(
                                     height: 30.h,
                                   ),
+                                  // Modify your GridView.builder
                                   GridView.builder(
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2, // Number of columns
-                                          crossAxisSpacing: 8.0, // Horizontal space between items
-                                          mainAxisSpacing: 8.0, // Vertical space between items
-                                          childAspectRatio: 0.75, // Aspect ratio of each item
+                                      crossAxisCount: 2, // Number of columns
+                                      crossAxisSpacing:
+                                          8.0, // Horizontal space between items
+                                      mainAxisSpacing:
+                                          8.0, // Vertical space between items
+                                      childAspectRatio:
+                                          0.75, // Aspect ratio of each item
                                     ),
                                     clipBehavior: Clip.none,
                                     padding: EdgeInsets.zero,
@@ -187,6 +192,15 @@ class _SellScreenMainState extends State<SellScreenMain> {
                                     itemBuilder: (context, index) {
                                       final product = productsListingController
                                           .mySellListings[index];
+
+                                      // Ensure the productImages field is handled correctly (e.g., showing the first image)
+                                      String firstProductImage = '';
+                                      if (product['productImages'] is List &&
+                                          product['productImages'].isNotEmpty) {
+                                        firstProductImage =
+                                            product['productImages']
+                                                [0]; // Access the first image
+                                      }
 
                                       return GestureDetector(
                                         onTap: () {
@@ -209,7 +223,7 @@ class _SellScreenMainState extends State<SellScreenMain> {
                                           product['brand'],
                                           product['productName'],
                                           product['productPrice'],
-                                          product['productImage'],
+                                          firstProductImage, // Pass the first image to the productCard
                                           context,
                                           homeController,
                                         ),

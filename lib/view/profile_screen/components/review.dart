@@ -33,7 +33,7 @@ class ReviewScreen extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No reviews available.'));
+                  return Center(child: Text('No seller ratings available.'));
                 }
 
                 final reviews = snapshot.data!;

@@ -207,18 +207,28 @@ class ProductsListingController extends GetxController {
     '3XL',
     '4XL',
   ];
-  List<String> categorys = ['All', 'Fashion', 'Men', 'Women'];
-  File? imageFile;
+  List<String> categorys = ['Accessories', 'Fashion', 'Men', 'Women','Kids'];
+  List<File?> imageFiles = [];
+
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      imageFile = File(pickedFile.path);
-
-      update();
+      if (imageFiles.length < 3) {
+        imageFiles.add(File(pickedFile.path));
+        update();
+      } else {
+        // Handle the case when more than 3 images are selected
+        Get.snackbar("Limit Reached", "You can only add up to 3 images.");
+      }
     }
+  }
+
+  void removeImage(int index) {
+    imageFiles.removeAt(index);
+    update();
   }
 
   RxList<Map<String, dynamic>> mySellListings = <Map<String, dynamic>>[].obs;
@@ -227,20 +237,17 @@ class ProductsListingController extends GetxController {
   Future<void> addProductListing(BuildContext context) async {
     try {
       isLoading.value = true;
+
       if (titleController.text.isNotEmpty &&
           priceController.text.isNotEmpty &&
-          // classNameController.text.isNotEmpty &&
-          // categoryController.text.isNotEmpty &&
-          imageFile != null) {
-        print('hello');
-        DocumentReference productId =
-            await FirebaseFirestore.instance.collection('productsListing').add({
+          imageFiles != null && imageFiles.isNotEmpty) {
+
+        // Add product listing details to Firestore
+        DocumentReference productId = await FirebaseFirestore.instance.collection('productsListing').add({
           'productName': titleController.text,
           'brand': brandController.text,
           'category': category.value,
           'size': size.value,
-          // 'sold': false,
-          // 'bookClass': classNameController.text,
           'productCondition': bookCondition.value,
           'productPrice': int.tryParse(priceController.text) ?? 0,
           'postedDate': DateTime.now(),
@@ -248,81 +255,81 @@ class ProductsListingController extends GetxController {
           'Description': DescriptionController.text,
           'approval': false,
         });
-        print('hello1');
-        // DocumentSnapshot userSnap=   await FirebaseFirestore.instance.collection('userDetails').doc(FirebaseAuth.instance.currentUser!.uid).get();
-        // // dynamic userData=userSnap.data();
-        // // // String schoolName=userData['userSchool'];
-        await uploadProductImage(productId.id);
 
-        await FirebaseFirestore.instance
-            .collection('productsListing')
-            .doc(productId.id)
-            .set({
+        // Upload all selected images and get their URLs
+        List<String> imageUrls = await uploadProductImages(productId.id);
+
+        // Update Firestore document with image URLs
+        await FirebaseFirestore.instance.collection('productsListing').doc(productId.id).set({
           'listingId': productId.id,
-          'productImage': imageUrl,
-          // 'schoolName':schoolName
+          'productImages': imageUrls, // Store list of image URLs
         }, SetOptions(merge: true));
-        imageFile = null;
-        print('hello');
-        Get.snackbar('Success', "product Listing Added");
+
+        // Reset and notify success
+        imageFiles.clear();
+        Get.snackbar('Success', "Product Listing Added");
         isLoading.value = false;
         CustomRoute.navigateTo(context, ApprovalSellScreen());
         await fetchUserProductListing();
         titleController.clear();
+        DescriptionController.clear();
         brandController.clear();
-        // categoryController.clear();
         classNameController.clear();
         priceController.clear();
+
       } else {
         Get.snackbar('Missing Values', "Enter All Fields");
         isLoading.value = false;
       }
     } catch (e) {
       isLoading.value = false;
-      print("Error listing product $e");
+      print("Error listing product: $e");
     }
   }
+
 
   String imageUrl = '';
-  Future<void> uploadProductImage(String listingId) async {
+  Future<List<String>> uploadProductImages(String listingId) async {
+    List<String> imageUrls = [];
+
     try {
-      // Get a reference to the Firebase Storage location
-      Reference storageReference = FirebaseStorage.instance
-          .ref()
-          .child('product_listing_images')
-          .child('$listingId.jpg');
+      // Loop through all selected images and upload each one
+      for (int i = 0; i < imageFiles.length; i++) {
+        File? imageFile = imageFiles[i];
+        if (imageFile != null) {
+          Reference storageReference = FirebaseStorage.instance
+              .ref()
+              .child('product_listing_images')
+              .child('$listingId/image_$i.jpg');
 
-      // Upload the image
-      UploadTask uploadTask = storageReference.putFile(imageFile!);
-      TaskSnapshot taskSnapshot = await uploadTask;
+          UploadTask uploadTask = storageReference.putFile(imageFile);
+          TaskSnapshot taskSnapshot = await uploadTask;
 
-      imageUrl = await taskSnapshot.ref.getDownloadURL();
-      update();
-
-      print("Image uploaded");
+          String imageUrl = await taskSnapshot.ref.getDownloadURL();
+          imageUrls.add(imageUrl); // Add the URL to the list
+        }
+      }
+      print("Images uploaded");
     } catch (e) {
-      print('Error uploading image to Firebase Storage: $e');
+      print('Error uploading images to Firebase Storage: $e');
     }
+
+    return imageUrls;
   }
 
+
   // **************update book listings of  user**********
-  Future<void> updateProductListing(
-      BuildContext context, String listingId) async {
+  Future<void> updateProductListing(BuildContext context, String listingId) async {
     try {
       isLoading.value = true;
-      if (titleController.text.isNotEmpty && priceController.text.isNotEmpty
-          // classNameController.text.isNotEmpty &&
-          // categoryController.text.isNotEmpty
-          ) {
-        await FirebaseFirestore.instance
-            .collection('productsListing')
-            .doc(listingId)
-            .update({
+
+      if (titleController.text.isNotEmpty && priceController.text.isNotEmpty) {
+        // Update product listing details in Firestore
+        await FirebaseFirestore.instance.collection('productsListing').doc(listingId).update({
           'productName': titleController.text,
           'brand': brandController.text,
           'category': category.value,
           'size': size.value,
-          // 'bookClass': classNameController.text,
           'productCondition': bookCondition.value,
           'productPrice': int.tryParse(priceController.text) ?? 0,
           'postedDate': DateTime.now(),
@@ -330,28 +337,29 @@ class ProductsListingController extends GetxController {
           'Description': DescriptionController.text,
           'approval': false,
         });
-        if (imageFile != null) {
-          await uploadProductImage(listingId);
-          await FirebaseFirestore.instance
-              .collection('productsListing')
-              .doc(listingId)
-              .set({
-            'productImage': imageUrl,
+
+        // Check if there are any new images to upload
+        if (imageFiles != null && imageFiles.isNotEmpty) {
+          // Upload multiple images and get the new URLs
+          List<String> newImageUrls = await uploadProductImages(listingId);
+
+          // Update Firestore with new image URLs (merging with existing images)
+          await FirebaseFirestore.instance.collection('productsListing').doc(listingId).set({
+            'productImages': FieldValue.arrayUnion(newImageUrls), // Merge new images with existing ones
           }, SetOptions(merge: true));
-          imageFile = null;
+
+          imageFiles.clear(); // Clear the images after upload
         }
-        // mySellListings.refresh();
-        // update();
-        // Get.back();
+
         Get.snackbar('Success', "Product Listing Updated");
         isLoading.value = false;
 
         CustomRoute.navigateTo(context, ApprovalSellScreen());
         await fetchUserProductListing();
-        // await homeController.fetchAllListings();
+
+        // Clear the text fields after update
         titleController.clear();
         brandController.clear();
-        // categoryController.clear();
         classNameController.clear();
         priceController.clear();
       } else {
@@ -360,10 +368,10 @@ class ProductsListingController extends GetxController {
       }
     } catch (e) {
       isLoading.value = false;
-
-      print("Error listing book $e");
+      print("Error updating product listing: $e");
     }
   }
+
 
   // **************Fetch product listings of that user**********
   Future<void> fetchUserProductListing() async {
@@ -451,10 +459,10 @@ class ProductsListingController extends GetxController {
       await notificationController.sendFcmMessage(
           'New message', 'You got the order', sellerId);
 
-      await notificationController.storeNotification(
-          purchasePrice, docRef.id, listingId, productName, 'purchased',sellerId);
+      await notificationController.storeNotification(purchasePrice, docRef.id,
+          listingId, productName, 'purchased', sellerId);
       await notificationController.sendnotificationtoseller(
-          purchasePrice, docRef.id, listingId, productName, 'seller',sellerId);
+          purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
 
       await chatController.createChatConvo(
           listingId,
@@ -527,15 +535,10 @@ class ProductsListingController extends GetxController {
       );
 
       // Store the notification in Firestore
-      await notificationController.storeNotification(
-        purchasePrice,
-        listingId,
-        listingId,
-        productName,
-        'purchased',sellerId
-      );
+      await notificationController.storeNotification(purchasePrice, listingId,
+          listingId, productName, 'purchased', sellerId);
       await notificationController.sendnotificationtoseller(
-          purchasePrice, docRef.id, listingId, productName, 'seller',sellerId);
+          purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
       print("Product purchased successfully");
       isLoading.value = false;
     } catch (e) {
@@ -557,6 +560,7 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       offerLoadind.value = true;
+
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('orders')
           .where(
@@ -565,30 +569,36 @@ class ProductsListingController extends GetxController {
           )
           .where('productId', isEqualTo: listingId)
           .get();
+
       print("chat create1");
-      if (querySnapshot.docs.first.exists) {
+
+      // Check if querySnapshot is not empty
+      if (querySnapshot.docs.isNotEmpty) {
+        // Access the first document safely
+        DocumentSnapshot firstDoc = querySnapshot.docs.first;
+
         Get.to(
           ChatScreen(
             sellerId: sellerId == FirebaseAuth.instance.currentUser!.uid
-                ? querySnapshot.docs.first['buyerId']
+                ? firstDoc['buyerId']
                 : sellerId,
             buyerId: FirebaseAuth.instance.currentUser!.uid,
             productName: productName,
             brand: brand,
-            image:productImage,
-            chatName:'Make Offer $productName',
-            chatId: querySnapshot.docs.first.id,
+            image: productImage,
+            chatName: 'Make Offer $productName',
+            chatId: firstDoc.id,
             seller: sellerId,
             productId: listingId,
             productPrice: purchasePrice,
           ),
         );
-      }else{
+      } else {
+        // If no document found, create a new order and chat conversation
         DocumentReference docRef =
-        await FirebaseFirestore.instance.collection('orders').add({
+            await FirebaseFirestore.instance.collection('orders').add({
           // listing id is our product id
           'productId': listingId,
-
           'buyerId': FirebaseAuth.instance.currentUser!.uid,
           'orderDate': DateTime.now(),
           'deliveryStatus': false,
@@ -603,17 +613,43 @@ class ProductsListingController extends GetxController {
             .doc(docRef.id)
             .set({'orderId': docRef.id}, SetOptions(merge: true));
 
-        await chatController.createChatConvo(listingId, docRef.id, productName,
-            sellerId, productImage, purchasePrice, "I want to make offer", brand);
+        await chatController.createChatConvo(
+          listingId,
+          docRef.id,
+          productName,
+          sellerId,
+          productImage,
+          purchasePrice,
+          "I want to make offer",
+          brand,
+        );
+
         await chatController.getorderId(listingId);
 
         print("chat create");
         Get.snackbar('Success', 'Chat Created');
+
+        Get.to(
+          ChatScreen(
+            sellerId: sellerId == FirebaseAuth.instance.currentUser!.uid
+                ? FirebaseAuth.instance.currentUser!.uid
+                : sellerId,
+            buyerId: FirebaseAuth.instance.currentUser!.uid,
+            productName: productName,
+            brand: brand,
+            image: productImage,
+            chatName: 'Make Offer $productName',
+            chatId: docRef.id,
+            seller: sellerId,
+            productId: listingId,
+            productPrice: purchasePrice,
+          ),
+        );
       }
 
       offerLoadind.value = false;
     } catch (e) {
-      print("error chat create$e");
+      print("error chat create: $e");
       offerLoadind.value = false;
     } finally {
       offerLoadind.value = false;
