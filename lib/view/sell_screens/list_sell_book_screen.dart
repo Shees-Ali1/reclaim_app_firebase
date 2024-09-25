@@ -357,6 +357,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               ),
               // SizedBox(height: 8.h,),
               CustomSellTextField(
+                maxLines: 3,
                 controller: productsListingController.DescriptionController,
               ),
               SizedBox(
@@ -485,13 +486,16 @@ class CustomSellTextField extends StatelessWidget {
   final Icon? prefixIcon;
   final TextInputType? keyboard;
   final Icon? suffixIcon;
+  final int? maxLines; // Add maxLines parameter
 
-  const CustomSellTextField(
-      {super.key,
-      this.controller,
-      this.prefixIcon,
-      this.keyboard,
-      this.suffixIcon});
+  const CustomSellTextField({
+    super.key,
+    this.controller,
+    this.prefixIcon,
+    this.keyboard,
+    this.suffixIcon,
+    this.maxLines, // Include maxLines in the constructor
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -500,32 +504,35 @@ class CustomSellTextField extends StatelessWidget {
       child: SizedBox(
         width: 327.w,
         child: TextField(
+          maxLines: maxLines ?? 1, // Use the maxLines parameter
           keyboardType: keyboard,
           controller: controller,
           style: GoogleFonts.lexend(
-              textStyle: TextStyle(
-                  color: titleColor,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500)),
+            textStyle: TextStyle(
+              color: titleColor,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20.r),
-                borderSide: BorderSide.none,
-              ),
-              fillColor: primaryColor.withOpacity(0.08),
-              filled: true,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-              prefixIcon: prefixIcon,
-              suffixIcon: suffixIcon,
-              suffixIconColor: greenColor
-              // hintText: 'Search',
-              // hintStyle: GoogleFonts.inter(
-              //     textStyle: TextStyle(
-              //         color: Colors.white,
-              //         fontSize: 15.11.sp,
-              //         fontWeight: FontWeight.w500)),
-              ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.r),
+              borderSide: BorderSide.none,
+            ),
+            fillColor: primaryColor.withOpacity(0.08),
+            filled: true,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
+            suffixIconColor: greenColor,
+            // hintText: 'Search',
+            // hintStyle: GoogleFonts.inter(
+            //     textStyle: TextStyle(
+            //         color: Colors.white,
+            //         fontSize: 15.11.sp,
+            //         fontWeight: FontWeight.w500)),
+          ),
         ),
       ),
     );
