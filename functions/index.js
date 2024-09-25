@@ -137,3 +137,66 @@ exports.sendChatNotification = functions.firestore
       console.error('Error processing chat notification:', error);
     }
   });
+
+exports.sendNotificationOnOfferStatusChange = functions.firestore
+    .document('orders/{orderId}')
+    .onUpdate(async (change, context) => {
+        const after = change.after.data();
+        const before = change.before.data();
+
+        const orderId = context.params.orderId;
+        const offersAfter = after.offers;
+        const offersBefore = before.offers;
+
+        // Check if isAccepted has changed
+        if (offersAfter.isAccepted !== offersBefore.isAccepted) {
+            const buyerId = after.buyerId;  // Fetch buyerId from the document
+            const offerPrice = offersAfter.offerPrice;  // Fetch the offer price
+
+            let notificationTitle = '';
+            let notificationBody = '';
+
+            // Determine the type of notification based on isAccepted value
+            if (offersAfter.isAccepted === 'accepted') {
+                notificationTitle = 'Offer Accepted';
+                notificationBody = `Your offer of $${offerPrice} has been accepted for order ID: ${orderId}.`;
+            } else if (offersAfter.isAccepted === 'rejected') {
+                notificationTitle = 'Offer Rejected';
+                notificationBody = `Your offer of $${offerPrice} has been rejected for order ID: ${orderId}.`;
+            }
+
+            try {
+                // Fetch buyer's FCM token from userDetails collection
+                const userDoc = await admin.firestore().collection('userDetails').doc(buyerId).get();
+
+                if (!userDoc.exists) {
+                    console.error('User not found for buyerId:', buyerId);
+                    return null;
+                }
+
+                const userData = userDoc.data();
+                const buyerToken = userData.fcmToken;  // Assuming the FCM token is stored as fcmToken
+
+                const message = {
+                    token: buyerToken,  // Buyer's FCM token
+                    notification: {
+                        title: notificationTitle,
+                        body: notificationBody,
+                    },
+                    data: {
+                        orderId: context.params.orderId,  // Order ID in the data payload
+                        buyerId: buyerId,  // Buyer ID
+                        offerPrice: offerPrice.toString(),  // Offer price as string
+                    },
+                };
+
+                // Send notification to the buyer's device
+                const response = await admin.messaging().send(message);
+                console.log('Successfully sent offer status notification:', response);
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        }
+
+        return null;  // Return null if no change in isAccepted field
+    });
