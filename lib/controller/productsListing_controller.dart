@@ -238,6 +238,19 @@ class ProductsListingController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Check if the user already has 20 listings
+      QuerySnapshot userListings = await FirebaseFirestore.instance
+          .collection('productsListing')
+          .where('sellerId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+
+      if (userListings.docs.length >= 20) {
+        Get.snackbar('Limit Exceeded', "You can only have 20 listings.");
+        isLoading.value = false;
+        return;
+      }
+
+      // Proceed if all fields are valid
       if (titleController.text.isNotEmpty &&
           priceController.text.isNotEmpty &&
           imageFiles != null && imageFiles.isNotEmpty) {
