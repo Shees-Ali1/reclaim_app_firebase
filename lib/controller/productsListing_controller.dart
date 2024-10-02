@@ -266,7 +266,7 @@ class ProductsListingController extends GetxController {
           'postedDate': DateTime.now(),
           'sellerId': FirebaseAuth.instance.currentUser!.uid,
           'Description': DescriptionController.text,
-          'approval': false,
+          // 'approval': false,
         });
 
         // Upload all selected images and get their URLs
@@ -282,7 +282,7 @@ class ProductsListingController extends GetxController {
         imageFiles.clear();
         Get.snackbar('Success', "Product Listing Added");
         isLoading.value = false;
-        CustomRoute.navigateTo(context, ApprovalSellScreen());
+       CustomRoute.navigateTo(context, ApprovalSellScreen());
         await fetchUserProductListing();
         titleController.clear();
         DescriptionController.clear();
@@ -301,7 +301,7 @@ class ProductsListingController extends GetxController {
   }
 
 
-  String imageUrl = '';
+  // String imageUrl = '';
   Future<List<String>> uploadProductImages(String listingId) async {
     List<String> imageUrls = [];
 
@@ -320,15 +320,20 @@ class ProductsListingController extends GetxController {
 
           String imageUrl = await taskSnapshot.ref.getDownloadURL();
           imageUrls.add(imageUrl); // Add the URL to the list
+        } else {
+          // Log or handle the null imageFile case
+          print('Image file is null at index $i');
         }
       }
       print("Images uploaded");
     } catch (e) {
       print('Error uploading images to Firebase Storage: $e');
+      Get.snackbar('Error', "Failed to upload images.");
     }
 
     return imageUrls;
   }
+
 
 
   // **************update book listings of  user**********

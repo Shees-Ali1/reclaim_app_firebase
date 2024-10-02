@@ -53,7 +53,7 @@ class ApprovalSellScreen extends StatelessWidget {
                           width: 300.w,
                           child: InterCustomText(
                             textAlign:  TextAlign.center,
-                            text: 'Your item is pending approval from Reclaim',
+                            text: 'Your item is Listed Successfully',
                             textColor: headingBlackColor,
                             fontsize: 20.sp,
                             fontWeight: FontWeight.w500,

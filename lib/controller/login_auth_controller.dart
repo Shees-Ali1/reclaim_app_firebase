@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:reclaim_firebase_app/controller/wallet_controller.dart';
 import '../Auth/login_view.dart';
 import '../helper/loading.dart';
 import '../view/nav_bar/app_nav_bar.dart';
@@ -69,6 +70,7 @@ class LoginAuthController extends GetxController {
     super.dispose();
   }
   final SignUpController signUpController = Get.find<SignUpController>();
+  final WalletController walletController = Get.put(WalletController());
   RxBool loginObscure = false.obs;
 
   void eyeIconLogin() {
@@ -98,7 +100,7 @@ class LoginAuthController extends GetxController {
         await productsListingController.fetchUserProductListing();
         await userController.checkForProfileUpdate(FirebaseAuth.instance.currentUser!.uid);
         await userController.checkIfAccountIsDeleted();
-        await  wishlistController.fetchuserwallet();
+       await  walletController.fetchuserwallet();
         Get.snackbar('Success', 'Login Success');
       signUpController.isLoading.value = false;
 
@@ -235,11 +237,11 @@ class LoginAuthController extends GetxController {
           "userPassword":'',
 
         },SetOptions(merge: true));
-        // await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
-        //     {
-        //       'balance':0,
-        //       'userId':uid,
-        //     },SetOptions(merge: true));
+        await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
+            {
+              'balance':0,
+              'userId':uid,
+            },SetOptions(merge: true));
         // _authController.signupName.value = uName!;
         // _authController.signupEmail.value = uEmail!;
         // _authController.profileURL.value = uPhoto!;

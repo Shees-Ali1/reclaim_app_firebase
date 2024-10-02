@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
+import 'package:reclaim_firebase_app/controller/wallet_controller.dart';
 import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
 import '../../const/assets/image_assets.dart';
 import '../../const/color.dart';
@@ -30,6 +31,7 @@ class HomeScreenBooks extends StatefulWidget {
 
 class _HomeScreenBooksState extends State<HomeScreenBooks> {
   final HomeController homeController = Get.put(HomeController());
+  final WalletController walletController = Get.put(WalletController());
   final UserController userController = Get.find<UserController>();
   final ProductsListingController productsListingController =
       Get.find<ProductsListingController>();
@@ -75,7 +77,7 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
     userController.checkIfAccountIsDeleted();
     userController.getPurchasePrice();
 
-    //    walletController.fetchuserwallet();
+       walletController.fetchuserwallet();
   }
 
   Future<List<Map<String, dynamic>>> fetchCategories() async {
@@ -388,45 +390,44 @@ class _HomeScreenBooksState extends State<HomeScreenBooks> {
                                 ),
                               ],
                             )
-                          : GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: homeController.filterredProduct.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, // Number of columns
-                                crossAxisSpacing:
-                                    8.0, // Horizontal space between items
-                                mainAxisSpacing:
-                                    8.0, // Vertical space between items
-                                childAspectRatio:
-                                    0.75, // Aspect ratio of each item
-                              ),
-                              itemBuilder: (context, index) {
-                                var product =
-                                    homeController.filterredProduct[index];
-                                return GestureDetector(
-                                  onTap: () {
-                                    Get.to(BookDetailsScreen(
-                                      bookDetail:
-                                          product, // Pass the product data
-                                      index: index,
-                                      comingfromSellScreen: false,
-                                    ));
-                                  },
-                                  child: productCard(
-                                    product.id,
-                                    product['productCondition'],
-                                    product['brand'],
-                                    product['productName'],
-                                    product['productPrice'],
-                                    product['productImages'][0],
-                                    context,
-                                    homeController,
-                                  ),
-                                );
-                              },
-                            );
+                          : homeController.filterredProduct.isNotEmpty
+                          ? GridView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: homeController.filterredProduct.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // Number of columns
+                          crossAxisSpacing: 8.0, // Horizontal space between items
+                          mainAxisSpacing: 8.0, // Vertical space between items
+                          childAspectRatio: 0.75, // Aspect ratio of each item
+                        ),
+                        itemBuilder: (context, index) {
+                          var product = homeController.filterredProduct[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Get.to(BookDetailsScreen(
+                                bookDetail: product, // Pass the product data
+                                index: index,
+                                comingfromSellScreen: false,
+                              ));
+                            },
+                            child: productCard(
+                              product.id,
+                              product['productCondition'],
+                              product['brand'],
+                              product['productName'],
+                              product['productPrice'],
+                              product['productImages'][0],
+                              context,
+                              homeController,
+                            ),
+                          );
+                        },
+                      )
+                          : Center(
+                        child: Text('No products found'),
+                      );
+
                     });
                   }
                 },

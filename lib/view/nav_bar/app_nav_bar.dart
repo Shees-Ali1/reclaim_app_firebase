@@ -214,6 +214,7 @@ import '../drawer/drawer.dart';
 import '../home_screen/home_screen_books.dart';
 import '../profile_screen/profile.dart';
 import '../sell_screens/sell_screen_main.dart';
+import '../wallet/wallet.dart';
 import '../wishlist/wishlist.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -239,6 +240,7 @@ class _BottomNavBarState extends State<BottomNavBar>
     _pages = [
       const HomeScreenBooks(),
       const SellScreenMain(),
+       Wallet(),
       const Wishlist(),
       const Profile(),
     ];
@@ -294,6 +296,21 @@ class _BottomNavBarState extends State<BottomNavBar>
                 ),
               ),
               label: 'Sell',
+              labelStyle: GoogleFonts.jost(
+                color: whiteColor,
+                fontWeight: FontWeight.w400,
+                fontSize: 11.sp,
+              ),
+            ), CurvedNavigationBarItem(
+              child: SizedBox(
+                height: 28.h,
+                width: 28.w,
+                child: SvgPicture.asset(
+                  AppIcons.disc,
+                  color: Colors.white,
+                ),
+              ),
+              label: 'Wallet',
               labelStyle: GoogleFonts.jost(
                 color: whiteColor,
                 fontWeight: FontWeight.w400,

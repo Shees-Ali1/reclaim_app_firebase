@@ -14,6 +14,8 @@ import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../widgets/payment_method.dart';
+
 class BookDetailsScreen extends StatefulWidget {
   final dynamic bookDetail;
   final int index;
@@ -329,18 +331,68 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               }),
                             ),
                             GestureDetector(
-                              onTap: () async {
-                                if (productsListingController.isLoading.value ==
-                                    false) {
-                                  await productsListingController.buyProduct(
-                                      widget.bookDetail['listingId'],
-                                      widget.bookDetail['sellerId'],
-                                      widget.bookDetail['brand'],
-                                      context,
-                                      widget.bookDetail['productName'],
-                                      widget.bookDetail['productPrice'],
-                                      widget.bookDetail['productImages'][0]);
-                                }
+                              onTap: () {
+                                showModalBottomSheet(
+                                    // isScrollControlled: true,
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.r)),
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                        // height: 450.h,
+
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20.w),
+                                        width: double.infinity,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SizedBox(
+                                              height: 20.h,
+                                            ),
+                                            Container(
+                                              width: 30.w,
+                                              height: 4.h,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.black,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          4.r)),
+                                            ),
+                                            SizedBox(
+                                              height: 20.h,
+                                            ),
+                                            PaymentSelectionScreen(),
+                                            Spacer(),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10),
+                                              height: 58.h,
+                                              width: 300.w,
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                  color: primaryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.r)),
+                                              child: MontserratCustomText(
+                                                text: 'Continue',
+                                                textColor: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                                fontsize: 16.sp,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 30.h,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    });
                               },
                               child: Obx(() {
                                 return Container(
