@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:reclaim_firebase_app/controller/productsListing_controller.dart';
 import 'package:reclaim_firebase_app/view/profile_screen/components/following.dart';
+import 'package:reclaim_firebase_app/view/support_chat/support_chat.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../const/assets/image_assets.dart';
@@ -518,6 +519,16 @@ class _ProfileState extends State<Profile> {
                         },
                         title: 'Followings',
                         imgUrl: AppIcons.following,
+                      ),
+                      SizedBox(
+                        height: 9.h,
+                      ),
+                      ProfileWidget(
+                        onTap: () {
+                          CustomRoute.navigateTo(context, SupportChatScreen());
+                        },
+                        title: 'Support Chat',
+                        imgUrl: AppIcons.termcondIcon,
                       ),
                       SizedBox(
                         height: 9.h,

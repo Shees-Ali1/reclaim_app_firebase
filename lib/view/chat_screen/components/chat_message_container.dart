@@ -254,7 +254,7 @@ class ChatMessageContainer extends StatelessWidget {
   final String chatId;
   final String image;
 
-  const ChatMessageContainer({
+  const  ChatMessageContainer({
     super.key,
     required this.chatId,
     required this.image,

@@ -31,7 +31,6 @@ class ProfileWidget extends StatelessWidget {
           width: 50.w,
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(primaryColor, BlendMode.srcIn),
-
         ),
         title: Padding(
           padding: EdgeInsets.only(left: 10.sp),
