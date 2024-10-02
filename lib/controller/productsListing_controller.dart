@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reclaim_firebase_app/controller/wishlist_controller.dart';
+import 'package:reclaim_firebase_app/helper/loading.dart';
 import '../const/color.dart';
 import '../view/chat_screen/chat_screen.dart';
 import '../view/home_screen/components/buy_dialog_box.dart';
@@ -421,6 +422,7 @@ class ProductsListingController extends GetxController {
 // **************buy book**********
   RxBool isLoading = false.obs;
   RxBool offerLoadind = false.obs;
+
   Future<void> buyProduct(
     String listingId,
     String sellerId,
@@ -432,31 +434,33 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
-
+       int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice - appFees;
       print("book bought111");
-      DocumentReference docRef =
-          await FirebaseFirestore.instance.collection('orders').add({
+      DocumentReference docRef = await FirebaseFirestore.instance.collection('orders').add({
         // listing id is our book id
         'productId': listingId,
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
         'orderDate': DateTime.now(),
         'deliveryStatus': false,
         'isOrdered': true,
-
         'sellerId': sellerId,
         'brand': brand,
-        // 'buyerApproval': false,
-        // 'sellerApproval': false,
+        'buyerApproval': false,
+        'sellerApproval': false,
         'buyingprice': purchasePrice,
-        // 'appFees': appFees,
-        // 'finalPrice': finalPrice,
+        'appFees': appFees,
+       'finalPrice': finalPrice,
       });
 
       await FirebaseFirestore.instance
           .collection('orders')
           .doc(docRef.id)
           .set({'orderId': docRef.id}, SetOptions(merge: true));
-      // await wishlistController.updatebalance(purchasePrice);
+
+     // await walletController.updatebalance(purchasePrice);
+     await walletController.storetransactionhistory(purchasePrice, 'buy',FirebaseAuth.instance.currentUser!.uid);
+
       await FirebaseFirestore.instance
           .collection('userDetails')
           .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -464,23 +468,12 @@ class ProductsListingController extends GetxController {
         'userPurchases': FieldValue.arrayUnion([listingId]),
       }, SetOptions(merge: true));
       userController.userPurchases.add(listingId);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              content: BuyDialogBox(
-            sellerId: sellerId,
-            buyerId: FirebaseAuth.instance.currentUser!.uid,
-          ));
-        },
-      );
-      await notificationController.sendFcmMessage(
-          'New message', 'You got the order', sellerId);
 
-      await notificationController.storeNotification(purchasePrice, docRef.id,
-          listingId, productName, 'purchased', sellerId);
-      await notificationController.sendnotificationtoseller(
-          purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
+      await walletController.sendBalanceToSeller(finalPrice, sellerId);
+      await walletController.storetransactionhistory(finalPrice, 'sale',sellerId);
+
+      await notificationController.storeNotification(purchasePrice, docRef.id, listingId, productName, 'purchased', sellerId);
+      await notificationController.sendnotificationtoseller(purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
 
       await chatController.createChatConvo(
           listingId,
@@ -492,7 +485,12 @@ class ProductsListingController extends GetxController {
           'You got the order on $productName',
           brand);
       await chatController.getorderId(listingId);
-
+      Get.dialog( AlertDialog(
+          content: BuyDialogBox(
+            sellerId: sellerId,
+            buyerId: FirebaseAuth.instance.currentUser!.uid,
+          )));
+      userController.userPurchases.add(listingId);
       print("product bought");
       isLoading.value = false;
 
@@ -521,12 +519,21 @@ class ProductsListingController extends GetxController {
       // Reference the existing order document by listingId
       DocumentReference docRef =
           FirebaseFirestore.instance.collection('orders').doc(orderId);
-
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice - appFees;
       // Merge changes to the existing order document
       await docRef.set({
-        'deliveryStatus': true, // Updating delivery status to true
+        'deliveryStatus': false, // Updating delivery status to true
         'isOrdered': true, // Updating to reflect the order has been placed
+        'buyingprice': purchasePrice,
+        'appFees': appFees,
+        'finalPrice': finalPrice,
       }, SetOptions(merge: true));
+
+      await walletController.sendBalanceToSeller(finalPrice, sellerId);
+      await walletController.storetransactionhistory(finalPrice, 'sale',sellerId);
+      await walletController.storetransactionhistory(purchasePrice, 'buy',FirebaseAuth.instance.currentUser!.uid);
+      userController.userPurchases.add(listingId);
 
       // Update the buyer's userDetails
       await FirebaseFirestore.instance
@@ -624,6 +631,8 @@ class ProductsListingController extends GetxController {
           'sellerId': sellerId,
           'buyingprice': purchasePrice,
           'brand': brand,
+              'buyerApproval': false,
+              'sellerApproval': false,
         });
 
         await FirebaseFirestore.instance

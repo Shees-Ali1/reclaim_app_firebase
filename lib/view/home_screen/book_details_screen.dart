@@ -9,7 +9,10 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../const/color.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/home_controller.dart';
+import '../../controller/paymentController.dart';
 import '../../controller/user_controller.dart';
+import '../../helper/stripe_payment.dart';
+import '../../helper/stripe_purchasing.dart';
 import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -38,7 +41,28 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   final UserController userController = Get.find<UserController>();
   final ChatController chatController = Get.find<ChatController>();
   late final String formattedDate;
+  final StripePaymentPurchasing stripePaymentPurchasing =
+      StripePaymentPurchasing();
 
+  String selectedPayment = '';
+
+  final List<Map<String, dynamic>> payments = [
+    {
+      'name': 'Stripe',
+      'logo': Icons.account_balance,
+      'checked': true,
+    },
+    {
+      'name': 'Paypal',
+      'logo': Icons.account_balance_wallet,
+      'checked': false,
+    },
+    {
+      'name': 'Apple card',
+      'logo': Icons.account_balance_outlined,
+      'checked': false,
+    },
+  ];
   @override
   void initState() {
     // TODO: implement initState
@@ -60,6 +84,67 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   void dispose() {
     _pageController.dispose(); // Dispose the controller when done
     super.dispose();
+  }
+
+  void showPaymentBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      GetBuilder<PaymentController>(
+        init: PaymentController(), // Initialize the controller
+        builder: (controller) {
+          return Container(
+            height: 400,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: controller.payments.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: controller.selectedPayment ==
+                            controller.payments[index]['name']
+                        ? primaryColor
+                        : primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: controller.selectedPayment ==
+                              controller.payments[index]['name']
+                          ? Colors.transparent
+                          : primaryColor,
+                    ),
+                  ),
+                  child: RadioListTile<String>(
+                    value: controller.payments[index]['name']!,
+                    groupValue: controller.selectedPayment,
+                    onChanged: (String? value) {
+                      controller
+                          .selectPayment(value!); // Update the selected payment
+                    },
+                    title: Row(
+                      children: [
+                        Text(
+                          controller.payments[index]['name']!,
+                          style: TextStyle(
+                            color: controller.selectedPayment ==
+                                    controller.payments[index]['name']
+                                ? Colors.white
+                                : Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    activeColor: Colors.white,
+                    controlAffinity: ListTileControlAffinity.trailing,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -234,195 +319,350 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 28.0),
-              child: widget.bookDetail['sellerId'] ==
-                      FirebaseAuth.instance.currentUser!.uid
-                  ? GestureDetector(
-                      onTap: () {
-                        productsListingController.removeListing(
-                            widget.bookDetail['listingId'],
-                            widget.bookDetail['sellerId'],
-                            widget.bookDetail['productName']);
-                      },
-                      child: Obx(() {
-                        return Center(
-                          child: Container(
-                            height: 58.h,
-                            width: 250.w,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(20.r)),
-                            child: productsListingController.isLoading.value ==
-                                    true
-                                ? Center(
-                                    child: CircularProgressIndicator(
-                                    color: whiteColor,
-                                  ))
-                                : MontserratCustomText(
-                                    text: "Cancel This Listing",
-                                    textColor: Colors.white,
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 16.sp,
-                                  ),
-                          ),
-                        );
-                      }),
-                    )
-                  : userController.userPurchases
-                          .contains(widget.bookDetail['listingId'])
-                      ? Center(
-                          child: Container(
-                            height: 58.h,
-                            width: 250.w,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(20.r)),
-                            child: MontserratCustomText(
-                              text: "Purchased", // Show purchased message
-                              textColor: Colors.white,
-                              fontWeight: FontWeight.w500,
-
-                              fontsize: 16.sp,
-                            ),
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                await productsListingController
-                                    .createchatwithoutroffer(
-                                  widget.bookDetail['listingId'],
-                                  widget.bookDetail['sellerId'],
-                                  context,
-                                  widget.bookDetail['productName'],
-                                  widget.bookDetail['productPrice'],
-                                  widget.bookDetail['productImages'][0],
-                                  widget.bookDetail['brand'],
-                                );
-                              },
-                              child: Obx(() {
-                                return Container(
-                                  height: 58.h,
-                                  width: 155.w,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: Color(0xffFFB9B9),
-                                      borderRadius:
-                                          BorderRadius.circular(20.r)),
-                                  child: productsListingController
-                                              .offerLoadind.value ==
+                padding: EdgeInsets.symmetric(horizontal: 28.0),
+                child: widget.bookDetail['sellerId'] ==
+                        FirebaseAuth.instance.currentUser!.uid
+                    ? GestureDetector(
+                        onTap: () {
+                          productsListingController.removeListing(
+                              widget.bookDetail['listingId'],
+                              widget.bookDetail['sellerId'],
+                              widget.bookDetail['productName']);
+                        },
+                        child: Obx(() {
+                          return Center(
+                            child: Container(
+                              height: 58.h,
+                              width: 250.w,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(20.r)),
+                              child:
+                                  productsListingController.isLoading.value ==
                                           true
                                       ? Center(
                                           child: CircularProgressIndicator(
                                           color: whiteColor,
                                         ))
                                       : MontserratCustomText(
-                                          text: 'Make offer',
-                                          textColor: primaryColor,
-                                          fontWeight: FontWeight.w500,
+                                          text: "Cancel This Listing",
+                                          textColor: Colors.white,
+                                          fontWeight: FontWeight.w400,
                                           fontsize: 16.sp,
                                         ),
-                                );
-                              }),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                showModalBottomSheet(
-                                    // isScrollControlled: true,
-                                    backgroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.r)),
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return Container(
-                                        // height: 450.h,
-
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 20.w),
-                                        width: double.infinity,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(
-                                              height: 20.h,
-                                            ),
-                                            Container(
-                                              width: 30.w,
-                                              height: 4.h,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.black,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          4.r)),
-                                            ),
-                                            SizedBox(
-                                              height: 20.h,
-                                            ),
-                                            PaymentSelectionScreen(),
-                                            Spacer(),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              height: 58.h,
-                                              width: 300.w,
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                  color: primaryColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.r)),
-                                              child: MontserratCustomText(
-                                                text: 'Continue',
-                                                textColor: Colors.white,
-                                                fontWeight: FontWeight.w500,
-                                                fontsize: 16.sp,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: 30.h,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                              },
-                              child: Obx(() {
-                                return Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                          );
+                        }),
+                      )
+                    : Obx(
+                        () => userController.userPurchases
+                                .contains(widget.bookDetail['listingId'])
+                            ? Center(
+                                child: Container(
                                   height: 58.h,
-                                  width: 155.w,
+                                  width: 250.w,
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                       color: primaryColor,
                                       borderRadius:
                                           BorderRadius.circular(20.r)),
-                                  child: productsListingController
-                                              .isLoading.value ==
-                                          true
-                                      ? Center(
-                                          child: CircularProgressIndicator(
-                                          color: whiteColor,
-                                        ))
-                                      : MontserratCustomText(
-                                          text: 'Purchase',
-                                          textColor: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                          fontsize: 16.sp,
+                                  child: MontserratCustomText(
+                                    text: "Purchased", // Show purchased message
+                                    textColor: Colors.white,
+                                    fontWeight: FontWeight.w500,
+
+                                    fontsize: 16.sp,
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await productsListingController
+                                          .createchatwithoutroffer(
+                                        widget.bookDetail['listingId'],
+                                        widget.bookDetail['sellerId'],
+                                        context,
+                                        widget.bookDetail['productName'],
+                                        widget.bookDetail['productPrice'],
+                                        widget.bookDetail['productImages'][0],
+                                        widget.bookDetail['brand'],
+                                      );
+                                    },
+                                    child: Obx(() {
+                                      return Container(
+                                        height: 58.h,
+                                        width: 155.w,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            color: Color(0xffFFB9B9),
+                                            borderRadius:
+                                                BorderRadius.circular(20.r)),
+                                        child: productsListingController
+                                                    .offerLoadind.value ==
+                                                true
+                                            ? Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                color: whiteColor,
+                                              ))
+                                            : MontserratCustomText(
+                                                text: 'Make offer',
+                                                textColor: primaryColor,
+                                                fontWeight: FontWeight.w500,
+                                                fontsize: 16.sp,
+                                              ),
+                                      );
+                                    }),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                        // isScrollControlled: true,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.r),
                                         ),
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-            ),
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return GetBuilder<PaymentController>(
+                                            init:
+                                                PaymentController(), // Initialize the controller
+                                            builder: (controller) {
+                                              return Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    horizontal: 20.w),
+                                                width: double.infinity,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    SizedBox(height: 20.h),
+                                                    Container(
+                                                      width: 30.w,
+                                                      height: 4.h,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4.r),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 10.h),
+                                                    MontserratCustomText(
+                                                      text: 'Payment Methods',
+                                                      textColor: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontsize: 16.sp,
+                                                    ),
+                                                    SizedBox(height: 50.h),
+
+                                                    // Payment method ListView.builder inside the BottomSheet
+                                                    ListView.builder(
+                                                      shrinkWrap: true,
+                                                      itemCount: controller
+                                                          .payments.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return Container(
+                                                          margin: EdgeInsets
+                                                              .symmetric(
+                                                            vertical: 4.h,
+                                                            horizontal: 12.w,
+                                                          ),
+                                                          padding:
+                                                              EdgeInsets.all(4),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: controller
+                                                                        .selectedPayment ==
+                                                                    controller.payments[
+                                                                            index]
+                                                                        ['name']
+                                                                ? primaryColor
+                                                                : primaryColor
+                                                                    .withOpacity(
+                                                                        0.1),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            border: Border.all(
+                                                              color: controller
+                                                                          .selectedPayment ==
+                                                                      controller
+                                                                              .payments[index]
+                                                                          [
+                                                                          'name']
+                                                                  ? Colors
+                                                                      .transparent
+                                                                  : primaryColor,
+                                                            ),
+                                                          ),
+                                                          child: RadioListTile<
+                                                              String>(
+                                                            value: controller
+                                                                    .payments[
+                                                                index]['name']!,
+                                                            groupValue: controller
+                                                                .selectedPayment,
+                                                            onChanged: (String?
+                                                                value) {
+                                                              controller
+                                                                  .selectPayment(
+                                                                      value!);
+                                                            },
+                                                            title: Text(
+                                                              controller.payments[
+                                                                      index]
+                                                                  ['name']!,
+                                                              style: TextStyle(
+                                                                color: controller
+                                                                            .selectedPayment ==
+                                                                        controller.payments[index]
+                                                                            [
+                                                                            'name']
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .black,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                            activeColor:
+                                                                Colors.white,
+                                                            controlAffinity:
+                                                                ListTileControlAffinity
+                                                                    .trailing,
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+
+                                                    Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        // Navigate based on the selected payment method
+                                                        if (controller
+                                                                .selectedPayment ==
+                                                            controller
+                                                                    .payments[0]
+                                                                ['name']) {
+                                                          stripePaymentPurchasing
+                                                              .paymentPurchasing(
+                                                            widget.bookDetail[
+                                                                    'productPrice']
+                                                                .toString(),
+                                                            widget.bookDetail[
+                                                                'listingId'],
+                                                            widget.bookDetail[
+                                                                'sellerId'],
+                                                            widget.bookDetail[
+                                                                'brand'],
+                                                            context,
+                                                            widget.bookDetail[
+                                                                'productName'],
+                                                            widget.bookDetail[
+                                                                'productPrice'],
+                                                            widget.bookDetail[
+                                                                'productImages'][0],true
+                                                          );
+                                                          // Get.back();
+                                                        } else if (controller
+                                                                .selectedPayment ==
+                                                            controller
+                                                                    .payments[1]
+                                                                ['name']) {
+                                                          // Navigate to PayPal screen
+                                                          // Navigator.push(
+                                                          //   context,
+                                                          //   MaterialPageRoute(builder: (context) => PayPalScreen()),
+                                                          // );
+                                                        } else {
+                                                          // Handle other payment methods if necessary
+                                                        }
+                                                      },
+                                                      child: Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 10),
+                                                        height: 58.h,
+                                                        width: 300.w,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      20.r),
+                                                        ),
+                                                        child:
+                                                            MontserratCustomText(
+                                                          text: 'Continue',
+                                                          textColor:
+                                                              Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontsize: 16.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 30.h),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Obx(() {
+                                      return Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        height: 58.h,
+                                        width: 155.w,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20.r),
+                                        ),
+                                        child: productsListingController
+                                                    .isLoading.value ==
+                                                true
+                                            ? Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                color: whiteColor,
+                                              ))
+                                            : MontserratCustomText(
+                                                text: 'Purchase',
+                                                textColor: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                                fontsize: 16.sp,
+                                              ),
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              ),
+                      )),
             SizedBox(
               height: 10.h,
             )

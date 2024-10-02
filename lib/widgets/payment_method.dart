@@ -35,7 +35,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
       itemBuilder: (context, index) {
         return Container(
           margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: selectedPayment == payments[index]['name']
                 ? primaryColor

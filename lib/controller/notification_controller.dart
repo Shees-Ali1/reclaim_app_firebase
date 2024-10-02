@@ -109,7 +109,7 @@ class NotificationController extends GetxController {
           headers: header, body: json.encode(request));
       print('notification to seller');
     } catch (e, s) {
-      print(e);
+      print('error Sending');
     }
   }
 

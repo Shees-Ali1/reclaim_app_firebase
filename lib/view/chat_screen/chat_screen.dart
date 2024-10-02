@@ -67,6 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(userController.userPurchases);
     return Scaffold(
         backgroundColor: whiteColor,
         body: Column(children: [
@@ -118,99 +119,109 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(
                   height: 10.h,
                 ),
-                if (widget.seller != FirebaseAuth.instance.currentUser!.uid)
-                  Container(
-                    padding: EdgeInsets.only(right: 10),
-                    width: 331.w,
-                    decoration: BoxDecoration(
-                        color: Color(0xffF7EDEC),
-                        borderRadius: BorderRadius.circular(16.r)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                            width: 89.w,
-                            height: 75.h,
-                            child: Image.network(
-                              widget.image,
-                              fit: BoxFit.cover,
-                            )),
-                        SizedBox(
-                          width: 6.w,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InterCustomText(
-                              text: widget.brand,
-                              textColor: Color(0xff9B9B9B),
-                              fontWeight: FontWeight.w400,
-                              fontsize: 11.sp,
-                            ),
-                            InterCustomText(
-                              text: widget.productName,
-                              textColor: Color(0xff222222),
-                              fontWeight: FontWeight.w600,
-                              fontsize: 16.sp,
-                            ),
-                            InterCustomText(
-                              text: '${widget.productPrice.toString()} Aed',
-                              textColor: Color(0xff222222),
-                              fontWeight: FontWeight.w500,
-                              fontsize: 14.sp,
-                            ),
-                          ],
-                        ),
-                        Spacer(),
-                        StreamBuilder<DocumentSnapshot>(
-                          stream: orderStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data != null) {
-                              var orderData = snapshot.data!.data()
-                                  as Map<String, dynamic>?;
-                              var offerPrice =
-                                  orderData?['offers']?['offerPrice'] ?? 0;
+                Obx(
+                  () => widget.seller !=
+                              FirebaseAuth.instance.currentUser!.uid &&
+                          !userController.userPurchases
+                              .contains(widget.productId)
+                      ? Container(
+                          padding: EdgeInsets.only(right: 10),
+                          width: 331.w,
+                          decoration: BoxDecoration(
+                              color: Color(0xffF7EDEC),
+                              borderRadius: BorderRadius.circular(16.r)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                  width: 89.w,
+                                  height: 75.h,
+                                  child: Image.network(
+                                    widget.image,
+                                    fit: BoxFit.cover,
+                                  )),
+                              SizedBox(
+                                width: 6.w,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  InterCustomText(
+                                    text: widget.brand,
+                                    textColor: Color(0xff9B9B9B),
+                                    fontWeight: FontWeight.w400,
+                                    fontsize: 11.sp,
+                                  ),
+                                  InterCustomText(
+                                    text: widget.productName,
+                                    textColor: Color(0xff222222),
+                                    fontWeight: FontWeight.w600,
+                                    fontsize: 16.sp,
+                                  ),
+                                  InterCustomText(
+                                    text:
+                                        '${widget.productPrice.toString()} Aed',
+                                    textColor: Color(0xff222222),
+                                    fontWeight: FontWeight.w500,
+                                    fontsize: 14.sp,
+                                  ),
+                                ],
+                              ),
+                              Spacer(),
+                              StreamBuilder<DocumentSnapshot>(
+                                stream: orderStream,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData &&
+                                      snapshot.data != null) {
+                                    var orderData = snapshot.data!.data()
+                                        as Map<String, dynamic>?;
+                                    var offerPrice = orderData?['offers']
+                                            ?['offerPrice'] ??
+                                        0;
 
-                              return  Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5.w, vertical: 10.h),
-                                width: 55.w,
-                                decoration: BoxDecoration(
-                                  color: primaryColor,
-                                  borderRadius: BorderRadius.circular(11.r),
-                                ),
-                                child:
-
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    InterCustomText(
-                                      text: 'Offer',
-                                      textColor: Colors.white,
-                                      fontWeight: FontWeight.w400,
-                                      fontsize: 11.sp,
-                                    ),
-                                    FittedBox(
-                                      child: InterCustomText(
-                                        text: offerPrice
-                                            .toString(), // Convert offerPrice to String
-                                        textColor: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                        fontsize: 13.sp,
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 5.w, vertical: 10.h),
+                                      width: 55.w,
+                                      decoration: BoxDecoration(
+                                        color: primaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(11.r),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              return SizedBox(); // Add a fallback widget for when there's no data
-                            }
-                          },
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          InterCustomText(
+                                            text: 'Offer',
+                                            textColor: Colors.white,
+                                            fontWeight: FontWeight.w400,
+                                            fontsize: 11.sp,
+                                          ),
+                                          FittedBox(
+                                            child: InterCustomText(
+                                              text: offerPrice
+                                                  .toString(), // Convert offerPrice to String
+                                              textColor: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                              fontsize: 13.sp,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  } else {
+                                    return SizedBox(); // Add a fallback widget for when there's no data
+                                  }
+                                },
+                              )
+                            ],
+                          ),
                         )
-                      ],
-                    ),
-                  ),
+                      : SizedBox.shrink(),
+                ),
                 SizedBox(
                   height: 10.h,
                 ),
@@ -238,8 +249,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return isOrdered == false
                       ? Stack(
                           children: [
-                            if (widget.seller !=
-                                FirebaseAuth.instance.currentUser!.uid)
+                            if (widget.seller != FirebaseAuth.instance.currentUser!.uid)
                               Positioned(
                                 bottom: 10.h,
                                 left: 0,
@@ -291,20 +301,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                       child: isAccepted
                                           ? GestureDetector(
                                               onTap: () {
-                                                if(productsListingController.isLoading.value == false){
+                                                if (productsListingController
+                                                        .isLoading.value ==
+                                                    false) {
                                                   productsListingController
                                                       .buyProduct1(
-                                                      widget.productId,
-                                                      widget.seller,
-                                                      widget.brand,
-                                                      context,
-                                                      widget.productName,
-                                                      order['offers']
-                                                      ['offerPrice'],
-                                                      widget.image,
-                                                      order['orderId']);
+                                                          widget.productId,
+                                                          widget.seller,
+                                                          widget.brand,
+                                                          context,
+                                                          widget.productName,
+                                                          order['offers']
+                                                              ['offerPrice'],
+                                                          widget.image,
+                                                          order['orderId']);
                                                 }
-
                                               },
                                               child: LexendCustomText(
                                                 text:
@@ -320,8 +331,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             )),
                                 ),
                               ),
-                            if (widget.seller ==
-                                FirebaseAuth.instance.currentUser!.uid)
+                            if (widget.seller == FirebaseAuth.instance.currentUser!.uid)
                               Positioned(
                                 bottom: 10.h,
                                 left: 0,
@@ -413,9 +423,53 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                 ),
                               ),
+
+
                           ],
                         )
-                      : SizedBox.shrink();
+                      :   Positioned(
+                    bottom: 10.h,
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 18.0.w),
+                      child: ElevatedButton(
+                          onPressed: () {
+
+                          },
+                          style: ElevatedButton.styleFrom(
+                            maximumSize: Size(350.w, 80.h),
+                            minimumSize: Size(327.w, 58.h),
+                            backgroundColor: primaryColor,
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.w, vertical: 10.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.r),
+                            ),
+                          ),
+                          child: Obx(() {
+                            return orderController.isLoading.value == false
+                                ? LexendCustomText(
+                              text: order['deliveryStatus']==true
+                                  ? "Order Completed"
+                                  : widget.seller == FirebaseAuth.instance.currentUser!.uid
+                                  ?  order['sellerApproval']==true
+                                  ? 'Waiting for buyer to approve'
+                                  : 'Click here to mark order delivered'
+                                  : order['buyerApproval']==true
+                                  ? 'Waiting for seller to approve'
+                                  : 'Click here to mark order received',
+                              textColor: Colors.white,
+                              fontWeight: FontWeight.w400,
+                            )
+                                : const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            );
+                          })),
+                    ),
+                  );
                 },
               ),
             ],
@@ -429,9 +483,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   return SizedBox.shrink();
                 } else if (!snapshot.data!.exists) {
                   return SizedBox.shrink();
-                 } else{
+                } else {
                   dynamic orderdata = snapshot.data!.data();
-                  if(orderdata['deliveryStatus'] == false){
+                  if (orderdata['deliveryStatus'] == false) {
                     return Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -453,8 +507,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   child: TextField(
                                     controller: messageController,
                                     decoration: InputDecoration(
-                                      contentPadding:
-                                      EdgeInsets.only(left: 10.w, bottom: 5.h),
+                                      contentPadding: EdgeInsets.only(
+                                          left: 10.w, bottom: 5.h),
                                       hintText: 'Type your message',
                                       hintStyle: TextStyle(
                                         fontSize: 14.sp,
@@ -491,8 +545,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
                         ]);
-                  }else{
-                 return   Container(
+                  } else {
+                    return Container(
                         height: 30.h,
                         width: 310.w,
                         decoration: BoxDecoration(
@@ -500,14 +554,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             borderRadius: BorderRadius.circular(12.r)),
                         child: Center(
                             child: LexendCustomText(
-                              text: 'You can\'t send messages to this group',
-                              textColor: whiteColor,
-                              fontWeight: FontWeight.w400,
-                            )));
+                          text: 'You can\'t send messages to this group',
+                          textColor: whiteColor,
+                          fontWeight: FontWeight.w400,
+                        )));
                   }
-
                 }
-
               }),
           SizedBox(
             height: 19.h,

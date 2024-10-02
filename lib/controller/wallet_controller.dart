@@ -38,7 +38,9 @@ class WalletController extends GetxController {
   final priceCache = PriceCache();
   TextEditingController amountcontroller = TextEditingController();
   TextEditingController withdrawal = TextEditingController();
-  TextEditingController btcaddress = TextEditingController();
+  TextEditingController accountnumber = TextEditingController();
+  TextEditingController cvc = TextEditingController();
+  TextEditingController bankname = TextEditingController();
   UserController userController = Get.find<UserController>();
 
   Future<void> fetchuserwallet() async {
@@ -98,23 +100,23 @@ class WalletController extends GetxController {
   //   try {
   //     // int appFees = (purchasePrice * 0.2).round();
   //     // int finalPrice = purchasePrice - appFees;
-  //     int newbalance = walletbalance.value - purchasePrice;
+  //     int newbalance = walletbalance.value.toInt() - purchasePrice;
   //     await FirebaseFirestore.instance
   //         .collection('wallet')
   //         .doc(FirebaseAuth.instance.currentUser!.uid)
   //         .update({'balance': newbalance});
-  //     await storetransactionhistory(purchasePrice, 'buy', 'Walmart');
+  //  await storetransactionhistory(purchasePrice, 'buy',);
   //   } catch (e) {
   //     print('Error update balance$e');
   //   }
   // }
 
   Future<void> storetransactionhistory(
-      int price, String purchaseType) async {
+      int price, String purchaseType,String userId) async {
     try {
       await FirebaseFirestore.instance
           .collection('wallet')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(userId)
           .collection('transaction')
           .add({
         'price': price,
@@ -189,4 +191,25 @@ class WalletController extends GetxController {
       return timeago.format(dateTime);
     }
   }
+
+
+ ///*******************************************************
+ Future<void> sendBalanceToSeller(var soldPrice, String sellerId)async{
+ try {
+   DocumentSnapshot sellersnap=    await FirebaseFirestore.instance.collection('wallet').doc(sellerId).get();
+   if(sellersnap.exists){
+     dynamic data = sellersnap.data();
+     var oldbalance = data['balance'];
+     final newbalance = oldbalance + soldPrice;
+     await FirebaseFirestore.instance.collection('wallet').doc(sellerId).set({'balance': newbalance},SetOptions(merge: true));
+     print("seller balance: " + newbalance);
+
+   }else{
+     await FirebaseFirestore.instance.collection('wallet').doc(sellerId).set({'balance': soldPrice},SetOptions(merge: true));
+   }
+ }catch(e) {
+   print('Error sending balance to seller: $e');
+ }
+ }
+
 }
