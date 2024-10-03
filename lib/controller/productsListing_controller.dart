@@ -573,16 +573,16 @@ class ProductsListingController extends GetxController {
           .set({
         'userPurchases': FieldValue.arrayUnion([listingId]),
       }, SetOptions(merge: true));
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              content: BuyDialogBox(
-            sellerId: sellerId,
-            buyerId: FirebaseAuth.instance.currentUser!.uid,
-          ));
-        },
-      );
+      // showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AlertDialog(
+      //         content: BuyDialogBox(
+      //       sellerId: sellerId,
+      //       buyerId: FirebaseAuth.instance.currentUser!.uid,
+      //     ));
+      //   },
+      // );
       // Send FCM notification to seller
       await notificationController.sendFcmMessage(
         'New message',
@@ -763,7 +763,7 @@ class ProductsListingController extends GetxController {
           .collection('transaction')
           .add({
         'appFees': appFees,
-        'TransactionDate': DateTime.now().millisecondsSinceEpoch,
+        'TransactionDate': DateTime.now(),
         'purchaseName': purchaseName,
         'purchaseType': purchaseType
       });

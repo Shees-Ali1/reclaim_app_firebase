@@ -578,7 +578,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                             widget.bookDetail[
                                                                 'productPrice'],
                                                             widget.bookDetail[
-                                                                'productImages'][0],true
+                                                                'productImages'][0],true,{}
                                                           );
                                                           // Get.back();
                                                         } else if (controller

@@ -50,7 +50,8 @@ class StripePaymentPurchasing {
     String productName,
     int purchasePrice,
     String productImage,
-      bool isdirectPurchase
+      bool isdirectPurchase,
+      dynamic order
   ) async {
     print('payment method call here');
 
@@ -120,17 +121,17 @@ class StripePaymentPurchasing {
 if(isdirectPurchase == true){
 
   productsListingController.buyProduct(listingId, sellerId, brand,
-      context, productName, purchasePrice, productImage);
+      context, productName, purchasePrice, productImage,);
 }else{
-  // productsListingController
-  //     .buyProduct1(
-  //     listingId,
-  //     sellerId,      brand,
-  //     context,
-  //    productName,
-  //     order['offers']['offerPrice'],
-  //     productImage,
-  //     order['orderId']);
+  productsListingController
+      .buyProduct1(
+      listingId,
+      sellerId,      brand,
+      context,
+     productName,
+      order['offers']['offerPrice'],
+      productImage,
+      order['orderId']);
 }
 
         // double newamount = walletController.walletbalance.value +

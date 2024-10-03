@@ -7,6 +7,8 @@ import 'package:reclaim_firebase_app/helper/loading.dart';
 import '../../const/color.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/order_controller.dart';
+import '../../controller/paymentController.dart';
+import '../../helper/stripe_purchasing.dart';
 import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
 import 'components/action_button_row.dart';
@@ -158,7 +160,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   }
-
+  final StripePaymentPurchasing stripePaymentPurchasing =
+  StripePaymentPurchasing();
   @override
   Widget build(BuildContext context) {
     print(userController.userPurchases);
@@ -396,17 +399,219 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 if (productsListingController
                                                         .isLoading.value ==
                                                     false) {
-                                                  productsListingController
-                                                      .buyProduct1(
-                                                          widget.productId,
-                                                          widget.seller,
-                                                          widget.brand,
-                                                          context,
-                                                          widget.productName,
-                                                          order['offers']
-                                                              ['offerPrice'],
-                                                          widget.image,
-                                                          order['orderId']);
+                                                  showModalBottomSheet(
+                                                    // isScrollControlled: true,
+                                                    backgroundColor: Colors.white,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                      BorderRadius.circular(20.r),
+                                                    ),
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return GetBuilder<PaymentController>(
+                                                        init:
+                                                        PaymentController(), // Initialize the controller
+                                                        builder: (controller) {
+                                                          return Container(
+                                                            margin: EdgeInsets.symmetric(
+                                                                horizontal: 20.w),
+                                                            width: double.infinity,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment.center,
+                                                              mainAxisSize:
+                                                              MainAxisSize.min,
+                                                              children: [
+                                                                SizedBox(height: 20.h),
+                                                                Container(
+                                                                  width: 30.w,
+                                                                  height: 4.h,
+                                                                  decoration: BoxDecoration(
+                                                                    color: Colors.black,
+                                                                    borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(4.r),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(height: 10.h),
+                                                                MontserratCustomText(
+                                                                  text: 'Payment Methods',
+                                                                  textColor: Colors.black,
+                                                                  fontWeight:
+                                                                  FontWeight.w700,
+                                                                  fontsize: 16.sp,
+                                                                ),
+                                                                SizedBox(height: 50.h),
+
+                                                                // Payment method ListView.builder inside the BottomSheet
+                                                                ListView.builder(
+                                                                  shrinkWrap: true,
+                                                                  itemCount: controller
+                                                                      .payments.length,
+                                                                  itemBuilder:
+                                                                      (context, index) {
+                                                                    return Container(
+                                                                      margin: EdgeInsets
+                                                                          .symmetric(
+                                                                        vertical: 4.h,
+                                                                        horizontal: 12.w,
+                                                                      ),
+                                                                      padding:
+                                                                      EdgeInsets.all(4),
+                                                                      decoration:
+                                                                      BoxDecoration(
+                                                                        color: controller
+                                                                            .selectedPayment ==
+                                                                            controller.payments[
+                                                                            index]
+                                                                            ['name']
+                                                                            ? primaryColor
+                                                                            : primaryColor
+                                                                            .withOpacity(
+                                                                            0.1),
+                                                                        borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(
+                                                                            10),
+                                                                        border: Border.all(
+                                                                          color: controller
+                                                                              .selectedPayment ==
+                                                                              controller
+                                                                                  .payments[index]
+                                                                              [
+                                                                              'name']
+                                                                              ? Colors
+                                                                              .transparent
+                                                                              : primaryColor,
+                                                                        ),
+                                                                      ),
+                                                                      child: RadioListTile<
+                                                                          String>(
+                                                                        value: controller
+                                                                            .payments[
+                                                                        index]['name']!,
+                                                                        groupValue: controller
+                                                                            .selectedPayment,
+                                                                        onChanged: (String?
+                                                                        value) {
+                                                                          controller
+                                                                              .selectPayment(
+                                                                              value!);
+                                                                        },
+                                                                        title: Text(
+                                                                          controller.payments[
+                                                                          index]
+                                                                          ['name']!,
+                                                                          style: TextStyle(
+                                                                            color: controller
+                                                                                .selectedPayment ==
+                                                                                controller.payments[index]
+                                                                                [
+                                                                                'name']
+                                                                                ? Colors
+                                                                                .white
+                                                                                : Colors
+                                                                                .black,
+                                                                            fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                            fontSize: 16,
+                                                                          ),
+                                                                        ),
+                                                                        activeColor:
+                                                                        Colors.white,
+                                                                        controlAffinity:
+                                                                        ListTileControlAffinity
+                                                                            .trailing,
+                                                                      ),
+                                                                    );
+                                                                  },
+                                                                ),
+
+                                                                Spacer(),
+                                                                GestureDetector(
+                                                                  onTap: () {
+                                                                    Navigator.pop(context);
+                                                                    // Navigate based on the selected payment method
+                                                                    if (controller
+                                                                        .selectedPayment ==
+                                                                        controller
+                                                                            .payments[0]
+                                                                        ['name']) {
+
+                                                                      stripePaymentPurchasing
+                                                                          .paymentPurchasing(
+                                                                          widget.productPrice.toString(),
+                                                                          widget.productId,
+                                                                          widget.seller,
+                                                                          widget.brand,
+                                                                          context,
+                                                                          widget.productName,
+                                                                          widget.productPrice,
+                                                                          widget.image,
+                                                                          false,
+                                                                         order
+                                                                      );
+                                                                      // Get.back();
+                                                                    } else if (controller.selectedPayment ==
+                                                                        controller
+                                                                            .payments[1]
+                                                                        ['name']) {
+                                                                      // Navigate to PayPal screen
+                                                                      // Navigator.push(
+                                                                      //   context,
+                                                                      //   MaterialPageRoute(builder: (context) => PayPalScreen()),
+                                                                      // );
+                                                                    } else {
+                                                                      // Handle other payment methods if necessary
+                                                                    }
+                                                                  },
+                                                                  child: Container(
+                                                                    padding: EdgeInsets
+                                                                        .symmetric(
+                                                                        horizontal: 10),
+                                                                    height: 58.h,
+                                                                    width: 300.w,
+                                                                    alignment:
+                                                                    Alignment.center,
+                                                                    decoration:
+                                                                    BoxDecoration(
+                                                                      color: primaryColor,
+                                                                      borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                          20.r),
+                                                                    ),
+                                                                    child:
+                                                                    MontserratCustomText(
+                                                                      text: 'Continue',
+                                                                      textColor:
+                                                                      Colors.white,
+                                                                      fontWeight:
+                                                                      FontWeight.w500,
+                                                                      fontsize: 16.sp,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(height: 30.h),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  );
+                                                  // productsListingController
+                                                  //     .buyProduct1(
+                                                  //         widget.productId,
+                                                  //         widget.seller,
+                                                  //         widget.brand,
+                                                  //         context,
+                                                  //         widget.productName,
+                                                  //         order['offers']
+                                                  //             ['offerPrice'],
+                                                  //         widget.image,
+                                                  //         order['orderId']);
                                                 }
                                               },
                                               child: LexendCustomText(
