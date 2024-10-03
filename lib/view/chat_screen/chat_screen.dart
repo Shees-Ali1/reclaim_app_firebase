@@ -92,6 +92,8 @@ class _ChatScreenState extends State<ChatScreen> {
           'notificationId':notiId.id
         },SetOptions(merge: true));
 
+
+        order['sellerApproval']=true;
         await markDeliveryTrue(order);
       }
     }catch(e){
@@ -128,6 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
        'notificationId':notiId.id
      },SetOptions(merge: true));
 
+      order['buyerApproval']=true;
      await markDeliveryTrue(order);
    }
 
