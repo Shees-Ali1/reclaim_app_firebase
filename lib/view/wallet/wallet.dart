@@ -574,7 +574,7 @@ class _WalletState extends State<Wallet> {
                                                             "balance": newblanace
                                                           },SetOptions(merge: true),);
                                                       await walletController.fetchuserwallet();
-                                                      await walletController.storetransactionhistory(int.parse(walletController.withdrawal.text.trim() ), 'withdraw', FirebaseAuth.instance.currentUser!.uid);
+                                                      await walletController.storetransactionhistory(int.parse(walletController.withdrawal.text.trim() ), 'withdraw', FirebaseAuth.instance.currentUser!.uid,'','');
 
 
                                                       Navigator.pop(context);
@@ -899,8 +899,8 @@ class _WalletState extends State<Wallet> {
                             String time = walletController
                                 .formattransactionTime(item['date']);
                             String productName =
-                                item.containsKey('purchaseName')
-                                    ? item['purchaseName']
+                                item.containsKey('productName')
+                                    ? item['productName']
                                     : "";
 
                             return GestureDetector(

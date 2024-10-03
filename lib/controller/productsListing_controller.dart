@@ -208,13 +208,13 @@ class ProductsListingController extends GetxController {
     '3XL',
     '4XL',
   ];
-  List<String> categorys = ['Accessories', 'Fashion', 'Men', 'Women','Kids'];
+  List<String> categorys = ['Accessories', 'Fashion', 'Men', 'Women', 'Kids'];
   List<File?> imageFiles = [];
 
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
-    await picker.pickImage(source: ImageSource.gallery);
+        await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       if (imageFiles.length < 3) {
@@ -254,10 +254,11 @@ class ProductsListingController extends GetxController {
       // Proceed if all fields are valid
       if (titleController.text.isNotEmpty &&
           priceController.text.isNotEmpty &&
-          imageFiles != null && imageFiles.isNotEmpty) {
-
+          imageFiles != null &&
+          imageFiles.isNotEmpty) {
         // Add product listing details to Firestore
-        DocumentReference productId = await FirebaseFirestore.instance.collection('productsListing').add({
+        DocumentReference productId =
+            await FirebaseFirestore.instance.collection('productsListing').add({
           'productName': titleController.text,
           'brand': brandController.text,
           'category': category.value,
@@ -274,7 +275,10 @@ class ProductsListingController extends GetxController {
         List<String> imageUrls = await uploadProductImages(productId.id);
 
         // Update Firestore document with image URLs
-        await FirebaseFirestore.instance.collection('productsListing').doc(productId.id).set({
+        await FirebaseFirestore.instance
+            .collection('productsListing')
+            .doc(productId.id)
+            .set({
           'listingId': productId.id,
           'productImages': imageUrls, // Store list of image URLs
         }, SetOptions(merge: true));
@@ -283,14 +287,13 @@ class ProductsListingController extends GetxController {
         imageFiles.clear();
         Get.snackbar('Success', "Product Listing Added");
         isLoading.value = false;
-       CustomRoute.navigateTo(context, ApprovalSellScreen());
+        CustomRoute.navigateTo(context, ApprovalSellScreen());
         await fetchUserProductListing();
         titleController.clear();
         DescriptionController.clear();
         brandController.clear();
         classNameController.clear();
         priceController.clear();
-
       } else {
         Get.snackbar('Missing Values', "Enter All Fields");
         isLoading.value = false;
@@ -300,7 +303,6 @@ class ProductsListingController extends GetxController {
       print("Error listing product: $e");
     }
   }
-
 
   // String imageUrl = '';
   Future<List<String>> uploadProductImages(String listingId) async {
@@ -335,16 +337,18 @@ class ProductsListingController extends GetxController {
     return imageUrls;
   }
 
-
-
   // **************update book listings of  user**********
-  Future<void> updateProductListing(BuildContext context, String listingId) async {
+  Future<void> updateProductListing(
+      BuildContext context, String listingId) async {
     try {
       isLoading.value = true;
 
       if (titleController.text.isNotEmpty && priceController.text.isNotEmpty) {
         // Update product listing details in Firestore
-        await FirebaseFirestore.instance.collection('productsListing').doc(listingId).update({
+        await FirebaseFirestore.instance
+            .collection('productsListing')
+            .doc(listingId)
+            .update({
           'productName': titleController.text,
           'brand': brandController.text,
           'category': category.value,
@@ -363,8 +367,12 @@ class ProductsListingController extends GetxController {
           List<String> newImageUrls = await uploadProductImages(listingId);
 
           // Update Firestore with new image URLs (merging with existing images)
-          await FirebaseFirestore.instance.collection('productsListing').doc(listingId).set({
-            'productImages': FieldValue.arrayUnion(newImageUrls), // Merge new images with existing ones
+          await FirebaseFirestore.instance
+              .collection('productsListing')
+              .doc(listingId)
+              .set({
+            'productImages': FieldValue.arrayUnion(
+                newImageUrls), // Merge new images with existing ones
           }, SetOptions(merge: true));
 
           imageFiles.clear(); // Clear the images after upload
@@ -390,7 +398,6 @@ class ProductsListingController extends GetxController {
       print("Error updating product listing: $e");
     }
   }
-
 
   // **************Fetch product listings of that user**********
   Future<void> fetchUserProductListing() async {
@@ -434,10 +441,11 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
-       int appFees = (purchasePrice * 0.1).round();
+      int appFees = (purchasePrice * 0.1).round();
       int finalPrice = purchasePrice - appFees;
       print("book bought111");
-      DocumentReference docRef = await FirebaseFirestore.instance.collection('orders').add({
+      DocumentReference docRef =
+          await FirebaseFirestore.instance.collection('orders').add({
         // listing id is our book id
         'productId': listingId,
         'buyerId': FirebaseAuth.instance.currentUser!.uid,
@@ -450,7 +458,7 @@ class ProductsListingController extends GetxController {
         'sellerApproval': false,
         'buyingprice': purchasePrice,
         'appFees': appFees,
-       'finalPrice': finalPrice,
+        'finalPrice': finalPrice,
       });
 
       await FirebaseFirestore.instance
@@ -458,8 +466,9 @@ class ProductsListingController extends GetxController {
           .doc(docRef.id)
           .set({'orderId': docRef.id}, SetOptions(merge: true));
 
-     // await walletController.updatebalance(purchasePrice);
-     await walletController.storetransactionhistory(purchasePrice, 'buy',FirebaseAuth.instance.currentUser!.uid);
+      // await walletController.updatebalance(purchasePrice);
+      await walletController.storetransactionhistory(purchasePrice, 'buy',
+          FirebaseAuth.instance.currentUser!.uid, productName, sellerId);
 
       await FirebaseFirestore.instance
           .collection('userDetails')
@@ -470,10 +479,13 @@ class ProductsListingController extends GetxController {
       userController.userPurchases.add(listingId);
 
       await walletController.sendBalanceToSeller(finalPrice, sellerId);
-      await walletController.storetransactionhistory(finalPrice, 'sale',sellerId);
+      await walletController.storetransactionhistory(
+          finalPrice, 'sale', sellerId, productName, sellerId);
 
-      await notificationController.storeNotification(purchasePrice, docRef.id, listingId, productName, 'purchased', sellerId);
-      await notificationController.sendnotificationtoseller(purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
+      await notificationController.storeNotification(purchasePrice, docRef.id,
+          listingId, productName, 'purchased', sellerId);
+      await notificationController.sendnotificationtoseller(
+          purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
 
       await chatController.createChatConvo(
           listingId,
@@ -485,12 +497,29 @@ class ProductsListingController extends GetxController {
           'You got the order on $productName',
           brand);
       await chatController.getorderId(listingId);
-      Get.dialog( AlertDialog(
+      String userId =
+          'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+      DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .get();
+      dynamic adminWallet = adminWalletSnapshot.data();
+      int adminBalance = adminWallet['balance'] + appFees;
+      await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .update({'balance': adminBalance});
+      Get.dialog(AlertDialog(
           content: BuyDialogBox(
-            sellerId: sellerId,
-            buyerId: FirebaseAuth.instance.currentUser!.uid,
-          )));
+        sellerId: sellerId,
+        buyerId: FirebaseAuth.instance.currentUser!.uid,
+      )));
       userController.userPurchases.add(listingId);
+
+      // Store admin transaction history
+      await storeadmintransactionhistory(
+          appFees, 'fee', 'App fee for order $productName', userId);
+
       print("product bought");
       isLoading.value = false;
 
@@ -531,8 +560,10 @@ class ProductsListingController extends GetxController {
       }, SetOptions(merge: true));
 
       await walletController.sendBalanceToSeller(finalPrice, sellerId);
-      await walletController.storetransactionhistory(finalPrice, 'sale',sellerId);
-      await walletController.storetransactionhistory(purchasePrice, 'buy',FirebaseAuth.instance.currentUser!.uid);
+      await walletController.storetransactionhistory(
+          finalPrice, 'sale', sellerId, productName, sellerId);
+      await walletController.storetransactionhistory(purchasePrice, 'buy',
+          FirebaseAuth.instance.currentUser!.uid, productName, sellerId);
       userController.userPurchases.add(listingId);
 
       // Update the buyer's userDetails
@@ -631,8 +662,8 @@ class ProductsListingController extends GetxController {
           'sellerId': sellerId,
           'buyingprice': purchasePrice,
           'brand': brand,
-              'buyerApproval': false,
-              'sellerApproval': false,
+          'buyerApproval': false,
+          'sellerApproval': false,
         });
 
         await FirebaseFirestore.instance
@@ -723,7 +754,23 @@ class ProductsListingController extends GetxController {
       isLoading.value = false;
     }
   }
-
+  Future<void> storeadmintransactionhistory(int appFees, String purchaseType,
+      String purchaseName, String userId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .collection('transaction')
+          .add({
+        'appFees': appFees,
+        'TransactionDate': DateTime.now().millisecondsSinceEpoch,
+        'purchaseName': purchaseName,
+        'purchaseType': purchaseType
+      });
+    } catch (e) {
+      print('Error storeTransaction $e');
+    }
+  }
   RxString sellerName = ''.obs;
 
   Future<void> getSellerData(String sellerId) async {
