@@ -583,6 +583,18 @@ class ProductsListingController extends GetxController {
       //     ));
       //   },
       // );
+      String userId =
+          'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+      DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .get();
+      dynamic adminWallet = adminWalletSnapshot.data();
+      int adminBalance = adminWallet['balance'] + appFees;
+      await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .update({'balance': adminBalance});
       // Send FCM notification to seller
       await notificationController.sendFcmMessage(
         'New message',
@@ -595,6 +607,9 @@ class ProductsListingController extends GetxController {
           listingId, productName, 'purchased', sellerId);
       await notificationController.sendnotificationtoseller(
           purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
+      // Store admin transaction history
+      await storeadmintransactionhistory(
+          appFees, 'fee', 'App fee for order $productName', userId);
       print("Product purchased successfully");
       isLoading.value = false;
     } catch (e) {
