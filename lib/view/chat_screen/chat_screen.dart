@@ -140,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   Future<void> markDeliveryTrue(dynamic order) async{
   // check that the status by seller and buyer are true then mark order as complete
-      if (order['sellerApproval'] && order['buyerApproval'] == true) {
+      if (order['sellerApproval']==true && order['buyerApproval'] == true) {
         await FirebaseFirestore.instance
             .collection('orders')
             .doc(order['orderId'])
