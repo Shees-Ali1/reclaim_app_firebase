@@ -21,6 +21,7 @@ class StripePaymentPurchasing {
       "sk_test_51PF3XJBD4iwEMWA7nvI3hZ14p1gCIEI4dWzkhTliZkYafzBkm67TkPNwtn6vWwXXFPBaTZlchZpEdeRKICFZURj100ikoXKwel";
   String calculateAmount(String amount) {
     try {
+
       // Trim any leading or trailing whitespaces
       amount = amount.trim();
 
@@ -58,8 +59,10 @@ class StripePaymentPurchasing {
     /// creating payments intent
     try {
       signUpController.isLoading.value = true;
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice + appFees;
       Map<String, dynamic> body = {
-        'amount': calculateAmount(amount),
+        'amount': calculateAmount(finalPrice.toString()),
         'currency': 'Aed',
         'payment_method_types[]': 'card',
       };

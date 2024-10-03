@@ -1,6 +1,9 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+
 admin.initializeApp();
+const firestore = admin.firestore();
+const FieldValue = admin.firestore.FieldValue;
 
 exports.sendUserNotification = functions.firestore
   .document('userNotifications/{userId}/notifications/{notificationId}')
@@ -200,3 +203,70 @@ exports.sendNotificationOnOfferStatusChange = functions.firestore
 
         return null;  // Return null if no change in isAccepted field
     });
+
+
+exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRun(async (context) => {
+        const currentTime = admin.firestore.Timestamp.now();
+        const cutoffTime = admin.firestore.Timestamp.fromMillis(currentTime.toMillis() - 24 * 60 * 60 * 1000); // 24 hours ago
+
+        try {
+            // Fetch orders where deliveryStatus is false and orderDate is older than 24 hours
+            const orderSnapshot = await firestore.collection('orders')
+                .where('deliveryStatus', '==', false)
+                .where('orderDate', '<=', cutoffTime)
+                .get();
+
+            if (orderSnapshot.empty) {
+                console.log('No orders found that require refunds');
+                return null;
+            }
+
+            const refundPromises = [];
+            orderSnapshot.forEach(doc => {
+                const orderData = doc.data();
+                const buyerId = orderData.buyerId;
+                const buyingPrice = orderData.buyingprice;
+
+                // Refund logic for each buyer
+                refundPromises.push(processRefund(buyerId, buyingPrice, doc.id));
+            });
+
+            // Wait for all refund promises to complete
+            await Promise.all(refundPromises);
+
+            console.log('Refunds processed successfully');
+            return null;
+        } catch (error) {
+            console.error('Error processing refunds:', error);
+            return null;
+        }
+    });
+
+    // Function to process refund for a specific buyer
+    async function processRefund(buyerId, refundAmount, orderId) {
+        const walletRef = firestore.collection('wallet').doc(buyerId);
+
+        return firestore.runTransaction(async (transaction) => {
+            const walletDoc = await transaction.get(walletRef);
+
+            if (!walletDoc.exists) {
+                console.error(`No wallet found for user ${buyerId}`);
+                return;
+            }
+
+            const currentBalance = walletDoc.data().balance || 0;
+             const refundWithBonus = refundAmount + (refundAmount * 0.10); // Add 10% to the refund amount
+               const newBalance = currentBalance + refundWithBonus;
+            // Update the buyer's wallet with the new balance
+            transaction.update(walletRef, {
+                balance: newBalance
+            });
+
+            // Update the order to indicate refund is processed
+            transaction.update(firestore.collection('orders').doc(orderId), {
+                refund: true
+            });
+
+            console.log(`Refund of ${refundAmount} processed for user ${buyerId}`);
+        });
+    }

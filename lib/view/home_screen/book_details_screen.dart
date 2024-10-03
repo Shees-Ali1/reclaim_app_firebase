@@ -423,7 +423,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   GestureDetector(
                                     onTap: () {
                                       showModalBottomSheet(
-                                        // isScrollControlled: true,
+                                        isScrollControlled: true,
                                         backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -436,6 +436,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                 PaymentController(), // Initialize the controller
                                             builder: (controller) {
                                               return Container(
+                                                height: Get.height*0.6,
                                                 margin: EdgeInsets.symmetric(
                                                     horizontal: 20.w),
                                                 width: double.infinity,
@@ -553,7 +554,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
                                                     Spacer(),
                                                     GestureDetector(
-                                                      onTap: () {
+                                                      onTap: () async{
                                                         Navigator.pop(context);
                                                         // Navigate based on the selected payment method
                                                         if (controller
@@ -561,7 +562,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                             controller
                                                                     .payments[0]
                                                                 ['name']) {
-                                                          stripePaymentPurchasing
+                                                     await     stripePaymentPurchasing
                                                               .paymentPurchasing(
                                                             widget.bookDetail[
                                                                     'productPrice']
@@ -586,6 +587,32 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                             controller
                                                                     .payments[1]
                                                                 ['name']) {
+                                                          // Navigate to PayPal screen
+                                                          // Navigator.push(
+                                                          //   context,
+                                                          //   MaterialPageRoute(builder: (context) => PayPalScreen()),
+                                                          // );
+                                                        }else if (controller
+                                                            .selectedPayment ==
+                                                            controller
+                                                                .payments[2]
+                                                            ['name']) {
+                                                          print('wallet');
+                                                        await  productsListingController.buyProductWithWallet(
+                                                              widget.bookDetail[
+                                                              'listingId'],
+                                                              widget.bookDetail[
+                                                              'sellerId'],
+                                                              widget.bookDetail[
+                                                              'brand'],
+                                                              context,
+                                                              widget.bookDetail[
+                                                              'productName'],
+                                                              widget.bookDetail[
+                                                              'productPrice'],
+                                                              widget.bookDetail[
+                                                              'productImages'][0]);
+
                                                           // Navigate to PayPal screen
                                                           // Navigator.push(
                                                           //   context,

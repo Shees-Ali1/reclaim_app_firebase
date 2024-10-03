@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/view/wallet/wallet_details.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../const/assets/image_assets.dart';
@@ -310,7 +311,7 @@ class _WalletState extends State<Wallet> {
                     // ),
                     GestureDetector(
                       onTap: () {
-                        // walletController.withdrawal.clear();
+                      walletController.withdrawal.clear();
                         // walletController.btcaddress.clear();
 
                         walletController.btcAddressValidation.value = false;
@@ -415,188 +416,193 @@ class _WalletState extends State<Wallet> {
                                               margin: EdgeInsets.symmetric(
                                                   horizontal: 20.w),
                                               width: double.infinity,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  SizedBox(height: 20.h),
-                                                  Container(
-                                                    width: 30.w,
-                                                    height: 4.h,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.r),
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 20.h),
-                                                  LexendCustomText(
-                                                    text:
-                                                        'Enter your bank details',
-                                                    fontWeight: FontWeight.w500,
-                                                    fontsize: 16.sp,
-                                                    textColor:
-                                                        const Color(0xff1E1E1E),
-                                                  ),
-                                                  SizedBox(height: 12.h),
-                                                  InputField(
-                                                    controller: walletController
-                                                        .bankname,
-                                                    hint: 'Enter Bank Name',
-                                                    hintStyle: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      color: Colors.black54,
-                                                    ),
-                                                    keyboard:
-                                                        TextInputType.name,
-                                                  ),
-                                                  SizedBox(height: 10,),
-
-                                                  InputField(
-                                                    controller: walletController
-                                                        .accountnumber,
-                                                    hint:
-                                                        'Enter Account Number',
-                                                    hintStyle: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      color: Colors.black54,
-                                                    ),
-                                                    keyboard:
-                                                        TextInputType.name,
-                                                  ),
-                                                  SizedBox(height: 10,),
-                                                  InputField(
-                                                    controller:
-                                                        walletController.cvc,
-                                                    hint: 'Enter CVC',
-                                                    hintStyle: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      color: Colors.black54,
-                                                    ),
-                                                    keyboard:
-                                                        TextInputType.number,
-                                                  ),
-                                                  SizedBox(height: 18.h),
-                                                  // GestureDetector(
-                                                  //   onTap: () {
-                                                  //     // CustomRoute.navigateTo(
-                                                  //     //     context,
-                                                  //     //     QRViewExample1());
-                                                  //   },
-                                                  //   child: LexendCustomText(
-                                                  //       text:
-                                                  //           '[-] Or scan a QRCode',
-                                                  //       fontWeight:
-                                                  //           FontWeight.w500,
-                                                  //       fontsize: 16.sp,
-                                                  //       textColor: Colors.blue),
-                                                  // ),
-                                                  // SizedBox(height: 18.h),
-                                                  // Row(
-                                                  //   mainAxisAlignment:
-                                                  //       MainAxisAlignment
-                                                  //           .spaceBetween,
-                                                  //   children: [
-                                                  //     LexendCustomText(
-                                                  //       text: 'Amount in USD:',
-                                                  //       fontWeight:
-                                                  //           FontWeight.w500,
-                                                  //       fontsize: 16.sp,
-                                                  //       textColor: const Color(
-                                                  //           0xff000000),
-                                                  //     ),
-                                                  //     LexendCustomText(
-                                                  //       text:
-                                                  //           "\$${walletController.withdrawal.text}",
-                                                  //       fontWeight:
-                                                  //           FontWeight.w500,
-                                                  //       fontsize: 16.sp,
-                                                  //       textColor: const Color(
-                                                  //           0xff000000),
-                                                  //     ),
-                                                  //   ],
-                                                  // ),
-                                                  SizedBox(height: 18.h),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      LexendCustomText(
-                                                        text: 'Total Amount',
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontsize: 16.sp,
-                                                        textColor: const Color(
-                                                            0xff000000),
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    SizedBox(height: 20.h),
+                                                    Container(
+                                                      width: 30.w,
+                                                      height: 4.h,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                4.r),
                                                       ),
-                                                      LexendCustomText(
-                                                          text:
-                                                              "${walletController.withdrawal.text}Aed",
+                                                    ),
+                                                    SizedBox(height: 20.h),
+                                                    LexendCustomText(
+                                                      text:
+                                                          'Enter your bank details',
+                                                      fontWeight: FontWeight.w500,
+                                                      fontsize: 16.sp,
+                                                      textColor:
+                                                          const Color(0xff1E1E1E),
+                                                    ),
+                                                    SizedBox(height: 12.h),
+                                                    InputField(
+                                                      controller: walletController
+                                                          .bankname,
+                                                      hint: 'Enter Bank Name',
+                                                      hintStyle: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        color: Colors.black54,
+                                                      ),
+                                                      keyboard:
+                                                          TextInputType.name,
+                                                    ),
+                                                    SizedBox(height: 10,),
+                                                
+                                                    InputField(
+                                                      controller: walletController
+                                                          .accountnumber,
+                                                      hint:
+                                                          'Enter Account Number',
+                                                      hintStyle: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        color: Colors.black54,
+                                                      ),
+                                                      keyboard:
+                                                          TextInputType.number,
+                                                    ),
+                                                    SizedBox(height: 10,),
+                                                    InputField(
+                                                      controller:
+                                                          walletController.cvc,
+                                                      hint: 'Enter CVC',
+                                                      hintStyle: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        color: Colors.black54,
+                                                      ),
+                                                      keyboard:
+                                                          TextInputType.number,
+                                                    ),
+                                                    SizedBox(height: 18.h),
+                                                    // GestureDetector(
+                                                    //   onTap: () {
+                                                    //     // CustomRoute.navigateTo(
+                                                    //     //     context,
+                                                    //     //     QRViewExample1());
+                                                    //   },
+                                                    //   child: LexendCustomText(
+                                                    //       text:
+                                                    //           '[-] Or scan a QRCode',
+                                                    //       fontWeight:
+                                                    //           FontWeight.w500,
+                                                    //       fontsize: 16.sp,
+                                                    //       textColor: Colors.blue),
+                                                    // ),
+                                                    // SizedBox(height: 18.h),
+                                                    // Row(
+                                                    //   mainAxisAlignment:
+                                                    //       MainAxisAlignment
+                                                    //           .spaceBetween,
+                                                    //   children: [
+                                                    //     LexendCustomText(
+                                                    //       text: 'Amount in USD:',
+                                                    //       fontWeight:
+                                                    //           FontWeight.w500,
+                                                    //       fontsize: 16.sp,
+                                                    //       textColor: const Color(
+                                                    //           0xff000000),
+                                                    //     ),
+                                                    //     LexendCustomText(
+                                                    //       text:
+                                                    //           "\$${walletController.withdrawal.text}",
+                                                    //       fontWeight:
+                                                    //           FontWeight.w500,
+                                                    //       fontsize: 16.sp,
+                                                    //       textColor: const Color(
+                                                    //           0xff000000),
+                                                    //     ),
+                                                    //   ],
+                                                    // ),
+                                                    SizedBox(height: 18.h),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        LexendCustomText(
+                                                          text: 'Total Amount',
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontsize: 16.sp,
-                                                          textColor:
-                                                              const Color(
-                                                                  0xff000000))
-                                                    ],
-                                                  ),
-                                                  SizedBox(height: 18.h),
-                                                  CustomButton(
-                                                    text: 'Send Request',
-                                                    onPressed: () async {
-
-
-                                                      DocumentReference    withdrawRef = await FirebaseFirestore.instance.collection('userWithdrawals')
+                                                          textColor: const Color(
+                                                              0xff000000),
+                                                        ),
+                                                        LexendCustomText(
+                                                            text:
+                                                                "${walletController.withdrawal.text}Aed",
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontsize: 16.sp,
+                                                            textColor:
+                                                                const Color(
+                                                                    0xff000000))
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 18.h),
+                                                    CustomButton(
+                                                      text: 'Send Request',
+                                                      onPressed: () async {
+                                                
+                                                
+                                                        DocumentReference    withdrawRef = await FirebaseFirestore.instance.collection('userWithdrawals')
+                                                              .doc(FirebaseAuth.instance.currentUser!.uid).collection('withdrawalsRequest')
+                                                            .add({
+                                                
+                                                          'amount':double.parse(walletController.withdrawal.text.trim() ),
+                                                          'accountName':walletController.bankname.text.trim(),
+                                                          'accountNumber':walletController.accountnumber.text.trim(),
+                                                          'cvc':walletController.cvc.text.trim(),
+                                                          'requestTime': DateTime.now(),
+                                                          'withdrawStatus': 'pending',
+                                                          'userId': FirebaseAuth.instance.currentUser!.uid
+                                                        });
+                                                        await FirebaseFirestore.instance.collection('userWithdrawals')
                                                             .doc(FirebaseAuth.instance.currentUser!.uid).collection('withdrawalsRequest')
-                                                          .add({
-
-                                                        'amount':double.parse(walletController.withdrawal.text.trim() ),
-                                                        'accountName':walletController.bankname.text.trim(),
-                                                        'accountNumber':walletController.accountnumber.text.trim(),
-                                                        'cvc':walletController.cvc.text.trim(),
-                                                        'requestTime': DateTime.now(),
-                                                        'withdrawStatus': 'pending',
-                                                        'userId': FirebaseAuth.instance.currentUser!.uid
-                                                      });
-                                                      await FirebaseFirestore.instance.collection('userWithdrawals')
-                                                          .doc(FirebaseAuth.instance.currentUser!.uid).collection('withdrawalsRequest')
-                                                          .doc(withdrawRef.id).set({
-                                                        'withdrawid': withdrawRef.id
-
-                                                      },SetOptions(merge: true),);
-                                                      final newblanace =  walletController.walletbalance.value - double.parse(walletController.withdrawal.text.trim() );
-                                                      await FirebaseFirestore.instance.collection('wallet')
-                                                          .doc(FirebaseAuth.instance.currentUser!.uid).set(
-                                                          {
-                                                            "balance": newblanace
-                                                          },SetOptions(merge: true),);
-                                                      await walletController.fetchuserwallet();
-                                                      await walletController.storetransactionhistory(int.parse(walletController.withdrawal.text.trim() ), 'withdraw', FirebaseAuth.instance.currentUser!.uid,'','');
-
-
-                                                      Navigator.pop(context);
+                                                            .doc(withdrawRef.id).set({
+                                                          'withdrawid': withdrawRef.id
+                                                
+                                                        },SetOptions(merge: true),);
+                                                        final newblanace =  walletController.walletbalance.value - double.parse(walletController.withdrawal.text.trim() );
+                                                        await FirebaseFirestore.instance.collection('wallet')
+                                                            .doc(FirebaseAuth.instance.currentUser!.uid).set(
+                                                            {
+                                                              "balance": newblanace
+                                                            },SetOptions(merge: true),);
+                                                        await walletController.fetchuserwallet();
+                                                        await walletController.storetransactionwithdraw(
+                                                            int.parse(walletController.withdrawal.text.trim() ),
+                                                            'withdraw',withdrawRef.id
+                                                           );
+                                                
+                                                
                                                         Navigator.pop(context);
-
-                                                        Get.dialog(
-                                                          AlertDialog(
-                                                            title: Text(
-                                                                'Withdraw Request'),
-                                                            content: Text(
-                                                              'Your request has been submitted. Withdrawal will be processed within 24 hours.',
+                                                          Navigator.pop(context);
+                                                
+                                                          Get.dialog(
+                                                            AlertDialog(
+                                                              title: Text(
+                                                                  'Withdraw Request'),
+                                                              content: Text(
+                                                                'Your request has been submitted. Withdrawal will be processed within 24 hours.',
+                                                              ),
                                                             ),
-                                                          ),
-                                                        );
-
-                                                    },
-                                                    backgroundColor:
-                                                        primaryColor,
-                                                    textColor: whiteColor,
-                                                  ),
-                                                  SizedBox(height: 20.h),
-                                                ],
+                                                          );
+                                                
+                                                      },
+                                                      backgroundColor:
+                                                          primaryColor,
+                                                      textColor: whiteColor,
+                                                    ),
+                                                    SizedBox(height: 20.h),
+                                                  ],
+                                                ),
                                               ),
                                             );
                                           },
@@ -905,8 +911,8 @@ class _WalletState extends State<Wallet> {
 
                             return GestureDetector(
                               onTap: () {
-                                // Get.to(WalletDetails(
-                                //     transaction: snapshot.data!.docs[index].data() as Map<String, dynamic>));
+                                Get.to(WalletDetails(
+                                    transaction: snapshot.data!.docs[index].data() as Map<String, dynamic>));
                               },
                               child: ListTile(
                                 horizontalTitleGap: 8,

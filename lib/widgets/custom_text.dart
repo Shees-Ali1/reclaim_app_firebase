@@ -168,6 +168,8 @@ class PoppinsCustomText extends StatelessWidget {
 }
 
 class SoraCustomText extends StatelessWidget {
+  final TextOverflow? overflow;
+  final int? maxLines;
   final String text;
   final Color textColor;
   final double? fontsize;
@@ -179,7 +181,7 @@ class SoraCustomText extends StatelessWidget {
       required this.textColor,
       this.fontsize,
       required this.fontWeight,
-      this.height});
+      this.height,  this.overflow, this.maxLines, });
 
   @override
   Widget build(BuildContext context) {

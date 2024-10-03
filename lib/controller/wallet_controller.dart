@@ -105,7 +105,7 @@ class WalletController extends GetxController {
   //         .collection('wallet')
   //         .doc(FirebaseAuth.instance.currentUser!.uid)
   //         .update({'balance': newbalance});
-  //  await storetransactionhistory(purchasePrice, 'buy',);
+  //  // await storetransactionhistory(purchasePrice, 'buy',);
   //   } catch (e) {
   //     print('Error update balance$e');
   //   }
@@ -140,6 +140,29 @@ class WalletController extends GetxController {
         'userName': userName,
         'userImage': userImage,
         'sellerName': sellerName,
+      });
+    } catch (e) {
+      print('Error storeTransaction: $e');
+    }
+  }
+  Future<void> storetransactionwithdraw(int price, String purchaseType,String withdrawId ) async {
+    try {
+
+
+
+      await FirebaseFirestore.instance
+          .collection('wallet')
+          .doc( FirebaseAuth.instance.currentUser!.uid)
+          .collection('transaction')
+          .add({
+        'price': price,
+        'date': DateTime.now(), // Fixed this line
+        'type': purchaseType,
+        'requestId':withdrawId,
+
+
+
+        'userId': FirebaseAuth.instance.currentUser!.uid,
       });
     } catch (e) {
       print('Error storeTransaction: $e');

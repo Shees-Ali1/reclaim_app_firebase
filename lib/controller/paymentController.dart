@@ -7,6 +7,7 @@ class PaymentController extends GetxController {
   List<Map<String, String>> payments = [
     {'name': 'Stripe'},
     {'name': 'Paypal'},
+    {'name': 'Wallet'},
     if (Platform.isIOS) {'name': 'Apple card'},
   ];
 

@@ -530,7 +530,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                                                                 Spacer(),
                                                                 GestureDetector(
-                                                                  onTap: () {
+                                                                  onTap: () async {
                                                                     Navigator.pop(context);
                                                                     // Navigate based on the selected payment method
                                                                     if (controller
@@ -539,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                             .payments[0]
                                                                         ['name']) {
 
-                                                                      stripePaymentPurchasing
+                                                                     await stripePaymentPurchasing
                                                                           .paymentPurchasing(
                                                                           widget.productPrice.toString(),
                                                                           widget.productId,
@@ -557,6 +557,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                         controller
                                                                             .payments[1]
                                                                         ['name']) {
+                                                                      // Navigate to PayPal screen
+                                                                      // Navigator.push(
+                                                                      //   context,
+                                                                      //   MaterialPageRoute(builder: (context) => PayPalScreen()),
+                                                                      // );
+                                                                    }
+                                                                    else if (controller.selectedPayment ==
+                                                                        controller
+                                                                            .payments[2]
+                                                                        ['name']) {
+                                                                      await  productsListingController.buyProductWithWallet(
+                                                                          widget.productId,
+                                                                          widget.seller,
+                                                                          widget.brand,
+                                                                          context,
+                                                                          widget.productName,
+                                                                          widget.productPrice,
+                                                                          widget.image);
                                                                       // Navigate to PayPal screen
                                                                       // Navigator.push(
                                                                       //   context,
