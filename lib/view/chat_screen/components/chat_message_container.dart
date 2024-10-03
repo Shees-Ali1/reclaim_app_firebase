@@ -250,7 +250,7 @@ import '../../../const/color.dart';
 import '../../../controller/chat_controller.dart';
 import '../../../widgets/custom_text.dart';
 
-class ChatMessageContainer extends StatelessWidget {
+class ChatMessageContainer extends StatefulWidget {
   final String chatId;
   final String image;
 
@@ -261,17 +261,29 @@ class ChatMessageContainer extends StatelessWidget {
   });
 
   @override
+  State<ChatMessageContainer> createState() => _ChatMessageContainerState();
+}
+
+class _ChatMessageContainerState extends State<ChatMessageContainer> {
+  late Stream<QuerySnapshot> messageSnap ;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    messageSnap =  FirebaseFirestore.instance
+        .collection('userMessages')
+        .doc(widget.chatId)
+        .collection('messages')
+        .orderBy('timeStamp', descending: false)
+        .snapshots();
+  }
+  @override
   Widget build(BuildContext context) {
     var currentUser = FirebaseAuth.instance.currentUser?.uid;
     final ScrollController scrollController = ScrollController();
     final ChatController chatController = ChatController();
     return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('userMessages')
-            .doc(chatId)
-            .collection('messages')
-            .orderBy('timeStamp', descending: false)
-            .snapshots(),
+        stream:messageSnap,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -333,7 +345,7 @@ class ChatMessageContainer extends StatelessWidget {
                                     ? const SizedBox.shrink()
                                     : Padding(
                                   padding: EdgeInsets.only(top: 10.sp),
-                                  child: image != ''
+                                  child: widget.image != ''
                                       ? Container(
                                     height: 24.h,
                                     width: 24.w,
@@ -341,7 +353,7 @@ class ChatMessageContainer extends StatelessWidget {
                                       color: Colors.grey,
                                       shape: BoxShape.circle,
                                       image: DecorationImage(
-                                        image: NetworkImage(image),
+                                        image: NetworkImage(widget.image),
                                         fit: BoxFit.cover,
                                       ),
                                     ),

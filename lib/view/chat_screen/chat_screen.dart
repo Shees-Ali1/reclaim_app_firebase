@@ -65,6 +65,97 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
+  Future<void> orderStatusBySeller(dynamic order,) async{
+    try{
+      if(order['sellerApproval']==false){
+
+        orderController.isLoading.value=true;
+
+        // mark delivery by seller has true
+        await FirebaseFirestore.instance.collection('orders').doc(order['orderId']).update({
+          'sellerApproval': true,
+        });
+
+        // then store the notification to buyer that seller has marked delivered
+        DocumentReference notiId  = await FirebaseFirestore.instance.collection('userNotifications').doc(order['buyerId']).collection('notifications')
+            .add({
+          'productId': widget.productId,
+          'orderId': order['orderId'],
+          // 'price':price,
+          'time': DateTime.timestamp(),
+          'title': "Seller has marked ${widget.productName} as delivered",
+          'userId': order['sellerId'],
+          'notificationType':'seller'
+        });
+        await FirebaseFirestore.instance.collection('userNotifications')
+            .doc(order['buyerId']).collection('notifications').doc(notiId.id).set({
+          'notificationId':notiId.id
+        },SetOptions(merge: true));
+
+        await markDeliveryTrue(order);
+      }
+    }catch(e){
+      print("error changing order status by seller $e");
+    }finally{
+      orderController.isLoading.value=false;
+    }
+  }
+  Future<void> orderStatusByBuyer(dynamic order,) async{
+ try{
+   if(order['buyerApproval']==false){
+
+     orderController.isLoading.value=true;
+
+     // mark delivery by buyer has true
+     await FirebaseFirestore.instance.collection('orders').doc(order['orderId']).update({
+       'buyerApproval': true,
+     });
+
+     // then store the notification to seller that buyer has marked recieved
+     DocumentReference notiId  = await FirebaseFirestore.instance.collection('userNotifications').doc(order['sellerId']).collection('notifications')
+         .add({
+       'productId': widget.productId,
+       'orderId': order['orderId'],
+       // 'price':price,
+       'time': DateTime.timestamp(),
+       'title': "Buyer has marked ${widget.productName} as delivered",
+       'userId': order['buyerId'],
+       'notificationType':'buyer'
+     });
+
+     await FirebaseFirestore.instance.collection('userNotifications')
+         .doc(order['sellerId']).collection('notifications').doc(notiId.id).set({
+       'notificationId':notiId.id
+     },SetOptions(merge: true));
+
+     await markDeliveryTrue(order);
+   }
+
+ }catch(e){
+   print("error changing order status by buyer $e");
+ }finally{
+   orderController.isLoading.value=false;
+ }
+
+  }
+  Future<void> markDeliveryTrue(dynamic order) async{
+  // check that the status by seller and buyer are true then mark order as complete
+      if (order['sellerApproval'] && order['buyerApproval'] == true) {
+        await FirebaseFirestore.instance
+            .collection('orders')
+            .doc(order['orderId'])
+            .update({
+          'deliveryStatus': true,
+        });
+        print("order  completed ");
+
+    }else{
+        print("order not complete yet");
+      }
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
     print(userController.userPurchases);
@@ -119,11 +210,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(
                   height: 10.h,
                 ),
+                if(widget.seller != FirebaseAuth.instance.currentUser!.uid)
                 Obx(
-                  () => widget.seller !=
-                              FirebaseAuth.instance.currentUser!.uid &&
-                          !userController.userPurchases
-                              .contains(widget.productId)
+                  () => !userController.userPurchases.contains(widget.productId)
                       ? Container(
                           padding: EdgeInsets.only(right: 10),
                           width: 331.w,
@@ -427,15 +516,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
                           ],
                         )
-                      :   Positioned(
+                      : Positioned(
                     bottom: 10.h,
                     left: 0,
                     right: 0,
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 18.0.w),
                       child: ElevatedButton(
-                          onPressed: () {
-
+                          onPressed: () async{
+                            if(widget.seller==FirebaseAuth.instance.currentUser!.uid){
+                              if(orderController.isLoading.value==false) {
+                                await orderStatusBySeller(order);
+                              }
+                            }else{
+                              if(orderController.isLoading.value==false) {
+                                await orderStatusByBuyer(order);
+                              }
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             maximumSize: Size(350.w, 80.h),
