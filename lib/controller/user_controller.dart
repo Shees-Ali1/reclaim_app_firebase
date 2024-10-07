@@ -165,32 +165,32 @@ class UserController extends GetxController {
   Future<void> profileUpdate(TextEditingController nameController) async {
     try {
       isLoading.value = true;
+
       // Save pending changes for approval
       await FirebaseFirestore.instance
           .collection('pendingUserUpdates')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .set({
         'pendingUserName': nameController.text.trim(),
-        // 'pendinguserSchool': homeController.classOption.value,
-
-
         'pendingApproval': false, // Mark for approval
         'timestamp': FieldValue.serverTimestamp(),
       });
 
       // If there's an image, add it to the pending updates as well
       if (imageFile != null) {
-        String img =
-            await updateUserImage(FirebaseAuth.instance.currentUser!.uid);
+        String img = await updateUserImage(FirebaseAuth.instance.currentUser!.uid);
+
+        // After getting the image URL, update the pendingUserUpdates document
         await FirebaseFirestore.instance
             .collection('pendingUserUpdates')
             .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({'pendingUserImage': img});
+            .update({
+          'pendingUserImage': img, // Add the image URL to the pending updates
+        });
       }
+
       Get.back();
       Get.back();
-
-
 
       isLoading.value = false;
     } catch (e) {
@@ -198,6 +198,7 @@ class UserController extends GetxController {
       isLoading.value = false;
     }
   }
+
 
   Future<String> updateUserImage(String userId) async {
     try {

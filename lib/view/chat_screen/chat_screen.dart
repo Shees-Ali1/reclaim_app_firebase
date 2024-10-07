@@ -8,6 +8,7 @@ import '../../const/color.dart';
 import '../../controller/chat_controller.dart';
 import '../../controller/order_controller.dart';
 import '../../controller/paymentController.dart';
+import '../../helper/paypal_payment.dart';
 import '../../helper/stripe_purchasing.dart';
 import '../../widgets/custom _backbutton.dart';
 import '../../widgets/custom_text.dart';
@@ -557,11 +558,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                         controller
                                                                             .payments[1]
                                                                         ['name']) {
-                                                                      // Navigate to PayPal screen
-                                                                      // Navigator.push(
-                                                                      //   context,
-                                                                      //   MaterialPageRoute(builder: (context) => PayPalScreen()),
-                                                                      // );
+                                                                      Navigator.push(
+                                                                        context,
+                                                                        MaterialPageRoute(
+                                                                            builder:
+                                                                                (context) =>
+                                                                                PaypalPayment(
+                                                                                  amount:
+                                                                                  widget.productPrice.toString(),
+                                                                                )),
+                                                                      );
                                                                     }
                                                                     else if (controller.selectedPayment ==
                                                                         controller

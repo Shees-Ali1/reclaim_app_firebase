@@ -94,30 +94,36 @@ class _WalletState extends State<Wallet> {
         AppImages.download,
         height: 40.h,
         width: 40.w,
+
       );
     } else if (type == "buy") {
       return Image.asset(
+
         AppImages.walmart,
         height: 40.h,
         width: 40.w,
+      // color: primaryColor,
       );
     } else if (type == "refund") {
       return Image.asset(
         AppImages.backbutton,
         height: 40.h,
         width: 40.w,
+        color: primaryColor,
       );
     } else if (type == "sale") {
       return Image.asset(
         AppImages.sellMan,
         height: 40.h,
         width: 40.w,
+        color: primaryColor,
       );
     } else if (type == "withdraw") {
       return Image.asset(
         AppImages.send,
         height: 40.h,
         width: 40.w,
+        color: primaryColor,
       );
     }
     // Shouldn't get here!
@@ -143,6 +149,15 @@ class _WalletState extends State<Wallet> {
     }
     // Shouldn't get here!
     return "";
+  }
+
+  String getSignForType(String type) {
+    if (type == "deposit" || type == "sale") {
+      return "+";
+    } else if (type == "withdraw" || type == "buy" || type == "refund") {
+      return "-";
+    }
+    return ""; // Default case, shouldn't get here!
   }
 
   @override
@@ -311,7 +326,7 @@ class _WalletState extends State<Wallet> {
                     // ),
                     GestureDetector(
                       onTap: () {
-                      walletController.withdrawal.clear();
+                        walletController.withdrawal.clear();
                         // walletController.btcaddress.clear();
 
                         walletController.btcAddressValidation.value = false;
@@ -420,7 +435,8 @@ class _WalletState extends State<Wallet> {
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     SizedBox(height: 20.h),
                                                     Container(
@@ -429,23 +445,25 @@ class _WalletState extends State<Wallet> {
                                                       decoration: BoxDecoration(
                                                         color: Colors.black,
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                                4.r),
+                                                            BorderRadius
+                                                                .circular(4.r),
                                                       ),
                                                     ),
                                                     SizedBox(height: 20.h),
                                                     LexendCustomText(
                                                       text:
                                                           'Enter your bank details',
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                       fontsize: 16.sp,
-                                                      textColor:
-                                                          const Color(0xff1E1E1E),
+                                                      textColor: const Color(
+                                                          0xff1E1E1E),
                                                     ),
                                                     SizedBox(height: 12.h),
                                                     InputField(
-                                                      controller: walletController
-                                                          .bankname,
+                                                      controller:
+                                                          walletController
+                                                              .bankname,
                                                       hint: 'Enter Bank Name',
                                                       hintStyle: TextStyle(
                                                         fontSize: 16.sp,
@@ -454,11 +472,14 @@ class _WalletState extends State<Wallet> {
                                                       keyboard:
                                                           TextInputType.name,
                                                     ),
-                                                    SizedBox(height: 10,),
-                                                
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+
                                                     InputField(
-                                                      controller: walletController
-                                                          .accountnumber,
+                                                      controller:
+                                                          walletController
+                                                              .accountnumber,
                                                       hint:
                                                           'Enter Account Number',
                                                       hintStyle: TextStyle(
@@ -468,7 +489,9 @@ class _WalletState extends State<Wallet> {
                                                       keyboard:
                                                           TextInputType.number,
                                                     ),
-                                                    SizedBox(height: 10,),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
                                                     InputField(
                                                       controller:
                                                           walletController.cvc,
@@ -531,8 +554,9 @@ class _WalletState extends State<Wallet> {
                                                           fontWeight:
                                                               FontWeight.w500,
                                                           fontsize: 16.sp,
-                                                          textColor: const Color(
-                                                              0xff000000),
+                                                          textColor:
+                                                              const Color(
+                                                                  0xff000000),
                                                         ),
                                                         LexendCustomText(
                                                             text:
@@ -549,52 +573,121 @@ class _WalletState extends State<Wallet> {
                                                     CustomButton(
                                                       text: 'Send Request',
                                                       onPressed: () async {
-                                                
-                                                
-                                                        DocumentReference    withdrawRef = await FirebaseFirestore.instance.collection('userWithdrawals')
-                                                              .doc(FirebaseAuth.instance.currentUser!.uid).collection('withdrawalsRequest')
-                                                            .add({
-                                                
-                                                          'amount':double.parse(walletController.withdrawal.text.trim() ),
-                                                          'accountName':walletController.bankname.text.trim(),
-                                                          'accountNumber':walletController.accountnumber.text.trim(),
-                                                          'cvc':walletController.cvc.text.trim(),
-                                                          'requestTime': DateTime.now(),
-                                                          'withdrawStatus': 'pending',
-                                                          'userId': FirebaseAuth.instance.currentUser!.uid
+                                                        signUpController
+                                                            .isLoading
+                                                            .value = true;
+
+                                                        DocumentReference
+                                                            withdrawRef =
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'userWithdrawals')
+                                                                .doc(FirebaseAuth
+                                                                    .instance
+                                                                    .currentUser!
+                                                                    .uid)
+                                                                .collection(
+                                                                    'withdrawalsRequest')
+                                                                .add({
+                                                          'amount': double.parse(
+                                                              walletController
+                                                                  .withdrawal
+                                                                  .text
+                                                                  .trim()),
+                                                          'accountName':
+                                                              walletController
+                                                                  .bankname.text
+                                                                  .trim(),
+                                                          'accountNumber':
+                                                              walletController
+                                                                  .accountnumber
+                                                                  .text
+                                                                  .trim(),
+                                                          'cvc':
+                                                              walletController
+                                                                  .cvc.text
+                                                                  .trim(),
+                                                          'requestTime':
+                                                              DateTime.now(),
+                                                          'withdrawStatus':
+                                                              'pending',
+                                                          'userId': FirebaseAuth
+                                                              .instance
+                                                              .currentUser!
+                                                              .uid
                                                         });
-                                                        await FirebaseFirestore.instance.collection('userWithdrawals')
-                                                            .doc(FirebaseAuth.instance.currentUser!.uid).collection('withdrawalsRequest')
-                                                            .doc(withdrawRef.id).set({
-                                                          'withdrawid': withdrawRef.id
-                                                
-                                                        },SetOptions(merge: true),);
-                                                        final newblanace =  walletController.walletbalance.value - double.parse(walletController.withdrawal.text.trim() );
-                                                        await FirebaseFirestore.instance.collection('wallet')
-                                                            .doc(FirebaseAuth.instance.currentUser!.uid).set(
-                                                            {
-                                                              "balance": newblanace
-                                                            },SetOptions(merge: true),);
-                                                        await walletController.fetchuserwallet();
-                                                        await walletController.storetransactionwithdraw(
-                                                            int.parse(walletController.withdrawal.text.trim() ),
-                                                            'withdraw',withdrawRef.id
-                                                           );
-                                                
-                                                
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'userWithdrawals')
+                                                            .doc(FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid)
+                                                            .collection(
+                                                                'withdrawalsRequest')
+                                                            .doc(withdrawRef.id)
+                                                            .set(
+                                                          {
+                                                            'withdrawid':
+                                                                withdrawRef.id
+                                                          },
+                                                          SetOptions(
+                                                              merge: true),
+                                                        );
+                                                        final newblanace =
+                                                            walletController
+                                                                    .walletbalance
+                                                                    .value -
+                                                                double.parse(
+                                                                    walletController
+                                                                        .withdrawal
+                                                                        .text
+                                                                        .trim());
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'wallet')
+                                                            .doc(FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid)
+                                                            .set(
+                                                          {
+                                                            "balance":
+                                                                newblanace
+                                                          },
+                                                          SetOptions(
+                                                              merge: true),
+                                                        );
+                                                        await walletController
+                                                            .fetchuserwallet();
+                                                        await walletController
+                                                            .storetransactionwithdraw(
+                                                                int.parse(
+                                                                    walletController
+                                                                        .withdrawal
+                                                                        .text
+                                                                        .trim()),
+                                                                'withdraw',
+                                                                withdrawRef.id);
+
+                                                        signUpController
+                                                            .isLoading
+                                                            .value = false;
                                                         Navigator.pop(context);
-                                                          Navigator.pop(context);
-                                                
-                                                          Get.dialog(
-                                                            AlertDialog(
-                                                              title: Text(
-                                                                  'Withdraw Request'),
-                                                              content: Text(
-                                                                'Your request has been submitted. Withdrawal will be processed within 24 hours.',
-                                                              ),
+                                                        Navigator.pop(context);
+
+                                                        Get.dialog(
+                                                          AlertDialog(
+                                                            title: Text(
+                                                                'Withdraw Request'),
+                                                            content: Text(
+                                                              'Your request has been submitted. Withdrawal will be processed within 24 hours.',
                                                             ),
-                                                          );
-                                                
+                                                          ),
+                                                        );
                                                       },
                                                       backgroundColor:
                                                           primaryColor,
@@ -904,15 +997,15 @@ class _WalletState extends State<Wallet> {
                                 as Map<String, dynamic>;
                             String time = walletController
                                 .formattransactionTime(item['date']);
-                            String productName =
-                                item.containsKey('productName')
-                                    ? item['productName']
-                                    : "";
+                            String productName = item.containsKey('productName')
+                                ? item['productName']
+                                : "";
 
                             return GestureDetector(
                               onTap: () {
                                 Get.to(WalletDetails(
-                                    transaction: snapshot.data!.docs[index].data() as Map<String, dynamic>));
+                                    transaction: snapshot.data!.docs[index]
+                                        .data() as Map<String, dynamic>));
                               },
                               child: ListTile(
                                 horizontalTitleGap: 8,
@@ -937,10 +1030,13 @@ class _WalletState extends State<Wallet> {
                                   children: [
                                     SoraCustomText(
                                       text:
-                                          "+\$${item['price'].toStringAsFixed(1)}",
-                                      textColor: greenColor,
+                                          "${getSignForType(item['type'])}${item['price']} Aed",
+                                      textColor:
+                                          getSignForType(item['type']) == "+"
+                                              ? greenColor
+                                              : redColor,
                                       fontWeight: FontWeight.w400,
-                                      fontsize: 12.sp,
+                                      fontsize:12.sp ,
                                     ),
                                     SizedBox(
                                       width: 5.w,

@@ -11,6 +11,7 @@ import '../../controller/chat_controller.dart';
 import '../../controller/home_controller.dart';
 import '../../controller/paymentController.dart';
 import '../../controller/user_controller.dart';
+import '../../helper/paypal_payment.dart';
 import '../../helper/stripe_payment.dart';
 import '../../helper/stripe_purchasing.dart';
 import '../../widgets/custom _backbutton.dart';
@@ -436,7 +437,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                 PaymentController(), // Initialize the controller
                                             builder: (controller) {
                                               return Container(
-                                                height: Get.height*0.6,
+                                                height: Get.height * 0.6,
                                                 margin: EdgeInsets.symmetric(
                                                     horizontal: 20.w),
                                                 width: double.infinity,
@@ -554,7 +555,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
                                                     Spacer(),
                                                     GestureDetector(
-                                                      onTap: () async{
+                                                      onTap: () async {
                                                         Navigator.pop(context);
                                                         // Navigate based on the selected payment method
                                                         if (controller
@@ -562,25 +563,25 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                             controller
                                                                     .payments[0]
                                                                 ['name']) {
-                                                     await     stripePaymentPurchasing
-                                                              .paymentPurchasing(
-                                                            widget.bookDetail[
-                                                                    'productPrice']
-                                                                .toString(),
-                                                            widget.bookDetail[
-                                                                'listingId'],
-                                                            widget.bookDetail[
-                                                                'sellerId'],
-                                                            widget.bookDetail[
-                                                                'brand'],
-                                                            context,
-                                                            widget.bookDetail[
-                                                                'productName'],
-                                                            widget.bookDetail[
-                                                                'productPrice'],
-                                                            widget.bookDetail[
-                                                                'productImages'][0],true,{}
-                                                          );
+                                                          await stripePaymentPurchasing.paymentPurchasing(
+                                                              widget.bookDetail[
+                                                                      'productPrice']
+                                                                  .toString(),
+                                                              widget.bookDetail[
+                                                                  'listingId'],
+                                                              widget.bookDetail[
+                                                                  'sellerId'],
+                                                              widget.bookDetail[
+                                                                  'brand'],
+                                                              context,
+                                                              widget.bookDetail[
+                                                                  'productName'],
+                                                              widget.bookDetail[
+                                                                  'productPrice'],
+                                                              widget.bookDetail[
+                                                                  'productImages'][0],
+                                                              true,
+                                                              {});
                                                           // Get.back();
                                                         } else if (controller
                                                                 .selectedPayment ==
@@ -588,30 +589,37 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                                     .payments[1]
                                                                 ['name']) {
                                                           // Navigate to PayPal screen
-                                                          // Navigator.push(
-                                                          //   context,
-                                                          //   MaterialPageRoute(builder: (context) => PayPalScreen()),
-                                                          // );
-                                                        }else if (controller
-                                                            .selectedPayment ==
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        PaypalPayment(
+                                                                          amount:
+                                                                              widget.bookDetail['productPrice'].toString(),
+                                                                        )),
+                                                          );
+                                                        } else if (controller
+                                                                .selectedPayment ==
                                                             controller
-                                                                .payments[2]
-                                                            ['name']) {
+                                                                    .payments[2]
+                                                                ['name']) {
                                                           print('wallet');
-                                                        await  productsListingController.buyProductWithWallet(
+                                                          await productsListingController.buyProductWithWallet(
                                                               widget.bookDetail[
-                                                              'listingId'],
+                                                                  'listingId'],
                                                               widget.bookDetail[
-                                                              'sellerId'],
+                                                                  'sellerId'],
                                                               widget.bookDetail[
-                                                              'brand'],
+                                                                  'brand'],
                                                               context,
                                                               widget.bookDetail[
-                                                              'productName'],
+                                                                  'productName'],
                                                               widget.bookDetail[
-                                                              'productPrice'],
+                                                                  'productPrice'],
                                                               widget.bookDetail[
-                                                              'productImages'][0]);
+                                                                      'productImages']
+                                                                  [0]);
 
                                                           // Navigate to PayPal screen
                                                           // Navigator.push(

@@ -7,6 +7,8 @@ import 'package:http/http.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationController extends GetxController {
+
+
   Future<void> storeNotification(int price, String orderId, String productId,
       String productName, String notificationType, String sellerId) async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
@@ -15,6 +17,12 @@ class NotificationController extends GetxController {
         .get();
     dynamic data = snapshot.data();
     String sellerName = data['userName'];
+    DocumentSnapshot snapshotbuyer = await FirebaseFirestore.instance
+        .collection('userDetails')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    dynamic buyer = snapshotbuyer.data();
+    String buyerName = buyer['userName'];
     DocumentReference documentReference = await FirebaseFirestore.instance
         .collection('userNotifications')
         .doc(
@@ -23,7 +31,8 @@ class NotificationController extends GetxController {
         .collection('notifications')
         .add({
       'userId': FirebaseAuth.instance.currentUser!.uid,
-      'title': 'You successfully purchased $productName from $sellerName',
+      'title':
+          '$buyerName successfully purchased $productName from $sellerName',
       'time': DateTime.timestamp(),
       'price': price,
       'orderId': orderId,
@@ -63,9 +72,9 @@ class NotificationController extends GetxController {
       'productId': productId,
       'price': price,
       'time': DateTime.timestamp(),
-      'title': "You got the order ${productName}",
+      'title': "You have placed an order for [${productName}]",
       'userId': FirebaseAuth.instance.currentUser!.uid,
-      'notificationType':notificationType
+      'notificationType': notificationType
     });
     await FirebaseFirestore.instance
         .collection('userNotifications')

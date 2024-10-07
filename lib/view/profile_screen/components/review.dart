@@ -29,7 +29,7 @@ class ReviewScreen extends StatelessWidget {
               stream: productsListingController.fetchProductReviews(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return SizedBox.shrink();
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -115,7 +115,10 @@ class UserReviewsList extends StatelessWidget {
       stream: productsListingController.fetchProductReviews(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(
+            color: primaryColor,
+
+          ));
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {

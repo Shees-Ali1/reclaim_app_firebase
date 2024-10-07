@@ -63,6 +63,7 @@ dependencies:
   bech32:
   base58check:
   equatable:
+  flutter_paypal_payment:
 
 
 dev_dependencies:

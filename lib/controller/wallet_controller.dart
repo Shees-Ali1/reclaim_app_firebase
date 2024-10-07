@@ -98,20 +98,26 @@ class WalletController extends GetxController {
   // }
   // Future<void> updatebalance(int purchasePrice) async {
   //   try {
-  //     // int appFees = (purchasePrice * 0.2).round();
-  //     // int finalPrice = purchasePrice - appFees;
-  //     int newbalance = walletbalance.value.toInt() - purchasePrice;
-  //     await FirebaseFirestore.instance
+  //     DocumentSnapshot buyerBalance = await FirebaseFirestore.instance
   //         .collection('wallet')
   //         .doc(FirebaseAuth.instance.currentUser!.uid)
-  //         .update({'balance': newbalance});
-  //  // await storetransactionhistory(purchasePrice, 'buy',);
+  //         .get();
+  //     if (buyerBalance.exists) {
+  //       dynamic data = buyerBalance.data();
+  //       var oldbalance = data['balance'];
+  //       final newbalance = oldbalance - purchasePrice;
+  //       await FirebaseFirestore.instance
+  //           .collection('wallet')
+  //           .doc(FirebaseAuth.instance.currentUser!.uid)
+  //           .update({'balance': newbalance});
+  //     }
   //   } catch (e) {
   //     print('Error update balance$e');
   //   }
   // }
 
-  Future<void> storetransactionhistory(int price, String purchaseType, String userId, String productName, String sellerId) async {
+  Future<void> storetransactionhistory(int price, String purchaseType,
+      String userId, String productName, String sellerId) async {
     try {
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('userDetails')
@@ -145,22 +151,19 @@ class WalletController extends GetxController {
       print('Error storeTransaction: $e');
     }
   }
-  Future<void> storetransactionwithdraw(int price, String purchaseType,String withdrawId ) async {
+
+  Future<void> storetransactionwithdraw(
+      int price, String purchaseType, String withdrawId) async {
     try {
-
-
-
       await FirebaseFirestore.instance
           .collection('wallet')
-          .doc( FirebaseAuth.instance.currentUser!.uid)
+          .doc(FirebaseAuth.instance.currentUser!.uid)
           .collection('transaction')
           .add({
         'price': price,
         'date': DateTime.now(), // Fixed this line
         'type': purchaseType,
-        'requestId':withdrawId,
-
-
+        'requestId': withdrawId,
 
         'userId': FirebaseAuth.instance.currentUser!.uid,
       });
