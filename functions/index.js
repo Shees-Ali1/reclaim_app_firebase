@@ -205,7 +205,7 @@ exports.sendNotificationOnOfferStatusChange = functions.firestore
     });
 
 
-exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRun(async (context) => {
+exports.checkAndRefundOrders = functions.pubsub.schedule('every 6 hours').onRun(async (context) => {
         const currentTime = admin.firestore.Timestamp.now();
         const cutoffTime = admin.firestore.Timestamp.fromMillis(currentTime.toMillis() - 24 * 60 * 60 * 1000); // 24 hours ago
 
@@ -213,6 +213,7 @@ exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRu
             // Fetch orders where deliveryStatus is false and orderDate is older than 24 hours
             const orderSnapshot = await firestore.collection('orders')
                 .where('deliveryStatus', '==', false)
+                .where('refund', '==', false)
                 .where('orderDate', '<=', cutoffTime)
                 .get();
 
@@ -226,9 +227,14 @@ exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRu
                 const orderData = doc.data();
                 const buyerId = orderData.buyerId;
                 const buyingPrice = orderData.buyingprice;
-
+                if(orderData.buyingprice>=50){
                 // Refund logic for each buyer
                 refundPromises.push(processRefund(buyerId, buyingPrice, doc.id));
+
+               }else{
+                console.log("buyihg is less then 50 so can't refund");
+                  return null;
+               }
             });
 
             // Wait for all refund promises to complete
@@ -245,18 +251,26 @@ exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRu
     // Function to process refund for a specific buyer
     async function processRefund(buyerId, refundAmount, orderId) {
         const walletRef = firestore.collection('wallet').doc(buyerId);
+        const userRef = firestore.collection('userDetails').doc(buyerId); // Assuming user's FCM token is stored in users collection
 
         return firestore.runTransaction(async (transaction) => {
             const walletDoc = await transaction.get(walletRef);
+            const userDoc = await transaction.get(userRef);
 
             if (!walletDoc.exists) {
                 console.error(`No wallet found for user ${buyerId}`);
                 return;
             }
 
+            if (!userDoc.exists) {
+                console.error(`No user data found for user ${buyerId}`);
+                return;
+            }
+
             const currentBalance = walletDoc.data().balance || 0;
-             const refundWithBonus = refundAmount + (refundAmount * 0.10); // Add 10% to the refund amount
-               const newBalance = currentBalance + refundWithBonus;
+            const refundWithBonus = refundAmount + (refundAmount * 0.10); // Add 10% to the refund amount
+            const newBalance = currentBalance + refundWithBonus;
+
             // Update the buyer's wallet with the new balance
             transaction.update(walletRef, {
                 balance: newBalance
@@ -267,6 +281,75 @@ exports.checkAndRefundOrders = functions.pubsub.schedule('every 1 minutes').onRu
                 refund: true
             });
 
+            // Send notification to the buyer if refund is processed
+            const fcmToken = userDoc.data().fcmToken; // Assuming FCM token is stored in user's document
+            if (fcmToken) {
+                await sendRefundNotification(fcmToken, refundWithBonus);
+            } else {
+                console.log(`No FCM token found for user ${buyerId}, cannot send notification`);
+            }
+
             console.log(`Refund of ${refundAmount} processed for user ${buyerId}`);
         });
     }
+
+    // Function to send notification using Firebase Cloud Messaging (FCM)
+    async function sendRefundNotification(fcmToken, refundAmount) {
+        const message = {
+            token: fcmToken,
+            notification: {
+                title: 'Refund Successful',
+                body: `Your refund of ${refundAmount} has been processed successfully.`,
+            },
+        };
+
+        try {
+            await admin.messaging().send(message);
+            console.log(`Notification sent to token: ${fcmToken}`);
+        } catch (error) {
+            console.error('Error sending notification:', error);
+        }
+    }
+
+    exports.onRefundProcessed = functions.firestore.document('orders/{orderId}').onUpdate(async (change, context) => {
+            const beforeData = change.before.data();
+            const afterData = change.after.data();
+
+            // Check if refund status changed to true
+            if (!beforeData.refund && afterData.refund) {
+                const userId = afterData.buyerId;
+                const sellerId = afterData.sellerId;
+                const price = afterData.buyingprice;
+                const productName = afterData.productName;
+                const purchaseType = 'refund';
+
+                try {
+                    // Fetch buyer details (userName and userImage)
+                    const userSnapshot = await firestore.collection('userDetails').doc(userId).get();
+                    const userData = userSnapshot.data();
+                    const userName = userData.userName;
+                    const userImage = userData.userImage;
+
+                    // Fetch seller details (sellerName)
+                    const sellerSnapshot = await firestore.collection('userDetails').doc(sellerId).get();
+                    const sellerData = sellerSnapshot.data();
+                    const sellerName = sellerData.userName;
+
+                    // Store the refund transaction in the buyer's wallet transaction collection
+                    await firestore.collection('wallet').doc(userId).collection('transaction').add({
+                        'price': price,
+                        'date': admin.firestore.FieldValue.serverTimestamp(), // Use server timestamp
+                        'type': purchaseType,
+                        'productName': productName,
+                        'userName': userName,
+                        'userImage': userImage,
+                        'sellerName': sellerName
+                    });
+
+                    console.log(`Transaction recorded for refund of ${price} for user ${userId}`);
+                } catch (error) {
+                    console.error('Error storing transaction history:', error);
+                }
+            }
+        });
+

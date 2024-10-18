@@ -595,8 +595,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                                                 builder:
                                                                     (context) =>
                                                                         PaypalPayment(
-                                                                          amount:
-                                                                              widget.bookDetail['productPrice'].toString(),
+                                                                          amount: widget
+                                                                              .bookDetail['productPrice']
+                                                                              .toString(),
                                                                         )),
                                                           );
                                                         } else if (controller

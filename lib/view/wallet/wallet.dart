@@ -152,9 +152,9 @@ class _WalletState extends State<Wallet> {
   }
 
   String getSignForType(String type) {
-    if (type == "deposit" || type == "sale") {
+    if (type == "deposit" || type == "sale"|| type == "refund") {
       return "+";
-    } else if (type == "withdraw" || type == "buy" || type == "refund") {
+    } else if (type == "withdraw" || type == "buy" ) {
       return "-";
     }
     return ""; // Default case, shouldn't get here!

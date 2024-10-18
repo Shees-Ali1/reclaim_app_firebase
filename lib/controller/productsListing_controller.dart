@@ -441,8 +441,8 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
-      int appFees = (purchasePrice * 0.05).round();
-      int finalPrice = purchasePrice - appFees;
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice + appFees;
       print("book bought111");
       DocumentReference docRef =
           await FirebaseFirestore.instance.collection('orders').add({
@@ -460,6 +460,8 @@ class ProductsListingController extends GetxController {
         'appFees': appFees,
         'finalPrice': finalPrice,
         'holdPayment': true,
+            'productName':productName,
+
         'refund': false
       });
 
@@ -474,7 +476,7 @@ class ProductsListingController extends GetxController {
 
       // await walletController.sendBalanceToSeller(finalPrice, sellerId);
       await walletController.storetransactionhistory(
-          finalPrice, 'sale', sellerId, productName, sellerId);
+          purchasePrice, 'sale', sellerId, productName, sellerId);
 
       await notificationController.storeNotification(purchasePrice, docRef.id,
           listingId, productName, 'purchased', sellerId);
@@ -491,18 +493,18 @@ class ProductsListingController extends GetxController {
           'You got the order on $productName',
           brand);
       await chatController.getorderId(listingId);
-      // String userId =
-      //     'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
-      // DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
-      //     .collection('adminWallet')
-      //     .doc(userId)
-      //     .get();
-      // dynamic adminWallet = adminWalletSnapshot.data();
-      // int adminBalance = adminWallet['balance'] + appFees;
-      // await FirebaseFirestore.instance
-      //     .collection('adminWallet')
-      //     .doc(userId)
-      //     .update({'balance': adminBalance});
+      String userId =
+          'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+      DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .get();
+      dynamic adminWallet = adminWalletSnapshot.data();
+      int adminBalance = adminWallet['balance'] + appFees;
+      await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .update({'balance': adminBalance});
       Get.dialog(AlertDialog(
           content: BuyDialogBox(
         sellerId: sellerId,
@@ -511,8 +513,8 @@ class ProductsListingController extends GetxController {
       userController.userPurchases.add(listingId);
 
       // // Store admin transaction history
-      // await storeadmintransactionhistory(
-      //     appFees, 'fee', 'App fee for order $productName', userId);
+      await storeadmintransactionhistory(
+          appFees, 'fee', 'App fee for order $productName', userId);
 
       await FirebaseFirestore.instance
           .collection('userDetails')
@@ -550,8 +552,8 @@ class ProductsListingController extends GetxController {
       // Reference the existing order document by listingId
       DocumentReference docRef =
           FirebaseFirestore.instance.collection('orders').doc(orderId);
-      int appFees = (purchasePrice * 0.05).round();
-      int finalPrice = purchasePrice - appFees;
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice + appFees;
       // Merge changes to the existing order document
       await docRef.set({
         'deliveryStatus': false, // Updating delivery status to true
@@ -560,12 +562,13 @@ class ProductsListingController extends GetxController {
         'appFees': appFees,
         'finalPrice': finalPrice,
         'holdPayment': true,
-        'refund': false
+        'refund': false,
+        'productName':productName
       }, SetOptions(merge: true));
 
       // await walletController.sendBalanceToSeller(finalPrice, sellerId);
       await walletController.storetransactionhistory(
-          finalPrice, 'sale', sellerId, productName, sellerId);
+          purchasePrice, 'sale', sellerId, productName, sellerId);
       await walletController.storetransactionhistory(purchasePrice, 'buy',
           FirebaseAuth.instance.currentUser!.uid, productName, sellerId);
 
@@ -579,18 +582,18 @@ class ProductsListingController extends GetxController {
       //     ));
       //   },
       // );
-      // String userId =
-      //     'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
-      // DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
-      //     .collection('adminWallet')
-      //     .doc(userId)
-      //     .get();
-      // dynamic adminWallet = adminWalletSnapshot.data();
-      // int adminBalance = adminWallet['balance'] + appFees;
-      // await FirebaseFirestore.instance
-      //     .collection('adminWallet')
-      //     .doc(userId)
-      //     .update({'balance': adminBalance});
+      String userId =
+          'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+      DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .get();
+      dynamic adminWallet = adminWalletSnapshot.data();
+      int adminBalance = adminWallet['balance'] + appFees;
+      await FirebaseFirestore.instance
+          .collection('adminWallet')
+          .doc(userId)
+          .update({'balance': adminBalance});
       // Send FCM notification to seller
       await notificationController.sendFcmMessage(
         'New message',
@@ -604,8 +607,8 @@ class ProductsListingController extends GetxController {
       await notificationController.sendnotificationtoseller(
           purchasePrice, docRef.id, listingId, productName, 'seller', sellerId);
       // //              Store admin transaction history //  //
-      // await storeadmintransactionhistory(
-      //     appFees, 'fee', 'App fee for order $productName', userId);
+      await storeadmintransactionhistory(
+          appFees, 'fee', 'App fee for order $productName', userId);
       userController.userPurchases.add(listingId);
 
       // Update the buyer's userDetails
@@ -684,6 +687,8 @@ class ProductsListingController extends GetxController {
           'brand': brand,
           'buyerApproval': false,
           'sellerApproval': false,
+              'productName':productName
+
         });
 
         await FirebaseFirestore.instance
@@ -746,8 +751,12 @@ class ProductsListingController extends GetxController {
   ) async {
     try {
       isLoading.value = true;
-      int appFees = (purchasePrice * 0.05).round();
-      int finalPrice = purchasePrice - appFees;
+      //seller pice cut
+      // int appFees = (purchasePrice * 0.05).round();
+      // int finalPrice = purchasePrice - appFees;
+//buyer price
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice + appFees;
       DocumentSnapshot walletsnap = await FirebaseFirestore.instance
           .collection('wallet')
           .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -773,6 +782,8 @@ class ProductsListingController extends GetxController {
             'appFees': appFees,
             'finalPrice': finalPrice,
             'holdPayment': true,
+                'productName':productName,
+
             'refund': false
           });
 
@@ -785,9 +796,8 @@ class ProductsListingController extends GetxController {
           await walletController.storetransactionhistory(purchasePrice, 'buy',
               FirebaseAuth.instance.currentUser!.uid, productName, sellerId);
 
-          // await walletController.sendBalanceToSeller(finalPrice, sellerId);
           await walletController.storetransactionhistory(
-              finalPrice, 'sale', sellerId, productName, sellerId);
+              purchasePrice, 'sale', sellerId, productName, sellerId);
 
           await notificationController.storeNotification(purchasePrice,
               docRef.id, listingId, productName, 'purchased', sellerId);
@@ -804,18 +814,18 @@ class ProductsListingController extends GetxController {
               'You got the order on $productName',
               brand);
           await chatController.getorderId(listingId);
-          // String userId =
-          //     'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
-          // DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
-          //     .collection('adminWallet')
-          //     .doc(userId)
-          //     .get();
-          // dynamic adminWallet = adminWalletSnapshot.data();
-          // int adminBalance = adminWallet['balance'] + appFees;
-          // await FirebaseFirestore.instance
-          //     .collection('adminWallet')
-          //     .doc(userId)
-          //     .update({'balance': adminBalance});
+          String userId =
+              'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+          DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+              .collection('adminWallet')
+              .doc(userId)
+              .get();
+          dynamic adminWallet = adminWalletSnapshot.data();
+          int adminBalance = adminWallet['balance'] + appFees;
+          await FirebaseFirestore.instance
+              .collection('adminWallet')
+              .doc(userId)
+              .update({'balance': adminBalance});
 
           var newbalanceforbuyer = oldbalancebuyer - finalPrice;
           await FirebaseFirestore.instance
@@ -831,8 +841,8 @@ class ProductsListingController extends GetxController {
           userController.userPurchases.add(listingId);
 
           // // Store admin transaction history
-          // await storeadmintransactionhistory(
-          //     appFees, 'fee', 'App fee for order $productName', userId);
+          await storeadmintransactionhistory(
+              appFees, 'fee', 'App fee for order $productName', userId);
           await FirebaseFirestore.instance
               .collection('userDetails')
               .doc(FirebaseAuth.instance.currentUser!.uid)

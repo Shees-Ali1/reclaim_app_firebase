@@ -68,19 +68,26 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
-  Future<void> orderStatusBySeller(dynamic order,) async{
-    try{
-      if(order['sellerApproval']==false){
-
-        orderController.isLoading.value=true;
+  Future<void> orderStatusBySeller(
+    dynamic order,
+  ) async {
+    try {
+      if (order['sellerApproval'] == false) {
+        orderController.isLoading.value = true;
 
         // mark delivery by seller has true
-        await FirebaseFirestore.instance.collection('orders').doc(order['orderId']).update({
+        await FirebaseFirestore.instance
+            .collection('orders')
+            .doc(order['orderId'])
+            .update({
           'sellerApproval': true,
         });
 
         // then store the notification to buyer that seller has marked delivered
-        DocumentReference notiId  = await FirebaseFirestore.instance.collection('userNotifications').doc(order['buyerId']).collection('notifications')
+        DocumentReference notiId = await FirebaseFirestore.instance
+            .collection('userNotifications')
+            .doc(order['buyerId'])
+            .collection('notifications')
             .add({
           'productId': widget.productId,
           'orderId': order['orderId'],
@@ -88,81 +95,104 @@ class _ChatScreenState extends State<ChatScreen> {
           'time': DateTime.timestamp(),
           'title': "Seller has marked ${widget.productName} as delivered",
           'userId': order['sellerId'],
-          'notificationType':'seller'
+          'notificationType': 'seller'
         });
-        await FirebaseFirestore.instance.collection('userNotifications')
-            .doc(order['buyerId']).collection('notifications').doc(notiId.id).set({
-          'notificationId':notiId.id
-        },SetOptions(merge: true));
+        await FirebaseFirestore.instance
+            .collection('userNotifications')
+            .doc(order['buyerId'])
+            .collection('notifications')
+            .doc(notiId.id)
+            .set({'notificationId': notiId.id}, SetOptions(merge: true));
 
-
-        order['sellerApproval']=true;
+        order['sellerApproval'] = true;
         await markDeliveryTrue(order);
       }
-    }catch(e){
+    } catch (e) {
       print("error changing order status by seller $e");
-    }finally{
-      orderController.isLoading.value=false;
+    } finally {
+      orderController.isLoading.value = false;
     }
   }
-  Future<void> orderStatusByBuyer(dynamic order,) async{
- try{
-   if(order['buyerApproval']==false){
 
-     orderController.isLoading.value=true;
+  Future<void> orderStatusByBuyer(
+    dynamic order,
+  ) async {
+    try {
+      if (order['buyerApproval'] == false) {
+        orderController.isLoading.value = true;
 
-     // mark delivery by buyer has true
-     await FirebaseFirestore.instance.collection('orders').doc(order['orderId']).update({
-       'buyerApproval': true,
-     });
-
-     // then store the notification to seller that buyer has marked recieved
-     DocumentReference notiId  = await FirebaseFirestore.instance.collection('userNotifications').doc(order['sellerId']).collection('notifications')
-         .add({
-       'productId': widget.productId,
-       'orderId': order['orderId'],
-       // 'price':price,
-       'time': DateTime.timestamp(),
-       'title': "Buyer has marked ${widget.productName} as delivered",
-       'userId': order['buyerId'],
-       'notificationType':'buyer'
-     });
-
-     await FirebaseFirestore.instance.collection('userNotifications')
-         .doc(order['sellerId']).collection('notifications').doc(notiId.id).set({
-       'notificationId':notiId.id
-     },SetOptions(merge: true));
-
-      order['buyerApproval']=true;
-     await markDeliveryTrue(order);
-   }
-
- }catch(e){
-   print("error changing order status by buyer $e");
- }finally{
-   orderController.isLoading.value=false;
- }
-
-  }
-  Future<void> markDeliveryTrue(dynamic order) async{
-  // check that the status by seller and buyer are true then mark order as complete
-      if (order['sellerApproval']==true && order['buyerApproval'] == true) {
+        // mark delivery by buyer has true
         await FirebaseFirestore.instance
             .collection('orders')
             .doc(order['orderId'])
             .update({
-          'deliveryStatus': true,
+          'buyerApproval': true,
         });
-        print("order  completed ");
 
-    }else{
-        print("order not complete yet");
+        // then store the notification to seller that buyer has marked recieved
+        DocumentReference notiId = await FirebaseFirestore.instance
+            .collection('userNotifications')
+            .doc(order['sellerId'])
+            .collection('notifications')
+            .add({
+          'productId': widget.productId,
+          'orderId': order['orderId'],
+          // 'price':price,
+          'time': DateTime.timestamp(),
+          'title': "Buyer has marked ${widget.productName} as delivered",
+          'userId': order['buyerId'],
+          'notificationType': 'buyer'
+        });
+
+        await FirebaseFirestore.instance
+            .collection('userNotifications')
+            .doc(order['sellerId'])
+            .collection('notifications')
+            .doc(notiId.id)
+            .set({'notificationId': notiId.id}, SetOptions(merge: true));
+
+        order['buyerApproval'] = true;
+        await markDeliveryTrue(order);
       }
-
-
+    } catch (e) {
+      print("error changing order status by buyer $e");
+    } finally {
+      orderController.isLoading.value = false;
+    }
   }
+
+  Future<void> markDeliveryTrue(dynamic order) async {
+    // check that the status by seller and buyer are true then mark order as complete
+    if (order['sellerApproval'] == true && order['buyerApproval'] == true) {
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(order['orderId'])
+          .update({
+        'deliveryStatus': true,
+      });
+      int appFees = (order['buyingprice'] * 0.05).round();
+      int finalPrice = order['buyingprice'] - appFees;
+      await walletController.sendBalanceToSeller(finalPrice, order['sellerId']);
+      // String userId =
+      //     'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+      // DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+      //     .collection('adminWallet')
+      //     .doc(userId)
+      //     .get();
+      // dynamic adminWallet = adminWalletSnapshot.data();
+      // int adminBalance = adminWallet['balance'] + appFees;
+      // await FirebaseFirestore.instance
+      //     .collection('adminWallet')
+      //     .doc(userId)
+      //     .update({'balance': adminBalance});
+      print("order  completed ");
+    } else {
+      print("order not complete yet");
+    }
+  }
+
   final StripePaymentPurchasing stripePaymentPurchasing =
-  StripePaymentPurchasing();
+      StripePaymentPurchasing();
   @override
   Widget build(BuildContext context) {
     print(userController.userPurchases);
@@ -217,107 +247,108 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(
                   height: 10.h,
                 ),
-                if(widget.seller != FirebaseAuth.instance.currentUser!.uid)
-                Obx(
-                  () => !userController.userPurchases.contains(widget.productId)
-                      ? Container(
-                          padding: EdgeInsets.only(right: 10),
-                          width: 331.w,
-                          decoration: BoxDecoration(
-                              color: Color(0xffF7EDEC),
-                              borderRadius: BorderRadius.circular(16.r)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                  width: 89.w,
-                                  height: 75.h,
-                                  child: Image.network(
-                                    widget.image,
-                                    fit: BoxFit.cover,
-                                  )),
-                              SizedBox(
-                                width: 6.w,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InterCustomText(
-                                    text: widget.brand,
-                                    textColor: Color(0xff9B9B9B),
-                                    fontWeight: FontWeight.w400,
-                                    fontsize: 11.sp,
-                                  ),
-                                  InterCustomText(
-                                    text: widget.productName,
-                                    textColor: Color(0xff222222),
-                                    fontWeight: FontWeight.w600,
-                                    fontsize: 16.sp,
-                                  ),
-                                  InterCustomText(
-                                    text:
-                                        '${widget.productPrice.toString()} Aed',
-                                    textColor: Color(0xff222222),
-                                    fontWeight: FontWeight.w500,
-                                    fontsize: 14.sp,
-                                  ),
-                                ],
-                              ),
-                              Spacer(),
-                              StreamBuilder<DocumentSnapshot>(
-                                stream: orderStream,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    var orderData = snapshot.data!.data()
-                                        as Map<String, dynamic>?;
-                                    var offerPrice = orderData?['offers']
-                                            ?['offerPrice'] ??
-                                        0;
+                if (widget.seller != FirebaseAuth.instance.currentUser!.uid)
+                  Obx(
+                    () => !userController.userPurchases
+                            .contains(widget.productId)
+                        ? Container(
+                            padding: EdgeInsets.only(right: 10),
+                            width: 331.w,
+                            decoration: BoxDecoration(
+                                color: Color(0xffF7EDEC),
+                                borderRadius: BorderRadius.circular(16.r)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                    width: 89.w,
+                                    height: 75.h,
+                                    child: Image.network(
+                                      widget.image,
+                                      fit: BoxFit.cover,
+                                    )),
+                                SizedBox(
+                                  width: 6.w,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InterCustomText(
+                                      text: widget.brand,
+                                      textColor: Color(0xff9B9B9B),
+                                      fontWeight: FontWeight.w400,
+                                      fontsize: 11.sp,
+                                    ),
+                                    InterCustomText(
+                                      text: widget.productName,
+                                      textColor: Color(0xff222222),
+                                      fontWeight: FontWeight.w600,
+                                      fontsize: 16.sp,
+                                    ),
+                                    InterCustomText(
+                                      text:
+                                          '${widget.productPrice.toString()} Aed',
+                                      textColor: Color(0xff222222),
+                                      fontWeight: FontWeight.w500,
+                                      fontsize: 14.sp,
+                                    ),
+                                  ],
+                                ),
+                                Spacer(),
+                                StreamBuilder<DocumentSnapshot>(
+                                  stream: orderStream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData &&
+                                        snapshot.data != null) {
+                                      var orderData = snapshot.data!.data()
+                                          as Map<String, dynamic>?;
+                                      var offerPrice = orderData?['offers']
+                                              ?['offerPrice'] ??
+                                          0;
 
-                                    return Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 5.w, vertical: 10.h),
-                                      width: 55.w,
-                                      decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        borderRadius:
-                                            BorderRadius.circular(11.r),
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          InterCustomText(
-                                            text: 'Offer',
-                                            textColor: Colors.white,
-                                            fontWeight: FontWeight.w400,
-                                            fontsize: 11.sp,
-                                          ),
-                                          FittedBox(
-                                            child: InterCustomText(
-                                              text: offerPrice
-                                                  .toString(), // Convert offerPrice to String
+                                      return Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 5.w, vertical: 10.h),
+                                        width: 55.w,
+                                        decoration: BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(11.r),
+                                        ),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            InterCustomText(
+                                              text: 'Offer',
                                               textColor: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontsize: 13.sp,
+                                              fontWeight: FontWeight.w400,
+                                              fontsize: 11.sp,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  } else {
-                                    return SizedBox(); // Add a fallback widget for when there's no data
-                                  }
-                                },
-                              )
-                            ],
-                          ),
-                        )
-                      : SizedBox.shrink(),
-                ),
+                                            FittedBox(
+                                              child: InterCustomText(
+                                                text: offerPrice
+                                                    .toString(), // Convert offerPrice to String
+                                                textColor: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                                fontsize: 13.sp,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    } else {
+                                      return SizedBox(); // Add a fallback widget for when there's no data
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          )
+                        : SizedBox.shrink(),
+                  ),
                 SizedBox(
                   height: 10.h,
                 ),
@@ -345,7 +376,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   return isOrdered == false
                       ? Stack(
                           children: [
-                            if (widget.seller != FirebaseAuth.instance.currentUser!.uid)
+                            if (widget.seller !=
+                                FirebaseAuth.instance.currentUser!.uid)
                               Positioned(
                                 bottom: 10.h,
                                 left: 0,
@@ -402,128 +434,142 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     false) {
                                                   showModalBottomSheet(
                                                     // isScrollControlled: true,
-                                                    backgroundColor: Colors.white,
-                                                    shape: RoundedRectangleBorder(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                      BorderRadius.circular(20.r),
+                                                          BorderRadius.circular(
+                                                              20.r),
                                                     ),
                                                     context: context,
-                                                    builder: (BuildContext context) {
-                                                      return GetBuilder<PaymentController>(
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return GetBuilder<
+                                                          PaymentController>(
                                                         init:
-                                                        PaymentController(), // Initialize the controller
+                                                            PaymentController(), // Initialize the controller
                                                         builder: (controller) {
                                                           return Container(
-                                                            margin: EdgeInsets.symmetric(
-                                                                horizontal: 20.w),
-                                                            width: double.infinity,
+                                                            margin: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        20.w),
+                                                            width:
+                                                                double.infinity,
                                                             child: Column(
                                                               crossAxisAlignment:
-                                                              CrossAxisAlignment.center,
+                                                                  CrossAxisAlignment
+                                                                      .center,
                                                               mainAxisSize:
-                                                              MainAxisSize.min,
+                                                                  MainAxisSize
+                                                                      .min,
                                                               children: [
-                                                                SizedBox(height: 20.h),
+                                                                SizedBox(
+                                                                    height:
+                                                                        20.h),
                                                                 Container(
                                                                   width: 30.w,
                                                                   height: 4.h,
-                                                                  decoration: BoxDecoration(
-                                                                    color: Colors.black,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    color: Colors
+                                                                        .black,
                                                                     borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(4.r),
+                                                                        BorderRadius.circular(
+                                                                            4.r),
                                                                   ),
                                                                 ),
-                                                                SizedBox(height: 10.h),
+                                                                SizedBox(
+                                                                    height:
+                                                                        10.h),
                                                                 MontserratCustomText(
-                                                                  text: 'Payment Methods',
-                                                                  textColor: Colors.black,
+                                                                  text:
+                                                                      'Payment Methods',
+                                                                  textColor:
+                                                                      Colors
+                                                                          .black,
                                                                   fontWeight:
-                                                                  FontWeight.w700,
-                                                                  fontsize: 16.sp,
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontsize:
+                                                                      16.sp,
                                                                 ),
-                                                                SizedBox(height: 50.h),
+                                                                SizedBox(
+                                                                    height:
+                                                                        50.h),
 
                                                                 // Payment method ListView.builder inside the BottomSheet
-                                                                ListView.builder(
-                                                                  shrinkWrap: true,
-                                                                  itemCount: controller
-                                                                      .payments.length,
+                                                                ListView
+                                                                    .builder(
+                                                                  shrinkWrap:
+                                                                      true,
+                                                                  itemCount:
+                                                                      controller
+                                                                          .payments
+                                                                          .length,
                                                                   itemBuilder:
-                                                                      (context, index) {
+                                                                      (context,
+                                                                          index) {
                                                                     return Container(
                                                                       margin: EdgeInsets
                                                                           .symmetric(
-                                                                        vertical: 4.h,
-                                                                        horizontal: 12.w,
+                                                                        vertical:
+                                                                            4.h,
+                                                                        horizontal:
+                                                                            12.w,
                                                                       ),
                                                                       padding:
-                                                                      EdgeInsets.all(4),
+                                                                          EdgeInsets.all(
+                                                                              4),
                                                                       decoration:
-                                                                      BoxDecoration(
-                                                                        color: controller
-                                                                            .selectedPayment ==
-                                                                            controller.payments[
-                                                                            index]
-                                                                            ['name']
+                                                                          BoxDecoration(
+                                                                        color: controller.selectedPayment ==
+                                                                                controller.payments[index]['name']
                                                                             ? primaryColor
-                                                                            : primaryColor
-                                                                            .withOpacity(
-                                                                            0.1),
+                                                                            : primaryColor.withOpacity(0.1),
                                                                         borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                            10),
-                                                                        border: Border.all(
-                                                                          color: controller
-                                                                              .selectedPayment ==
-                                                                              controller
-                                                                                  .payments[index]
-                                                                              [
-                                                                              'name']
-                                                                              ? Colors
-                                                                              .transparent
+                                                                            BorderRadius.circular(10),
+                                                                        border:
+                                                                            Border.all(
+                                                                          color: controller.selectedPayment == controller.payments[index]['name']
+                                                                              ? Colors.transparent
                                                                               : primaryColor,
                                                                         ),
                                                                       ),
                                                                       child: RadioListTile<
                                                                           String>(
-                                                                        value: controller
-                                                                            .payments[
-                                                                        index]['name']!,
-                                                                        groupValue: controller
-                                                                            .selectedPayment,
-                                                                        onChanged: (String?
-                                                                        value) {
+                                                                        value: controller.payments[index]
+                                                                            [
+                                                                            'name']!,
+                                                                        groupValue:
+                                                                            controller.selectedPayment,
+                                                                        onChanged:
+                                                                            (String?
+                                                                                value) {
                                                                           controller
-                                                                              .selectPayment(
-                                                                              value!);
+                                                                              .selectPayment(value!);
                                                                         },
-                                                                        title: Text(
-                                                                          controller.payments[
-                                                                          index]
-                                                                          ['name']!,
-                                                                          style: TextStyle(
-                                                                            color: controller
-                                                                                .selectedPayment ==
-                                                                                controller.payments[index]
-                                                                                [
-                                                                                'name']
-                                                                                ? Colors
-                                                                                .white
-                                                                                : Colors
-                                                                                .black,
+                                                                        title:
+                                                                            Text(
+                                                                          controller.payments[index]
+                                                                              [
+                                                                              'name']!,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color: controller.selectedPayment == controller.payments[index]['name']
+                                                                                ? Colors.white
+                                                                                : Colors.black,
                                                                             fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                            fontSize: 16,
+                                                                                FontWeight.bold,
+                                                                            fontSize:
+                                                                                16,
                                                                           ),
                                                                         ),
                                                                         activeColor:
-                                                                        Colors.white,
+                                                                            Colors.white,
                                                                         controlAffinity:
-                                                                        ListTileControlAffinity
-                                                                            .trailing,
+                                                                            ListTileControlAffinity.trailing,
                                                                       ),
                                                                     );
                                                                   },
@@ -531,56 +577,69 @@ class _ChatScreenState extends State<ChatScreen> {
 
                                                                 Spacer(),
                                                                 GestureDetector(
-                                                                  onTap: () async {
-                                                                    Navigator.pop(context);
+                                                                  onTap:
+                                                                      () async {
+                                                                    Navigator.pop(
+                                                                        context);
                                                                     // Navigate based on the selected payment method
                                                                     if (controller
-                                                                        .selectedPayment ==
-                                                                        controller
-                                                                            .payments[0]
-                                                                        ['name']) {
-
-                                                                     await stripePaymentPurchasing
-                                                                          .paymentPurchasing(
-                                                                          widget.productPrice.toString(),
-                                                                          widget.productId,
-                                                                          widget.seller,
-                                                                          widget.brand,
+                                                                            .selectedPayment ==
+                                                                        controller.payments[0]
+                                                                            [
+                                                                            'name']) {
+                                                                      await stripePaymentPurchasing.paymentPurchasing(
+                                                                          widget
+                                                                              .productPrice
+                                                                              .toString(),
+                                                                          widget
+                                                                              .productId,
+                                                                          widget
+                                                                              .seller,
+                                                                          widget
+                                                                              .brand,
                                                                           context,
-                                                                          widget.productName,
-                                                                          widget.productPrice,
-                                                                          widget.image,
+                                                                          widget
+                                                                              .productName,
+                                                                          widget
+                                                                              .productPrice,
+                                                                          widget
+                                                                              .image,
                                                                           false,
-                                                                         order
-                                                                      );
+                                                                          order);
                                                                       // Get.back();
-                                                                    } else if (controller.selectedPayment ==
-                                                                        controller
-                                                                            .payments[1]
-                                                                        ['name']) {
-                                                                      Navigator.push(
+                                                                    } else if (controller
+                                                                            .selectedPayment ==
+                                                                        controller.payments[1]
+                                                                            [
+                                                                            'name']) {
+                                                                      Navigator
+                                                                          .push(
                                                                         context,
                                                                         MaterialPageRoute(
-                                                                            builder:
-                                                                                (context) =>
+                                                                            builder: (context) =>
                                                                                 PaypalPayment(
-                                                                                  amount:
-                                                                                  widget.productPrice.toString(),
+                                                                                  amount: widget.productPrice.toString(),
                                                                                 )),
                                                                       );
-                                                                    }
-                                                                    else if (controller.selectedPayment ==
-                                                                        controller
-                                                                            .payments[2]
-                                                                        ['name']) {
-                                                                      await  productsListingController.buyProductWithWallet(
-                                                                          widget.productId,
-                                                                          widget.seller,
-                                                                          widget.brand,
+                                                                    } else if (controller
+                                                                            .selectedPayment ==
+                                                                        controller.payments[2]
+                                                                            [
+                                                                            'name']) {
+                                                                      await productsListingController.buyProductWithWallet(
+                                                                          widget
+                                                                              .productId,
+                                                                          widget
+                                                                              .seller,
+                                                                          widget
+                                                                              .brand,
                                                                           context,
-                                                                          widget.productName,
-                                                                          widget.productPrice,
-                                                                          widget.image);
+                                                                          widget
+                                                                              .productName,
+                                                                          widget
+                                                                              .productPrice,
+                                                                          widget
+                                                                              .image);
                                                                       // Navigate to PayPal screen
                                                                       // Navigator.push(
                                                                       //   context,
@@ -590,34 +649,44 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                       // Handle other payment methods if necessary
                                                                     }
                                                                   },
-                                                                  child: Container(
-                                                                    padding: EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal: 10),
-                                                                    height: 58.h,
-                                                                    width: 300.w,
+                                                                  child:
+                                                                      Container(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            10),
+                                                                    height:
+                                                                        58.h,
+                                                                    width:
+                                                                        300.w,
                                                                     alignment:
-                                                                    Alignment.center,
+                                                                        Alignment
+                                                                            .center,
                                                                     decoration:
-                                                                    BoxDecoration(
-                                                                      color: primaryColor,
+                                                                        BoxDecoration(
+                                                                      color:
+                                                                          primaryColor,
                                                                       borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                          20.r),
+                                                                          BorderRadius.circular(
+                                                                              20.r),
                                                                     ),
                                                                     child:
-                                                                    MontserratCustomText(
-                                                                      text: 'Continue',
+                                                                        MontserratCustomText(
+                                                                      text:
+                                                                          'Continue',
                                                                       textColor:
-                                                                      Colors.white,
+                                                                          Colors
+                                                                              .white,
                                                                       fontWeight:
-                                                                      FontWeight.w500,
-                                                                      fontsize: 16.sp,
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      fontsize:
+                                                                          16.sp,
                                                                     ),
                                                                   ),
                                                                 ),
-                                                                SizedBox(height: 30.h),
+                                                                SizedBox(
+                                                                    height:
+                                                                        30.h),
                                                               ],
                                                             ),
                                                           );
@@ -652,7 +721,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                             )),
                                 ),
                               ),
-                            if (widget.seller == FirebaseAuth.instance.currentUser!.uid)
+                            if (widget.seller ==
+                                FirebaseAuth.instance.currentUser!.uid)
                               Positioned(
                                 bottom: 10.h,
                                 left: 0,
@@ -744,61 +814,75 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                 ),
                               ),
-
-
                           ],
                         )
                       : Positioned(
-                    bottom: 10.h,
-                    left: 0,
-                    right: 0,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18.0.w),
-                      child: ElevatedButton(
-                          onPressed: () async{
-                            if(widget.seller==FirebaseAuth.instance.currentUser!.uid){
-                              if(orderController.isLoading.value==false) {
-                                await orderStatusBySeller(order);
-                              }
-                            }else{
-                              if(orderController.isLoading.value==false) {
-                                await orderStatusByBuyer(order);
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            maximumSize: Size(350.w, 80.h),
-                            minimumSize: Size(327.w, 58.h),
-                            backgroundColor: primaryColor,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.w, vertical: 10.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.r),
-                            ),
+                          bottom: 10.h,
+                          left: 0,
+                          right: 0,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 18.0.w),
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                if(order['refund']==false){
+                                  if (widget.seller ==
+                                      FirebaseAuth.instance.currentUser!.uid) {
+                                    if (orderController.isLoading.value ==
+                                        false) {
+                                      await orderStatusBySeller(order);
+                                    }
+                                  } else {
+                                    if (orderController.isLoading.value ==
+                                        false) {
+                                      await orderStatusByBuyer(order);
+                                    }
+                                  }
+                                }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  maximumSize: Size(350.w, 80.h),
+                                  minimumSize: Size(327.w, 58.h),
+                                  backgroundColor: primaryColor,
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w, vertical: 10.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                ),
+                                child: Obx(() {
+                                  return orderController.isLoading.value ==
+                                          false
+                                      ?  order['refund'] == false
+                                      ?LexendCustomText(
+                                          text: order['deliveryStatus'] == true
+                                              ? "Order Completed"
+                                              : widget.seller ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid
+                                                  ? order['sellerApproval'] ==
+                                                          true
+                                                      ? 'Waiting for buyer to approve'
+                                                      : 'Click here to mark order delivered'
+                                                  : order['buyerApproval'] ==
+                                                          true
+                                                      ? 'Waiting for seller to approve'
+                                                      : 'Click here to mark order received',
+                                          textColor: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                        )
+                                      : LexendCustomText(
+                                          text: "Refunded",
+                                          textColor: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                        )
+                                      : const CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 3,
+                                        );
+                                })),
                           ),
-                          child: Obx(() {
-                            return orderController.isLoading.value == false
-                                ? LexendCustomText(
-                              text: order['deliveryStatus']==true
-                                  ? "Order Completed"
-                                  : widget.seller == FirebaseAuth.instance.currentUser!.uid
-                                  ?  order['sellerApproval']==true
-                                  ? 'Waiting for buyer to approve'
-                                  : 'Click here to mark order delivered'
-                                  : order['buyerApproval']==true
-                                  ? 'Waiting for seller to approve'
-                                  : 'Click here to mark order received',
-                              textColor: Colors.white,
-                              fontWeight: FontWeight.w400,
-                            )
-                                : const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            );
-                          })),
-                    ),
-                  );
+                        );
                 },
               ),
             ],
@@ -814,7 +898,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return SizedBox.shrink();
                 } else {
                   dynamic orderdata = snapshot.data!.data();
-                  if (orderdata['deliveryStatus'] == false) {
+                  if (orderdata['deliveryStatus'] == false && orderdata['refund'] == false) {
                     return Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.center,
