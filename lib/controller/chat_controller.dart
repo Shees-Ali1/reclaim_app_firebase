@@ -11,6 +11,8 @@ class ChatController extends GetxController {
   NotificationController notificationController =
       Get.put(NotificationController());
   final TextEditingController messageController = TextEditingController();
+  RxBool isLoading = false.obs;
+
   List<String> restrictedWords = [
     'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
     'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
@@ -65,8 +67,9 @@ class ChatController extends GetxController {
     }
   ].obs;
   Future<void> sendmessage(TextEditingController messageController,
-      String chatId, String sellerId) async {
+      String chatId, String sellerId,String type,String imgLink) async {
     try {
+      isLoading.value = true;
       if (messageController.text.isNotEmpty) {
         DocumentSnapshot chatSnap = await FirebaseFirestore.instance
             .collection("userMessages")
@@ -78,6 +81,8 @@ class ChatController extends GetxController {
             .doc(chatId)
             .collection('messages')
             .add({
+          'type':type,
+          'image':imgLink,
           'message': messageController.text,
           'timeStamp': DateTime.now(),
           'userId': FirebaseAuth.instance.currentUser!.uid,
@@ -87,9 +92,14 @@ class ChatController extends GetxController {
         print("MEssage sent");
         notificationController.sendFcmMessage(
             "New Message", "${message}", sellerId);
+        isLoading.value = false;
+
       }
+
     } catch (e) {
       print("Error sending message $e");
+    }finally {
+      isLoading.value = false;
     }
   }
 
@@ -102,7 +112,7 @@ class ChatController extends GetxController {
 
 //   Create chat with seller when buy book
   Future<void> createChatConvo(String listingId, String orderId,
-      String productName, String sellerId,String productImage,int productPrice,String message,String brand) async {
+      String productName, String sellerId,String productImage,int productPrice,String message,String brand,String type,String imgLink) async {
     try {
       // On buyer side chat creation
 
@@ -153,6 +163,8 @@ class ChatController extends GetxController {
           .doc(orderId)
           .collection('messages')
           .add({
+        'type':type,
+        'image':imgLink,
         'message': message,
         'timeStamp': DateTime.now(),
         'userId': FirebaseAuth.instance.currentUser!.uid,

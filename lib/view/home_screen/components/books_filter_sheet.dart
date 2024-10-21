@@ -227,29 +227,40 @@ class _BooksFilterBottomSheetState extends State<BooksFilterBottomSheet> {
               alignment: Alignment.center,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20.r)),
+                color: primaryColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
               child: DropdownButton<String>(
-                  underline: const SizedBox.shrink(),
-                  isExpanded: true,
-                  value: productsListingController.category.value,
-                  items: productsListingController.categorys
-                      .map((String option) {
-                    return DropdownMenuItem<String>(
-                      value: option,
-                      child: RalewayCustomText(
-                          text: option,
-                          textColor: primaryColor,
-                          fontWeight: FontWeight.w700),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    // homeController.bookClass.value=newValue!;
-                    productsListingController.category.value = newValue!;
-                  },
-                  hint: const SizedBox.shrink()),
+                underline: const SizedBox.shrink(),
+                isExpanded: true,
+                value: productsListingController.category.value.isNotEmpty &&
+                    productsListingController.categorys.contains(
+                        productsListingController.category.value)
+                    ? productsListingController.category.value
+                    : null, // Set to null if the value does not match any item
+                items: productsListingController.categorys
+                    .toSet() // Ensure unique items
+                    .map((String option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: RalewayCustomText(
+                      text: option,
+                      textColor: primaryColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    productsListingController.category.value = newValue;
+                  }
+                },
+                hint: const Text('Select Category'), // Hint if no value is selected
+              ),
             );
-          }),
+          })
+          ,
+
           SizedBox(height: 20.h),
           Row(
             children: [

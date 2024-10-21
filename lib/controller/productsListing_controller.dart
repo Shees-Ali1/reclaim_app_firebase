@@ -208,7 +208,7 @@ class ProductsListingController extends GetxController {
     '3XL',
     '4XL',
   ];
-  List<String> categorys = ['Accessories', 'Fashion', 'Men', 'Women', 'Kids'];
+  List<String> categorys = ['Accessories', 'Fashion', 'Men', 'Women', 'Kids',];
   List<File?> imageFiles = [];
 
   void pickImage() async {
@@ -460,9 +460,9 @@ class ProductsListingController extends GetxController {
         'appFees': appFees,
         'finalPrice': finalPrice,
         'holdPayment': true,
-            'productName':productName,
-
-        'refund': false
+        'productName': productName,
+        'refund': false,
+            'isReturning':false
       });
 
       await FirebaseFirestore.instance
@@ -491,7 +491,7 @@ class ProductsListingController extends GetxController {
           productImage,
           purchasePrice,
           'You got the order on $productName',
-          brand);
+          brand,'text','');
       await chatController.getorderId(listingId);
       String userId =
           'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
@@ -563,7 +563,9 @@ class ProductsListingController extends GetxController {
         'finalPrice': finalPrice,
         'holdPayment': true,
         'refund': false,
-        'productName':productName
+        'productName': productName,
+        'isReturning':false
+
       }, SetOptions(merge: true));
 
       // await walletController.sendBalanceToSeller(finalPrice, sellerId);
@@ -627,7 +629,7 @@ class ProductsListingController extends GetxController {
       isLoading.value = false;
     }
   }
-
+String id ='';
   Future<void> createchatwithoutroffer(
     String listingId,
     String sellerId,
@@ -687,10 +689,11 @@ class ProductsListingController extends GetxController {
           'brand': brand,
           'buyerApproval': false,
           'sellerApproval': false,
-              'productName':productName
-
+              'isReturning':false
+              ,
+          'productName': productName
         });
-
+id=docRef.id;
         await FirebaseFirestore.instance
             .collection('orders')
             .doc(docRef.id)
@@ -705,6 +708,8 @@ class ProductsListingController extends GetxController {
           purchasePrice,
           "I want to make offer",
           brand,
+          'text',
+          ''
         );
 
         await chatController.getorderId(listingId);
@@ -781,8 +786,10 @@ class ProductsListingController extends GetxController {
             'buyingprice': purchasePrice,
             'appFees': appFees,
             'finalPrice': finalPrice,
+                'isReturning':false
+                ,
             'holdPayment': true,
-                'productName':productName,
+            'productName': productName,
 
             'refund': false
           });
@@ -812,11 +819,12 @@ class ProductsListingController extends GetxController {
               productImage,
               purchasePrice,
               'You got the order on $productName',
-              brand);
+              brand,'text','');
           await chatController.getorderId(listingId);
           String userId =
               'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
-          DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore.instance
+          DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore
+              .instance
               .collection('adminWallet')
               .doc(userId)
               .get();
@@ -838,6 +846,133 @@ class ProductsListingController extends GetxController {
             sellerId: sellerId,
             buyerId: FirebaseAuth.instance.currentUser!.uid,
           )));
+          userController.userPurchases.add(listingId);
+
+          // // Store admin transaction history
+          await storeadmintransactionhistory(
+              appFees, 'fee', 'App fee for order $productName', userId);
+          await FirebaseFirestore.instance
+              .collection('userDetails')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .set({
+            'userPurchases': FieldValue.arrayUnion([listingId]),
+          }, SetOptions(merge: true));
+          userController.userPurchases.add(listingId);
+          print("product bought");
+        } else {
+          Get.snackbar('Low Balance', ' Add money to your wallet',
+              backgroundColor: whiteColor, colorText: Colors.black);
+        }
+      }
+
+      // isLoading.value = false;
+    } catch (e) {
+      print("error buying product $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> buyProductWithWalletChat(
+      String listingId,
+      String sellerId,
+      String brand,
+      BuildContext context,
+      String productName,
+      int purchasePrice,
+      String productImage,
+      ) async {
+    try {
+      isLoading.value = true;
+      //seller pice cut
+      // int appFees = (purchasePrice * 0.05).round();
+      // int finalPrice = purchasePrice - appFees;
+//buyer price
+      int appFees = (purchasePrice * 0.1).round();
+      int finalPrice = purchasePrice + appFees;
+      DocumentSnapshot walletsnap = await FirebaseFirestore.instance
+          .collection('wallet')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      if (walletsnap.exists) {
+        dynamic walletData = walletsnap.data();
+        var oldbalancebuyer = walletData['balance'];
+        if (oldbalancebuyer >= finalPrice) {
+          print("book bought111");
+        await FirebaseFirestore.instance.collection('orders').doc(id).set({
+            // listing id is our book id
+            'productId': listingId,
+            'buyerId': FirebaseAuth.instance.currentUser!.uid,
+            'orderDate': DateTime.now(),
+            'deliveryStatus': false,
+            'isOrdered': true,
+            'sellerId': sellerId,
+            'brand': brand,
+            'buyerApproval': false,
+            'sellerApproval': false,
+            'buyingprice': purchasePrice,
+            'appFees': appFees,
+            'finalPrice': finalPrice,
+            'isReturning':false
+            ,
+            'holdPayment': true,
+            'productName': productName,
+
+            'refund': false
+          },SetOptions(merge: true));
+
+          // await FirebaseFirestore.instance
+          //     .collection('orders')
+          //     .doc(docRef.id)
+          //     .set({'orderId': docRef.id}, SetOptions(merge: true));
+
+          // await walletController.updatebalance(purchasePrice);
+          await walletController.storetransactionhistory(purchasePrice, 'buy',
+              FirebaseAuth.instance.currentUser!.uid, productName, sellerId);
+
+          await walletController.storetransactionhistory(
+              purchasePrice, 'sale', sellerId, productName, sellerId);
+
+          await notificationController.storeNotification(purchasePrice,
+             id, listingId, productName, 'purchased', sellerId);
+          await notificationController.sendnotificationtoseller(purchasePrice,
+           id, listingId, productName, 'seller', sellerId);
+
+          // await chatController.createChatConvo(
+          //     listingId,
+          //     docRef.id,
+          //     productName,
+          //     sellerId,
+          //     productImage,
+          //     purchasePrice,
+          //     'You got the order on $productName',
+          //     brand,'text','');
+          // await chatController.getorderId(listingId);
+          String userId =
+              'RnGCPonCj5VSwgoJxxoxtpOIm8I2'; // Replace with your actual admin user ID
+          DocumentSnapshot adminWalletSnapshot = await FirebaseFirestore
+              .instance
+              .collection('adminWallet')
+              .doc(userId)
+              .get();
+          dynamic adminWallet = adminWalletSnapshot.data();
+          int adminBalance = adminWallet['balance'] + appFees;
+          await FirebaseFirestore.instance
+              .collection('adminWallet')
+              .doc(userId)
+              .update({'balance': adminBalance});
+
+          var newbalanceforbuyer = oldbalancebuyer - finalPrice;
+          await FirebaseFirestore.instance
+              .collection('wallet')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .set({'balance': newbalanceforbuyer}, SetOptions(merge: true));
+
+          Get.dialog(AlertDialog(
+              content: BuyDialogBox(
+                sellerId: sellerId,
+                buyerId: FirebaseAuth.instance.currentUser!.uid,
+              )));
           userController.userPurchases.add(listingId);
 
           // // Store admin transaction history

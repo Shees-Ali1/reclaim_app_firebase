@@ -41,6 +41,7 @@ class WalletController extends GetxController {
   TextEditingController accountnumber = TextEditingController();
   TextEditingController cvc = TextEditingController();
   TextEditingController bankname = TextEditingController();
+  TextEditingController name = TextEditingController();
   UserController userController = Get.find<UserController>();
 
   Future<void> fetchuserwallet() async {

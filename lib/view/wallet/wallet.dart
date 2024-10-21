@@ -474,6 +474,20 @@ class _WalletState extends State<Wallet> {
                                                     ),
                                                     SizedBox(
                                                       height: 10,
+                                                    ), InputField(
+                                                      controller:
+                                                          walletController
+                                                              .name,
+                                                      hint: 'Enter Name',
+                                                      hintStyle: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        color: Colors.black54,
+                                                      ),
+                                                      keyboard:
+                                                          TextInputType.name,
+                                                    ),
+                                                    SizedBox(
+                                                      height: 10,
                                                     ),
 
                                                     InputField(
@@ -481,7 +495,7 @@ class _WalletState extends State<Wallet> {
                                                           walletController
                                                               .accountnumber,
                                                       hint:
-                                                          'Enter Account Number',
+                                                          'Enter Iban Number',
                                                       hintStyle: TextStyle(
                                                         fontSize: 16.sp,
                                                         color: Colors.black54,
@@ -598,6 +612,10 @@ class _WalletState extends State<Wallet> {
                                                           'accountName':
                                                               walletController
                                                                   .bankname.text
+                                                                  .trim(),
+                                                              'Name':
+                                                              walletController
+                                                                  .name.text
                                                                   .trim(),
                                                           'accountNumber':
                                                               walletController

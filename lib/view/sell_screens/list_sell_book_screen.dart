@@ -101,6 +101,7 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
               SizedBox(
                 height: 12.h,
               ),
+
               GetBuilder<ProductsListingController>(
                 builder: (bookListingController) {
                   return GridView.builder(
@@ -440,6 +441,24 @@ class _ListSellBookScreenState extends State<ListSellBookScreen> {
                 // ),
                 keyboard: TextInputType.number,
                 controller: productsListingController.priceController,
+              ),
+              SizedBox(
+                height: 12.h,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 24.w,
+                  ),
+                  InterCustomText(
+                    text:
+                        'There is a maximum weight limit of 5kg for\ndelivery anything over must be organised\nbetween the buyer and seller',
+                    textColor: Colors.grey,
+                    fontsize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ],
               ),
 
               SizedBox(

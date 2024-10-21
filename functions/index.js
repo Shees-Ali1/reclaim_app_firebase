@@ -247,6 +247,41 @@ exports.checkAndRefundOrders = functions.pubsub.schedule('every 6 hours').onRun(
             return null;
         }
     });
+exports.refundOrderOnUpdate = functions.firestore
+    .document('orders/{orderId}')
+    .onUpdate(async (change, context) => {
+        const beforeData = change.before.data(); // Data before the update
+        const afterData = change.after.data();   // Data after the update
+
+        // Check if `isReturning` changed from `false` to `true` and refund is `false`
+        if (!beforeData.isReturning && afterData.isReturning && !afterData.refund) {
+            try {
+                const buyerId = afterData.buyerId;
+                const buyingPrice = afterData.buyingprice;
+
+                // Only refund if the buying price is 50 or more
+
+                    await processRefund(buyerId, buyingPrice, context.params.orderId);
+                    console.log('Refund processed for order:', context.params.orderId);
+
+
+
+            } catch (error) {
+                console.error('Error processing refund for order:', context.params.orderId, error);
+                return null;
+            }
+        } else {
+            console.log('No action required. Either isReturning did not change or refund has already been processed.');
+            return null;
+        }
+    });
+
+// Mock refund function for illustration
+async function processRefund(buyerId, amount, orderId) {
+    // Your refund logic here
+    console.log(`Refunding ${amount} to buyer ${buyerId} for order ${orderId}`);
+}
+
 
     // Function to process refund for a specific buyer
     async function processRefund(buyerId, refundAmount, orderId) {
