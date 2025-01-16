@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:reclaim_firebase_app/view/my_orders/trackOrders.dart';
 import 'package:reclaim_firebase_app/view/wishlist/wishlist.dart';
 
 import '../../const/assets/svg_assets.dart';
@@ -14,6 +15,7 @@ import '../../helper/loading.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_route.dart';
 import '../../widgets/custom_text.dart';
+import '../my_orders/create_shipment.dart';
 import '../my_orders/my_orders.dart';
 import '../profile_screen/components/customer_support.dart';
 import '../profile_screen/components/edit_profile.dart';
@@ -58,7 +60,7 @@ class MyDrawer extends StatelessWidget {
                   width: 20.w,
                 ),
                 SizedBox(
-                    width: 160.w,
+                    width: 150.w,
                     child: LexendCustomText(
                       text: userController.userName.value,
                       fontWeight: FontWeight.w400,
@@ -88,6 +90,12 @@ class MyDrawer extends StatelessWidget {
               },
             ),
             DrawerItemsWidget(
+              text: 'Create Shipment',
+              image: AppIcons.terms,
+              onTap: () {
+                CustomRoute.navigateTo(context, const CreateShipment());
+              },
+            ), DrawerItemsWidget(
               text: 'My Orders',
               image: AppIcons.terms,
               onTap: () {
@@ -98,6 +106,13 @@ class MyDrawer extends StatelessWidget {
             //   text: 'Change Password',
             //   image: AppIcons.password,
             // ),
+            DrawerItemsWidget(
+              text: 'Track Orders',
+              image: AppIcons.privacy,
+              onTap: () {
+                Get.to(TrackOrders());
+              },
+            ),
             DrawerItemsWidget(
               text: 'About Reclaim',
               image: AppIcons.privacy,
@@ -177,6 +192,10 @@ class MyDrawer extends StatelessWidget {
               text: 'Delete Account',
               image: AppIcons.deleteaccount,
             ),
+
+
+            // Track Order
+
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

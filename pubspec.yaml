@@ -64,6 +64,8 @@ dependencies:
   base58check:
   equatable:
   flutter_paypal_payment:
+  url_launcher:
+  open_file:
 
 
 dev_dependencies:
