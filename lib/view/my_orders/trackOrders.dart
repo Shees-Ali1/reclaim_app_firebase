@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';  // Import for Firestore
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -18,25 +20,35 @@ class TrackOrders extends StatefulWidget {
 class _TrackOrdersState extends State<TrackOrders> {
   Map<String, dynamic>? trackingData;
   bool isLoading = true;
+  String selectedAWB = ""; // Selected AWB number
+  List<String> awbNumbers = []; // List to store AWB numbers
 
   // API Call Function
-  Future<void> fetchTrackingData() async {
+  Future<void> fetchTrackingData(String awbNumber) async {
     const String apiUrl = "https://demo.jeebly.com/customer/track_shipment";
     const Map<String, String> headers = {
       "X-API-KEY": "JjEeEeBbLlYy1200",
-      "client_key": "435X230720100046Y497266616e4a6565626c79",
+      "client_key": "672X240905121302Y416d69726153756c74616e",
       "Content-Type": "application/json",
+      "Cookie": "ci_session=ra65vq634c0ff8tgngse4fc9v4mebqah",
     };
-    const Map<String, dynamic> body = {
-      "reference_number": "JB304509",
+
+    final Map<String, dynamic> body = {
+      "reference_number": awbNumber,  // AWB number dynamically passed here
     };
 
     try {
+      // Log the body and headers
+      print("Sending request to $apiUrl with body: ${json.encode(body)}");
+
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: headers,
         body: json.encode(body),
       );
+
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -68,16 +80,41 @@ class _TrackOrdersState extends State<TrackOrders> {
     }
   }
 
+
   void showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
+  // Fetch AWB Numbers from Firestore for the current user
+  Future<void> fetchUserAWBNumbers() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid; // Replace with the actual current user ID (use FirebaseAuth)
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('userDetails')
+          .doc(uid)
+          .get();
+
+      if (userDoc.exists) {
+        List<String> fetchedAWBNumbers = List<String>.from(userDoc['awbNumbers']);
+        print("AWB NUMBER $fetchedAWBNumbers");
+        setState(() {
+          awbNumbers = fetchedAWBNumbers;
+          selectedAWB = awbNumbers.isNotEmpty ? awbNumbers[1] : ""; // Set first AWB as default
+        });
+        print("Inital AWB Number $selectedAWB");
+        fetchTrackingData(selectedAWB); // Fetch data for the default selected AWB
+      }
+    } catch (e) {
+      showErrorSnackBar("Failed to fetch AWB numbers: $e");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    fetchTrackingData();
+    fetchUserAWBNumbers(); // Fetch AWB numbers for the current user
   }
 
   @override
@@ -95,6 +132,28 @@ class _TrackOrdersState extends State<TrackOrders> {
           : ListView(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         children: [
+          // Dropdown for AWB Numbers
+          DropdownButton<String>(
+            value: selectedAWB,
+            isExpanded: true,
+            onChanged: (String? newAWB) {
+              if (newAWB != null) {
+                setState(() {
+                  selectedAWB = newAWB;
+                  isLoading = true;
+                });
+                fetchTrackingData(selectedAWB); // Fetch data for selected AWB
+              }
+            },
+            items: awbNumbers.map((awb) {
+              return DropdownMenuItem<String>(
+                value: awb,
+                child: Text(awb),
+              );
+            }).toList(),
+          ),
+          SizedBox(height: 16.h),
+
           // Reference Number
           InterCustomText(
             text: "Reference No: ${trackingData!['reference_no']}",

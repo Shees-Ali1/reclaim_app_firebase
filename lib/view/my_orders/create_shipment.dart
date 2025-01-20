@@ -49,6 +49,66 @@ class _CreateShipmentState extends State<CreateShipment> {
   bool _isLoading = false;
   Future<void> createShipment() async {
     if (!_formKey.currentState!.validate()) {
+      // Collect validation errors
+      String? errorMessage;
+      if (_deliveryTypeController.text.isEmpty) {
+        errorMessage = 'Delivery Type is required.';
+      } else if (_loadTypeController.text.isEmpty) {
+        errorMessage = 'Load Type is required.';
+      } else if (_descriptionController.text.isEmpty) {
+        errorMessage = 'Description is required.';
+      } else if (_weightController.text.isEmpty) {
+        errorMessage = 'Weight is required.';
+      } else {
+        final weight = double.tryParse(_weightController.text);
+        if (weight == null || weight > 5) {
+          errorMessage = 'Weight must be a valid number and not exceed 5 kg.';
+        }
+      }
+      if (errorMessage == null && _paymentTypeController.text.isEmpty) {
+        errorMessage = 'Payment Type is required.';
+      } else if (errorMessage == null && _numPiecesController.text.isEmpty) {
+        errorMessage = 'Number of Pieces is required.';
+      } else if (errorMessage == null && _originAddressNameController.text.isEmpty) {
+        errorMessage = 'Origin Address Name is required.';
+      } else if (errorMessage == null && _originAddressMobileController.text.isEmpty) {
+        errorMessage = 'Origin Address Mobile is required.';
+      } else if (errorMessage == null && _originAddressHouseController.text.isEmpty) {
+        errorMessage = 'Origin Address House No is required.';
+      } else if (errorMessage == null && _originAddressBuildingController.text.isEmpty) {
+        errorMessage = 'Origin Address Building is required.';
+      } else if (errorMessage == null && _originAddressAreaController.text.isEmpty) {
+        errorMessage = 'Origin Address Area is required.';
+      } else if (errorMessage == null && _originAddressCityController.text.isEmpty) {
+        errorMessage = 'Origin Address City is required.';
+      } else if (errorMessage == null && _destinationAddressNameController.text.isEmpty) {
+        errorMessage = 'Destination Address Name is required.';
+      } else if (errorMessage == null && _destinationAddressMobileController.text.isEmpty) {
+        errorMessage = 'Destination Address Mobile is required.';
+      } else if (errorMessage == null && _destinationAddressHouseController.text.isEmpty) {
+        errorMessage = 'Destination Address House No is required.';
+      } else if (errorMessage == null && _destinationAddressBuildingController.text.isEmpty) {
+        errorMessage = 'Destination Address Building is required.';
+      } else if (errorMessage == null && _destinationAddressAreaController.text.isEmpty) {
+        errorMessage = 'Destination Address Area is required.';
+      } else if (errorMessage == null && _destinationAddressCityController.text.isEmpty) {
+        errorMessage = 'Destination Address City is required.';
+      } else if (errorMessage == null && _pickupDate == null) {
+        errorMessage = 'Pickup Date is required.';
+      }
+
+      // Show the first validation error in a snackbar
+      if (errorMessage != null) {
+        Get.snackbar(
+          'Validation Error',
+          errorMessage,
+          snackPosition: SnackPosition.BOTTOM,
+          colorText: Colors.white,
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        );
+      }
+
       return;
     }
 
@@ -56,6 +116,7 @@ class _CreateShipmentState extends State<CreateShipment> {
       _isLoading = true;
     });
 
+    // Proceed with the API call
     final body = {
       "delivery_type": _deliveryTypeController.text,
       "load_type": _loadTypeController.text,
@@ -90,40 +151,7 @@ class _CreateShipmentState extends State<CreateShipment> {
       "destination_address_type": "Normal",
       "pickup_date": DateFormat('yyyy-MM-dd').format(_pickupDate!),
     };
-    // final body ={
-    //   "delivery_type":"Next Day",
-    //   "load_type":"Document",
-    //   "consignment_type":"FORWARD",
-    //   "description":"TEST",
-    //   "weight":1,
-    //   "payment_type":"Prepaid",
-    //   "cod_amount":"0",
-    //   "num_pieces":10,
-    //   "customer_reference_number":"",
-    //   "origin_address_name":"9th PICKUP",
-    //   "origin_address_mob_no_country_code":"+971",
-    //   "origin_address_mobile_number":"565021879",
-    //   "origin_address_alt_ph_country_code":"",
-    //   "origin_address_alternate_phone":"",
-    //   "origin_address_house_no":"33",
-    //   "origin_address_building_name":"Ravi Restaurant Satwa",
-    //   "origin_address_area":"Al Satwa",
-    //   "origin_address_landmark":"7HQQ67MH+CJ - 8 9th St - Al Satwa - Dubai",
-    //   "origin_address_city":"Dubai",
-    //   "origin_address_type":"Normal",
-    //   "destination_address_name":"19th Drop",
-    //   "destination_address_mob_no_country_code":"+971",
-    //   "destination_address_mobile_number":"526132583",
-    //   "destination_details_alt_ph_country_code":"",
-    //   "destination_details_alternate_phone":"",
-    //   "destination_address_house_no":"433",
-    //   "destination_address_building_name":"Aster Hospital ",
-    //   "destination_address_area":"Al Karama",
-    //   "destination_address_landmark":"landmark",
-    //   "destination_address_city":"Dubai",
-    //   "destination_address_type":"Normal",
-    //   "pickup_date":"2025-02-15"
-    // };
+
     try {
       final response = await http.post(
         Uri.parse('https://demo.jeebly.com/customer/create_shipment'),
@@ -167,6 +195,9 @@ class _CreateShipmentState extends State<CreateShipment> {
       );
     }
   }
+
+
+
 
   Future<void> saveAWBToFirebase(String awbNumber) async {
     final userId = FirebaseAuth.instance.currentUser!.uid; // Replace with current user ID
