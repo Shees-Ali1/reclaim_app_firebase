@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:283889365166:android:63456322de87163f8b3d3f",
         "android_client_info": {
-          "package_name": "com.example.reclaim_firebase_app"
+          "package_name": "com.reclaim.app"
         }
       },
       "oauth_client": [],
