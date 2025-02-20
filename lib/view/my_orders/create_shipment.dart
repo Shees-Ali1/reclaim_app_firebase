@@ -24,6 +24,8 @@ class CreateShipment extends StatefulWidget {
 }
 
 class _CreateShipmentState extends State<CreateShipment> {
+  final Map<String, dynamic> orderData = Get.arguments ?? {};
+
   final _formKey = GlobalKey<FormState>();
   final HomeController homeController = Get.find<HomeController>();
   final TextEditingController _deliveryTypeController = TextEditingController();
@@ -257,6 +259,17 @@ class _CreateShipmentState extends State<CreateShipment> {
       );
     }
   }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Pre-fill controllers with passed arguments if available
+
+    _destinationAddressNameController.text = orderData['shipmentAddress'] ?? '';
+
+  }
+
 
   Future<String> savePDF(List<int> pdfBytes, String fileName) async {
     try {

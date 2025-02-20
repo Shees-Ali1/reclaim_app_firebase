@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:reclaim_firebase_app/controller/order_controller.dart';
+import 'package:reclaim_firebase_app/view/my_orders/create_shipment.dart';
 
 import '../../const/assets/image_assets.dart';
 import '../../const/color.dart';
@@ -90,7 +91,7 @@ class _MyOrdersState extends State<MyOrders> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               InterCustomText(
-                                text: product['brand'],
+                                text: order['brand'],
                                 textColor: Color(0xff9B9B9B),
                                 fontWeight: FontWeight.w400,
                                 fontsize: 11.sp,
@@ -104,7 +105,7 @@ class _MyOrdersState extends State<MyOrders> {
                                 fontsize: 16.sp,
                               ),
                               InterCustomText(
-                                text: '${order['buyingprice']} Aed',
+                                text: '${order['buyingPrice']} Aed',
                                 textColor: Color(0xff222222),
                                 fontWeight: FontWeight.w500,
                                 fontsize: 14.sp,
@@ -136,7 +137,7 @@ class _MyOrdersState extends State<MyOrders> {
                                 ),
                                 SizedBox(height: 3.h),
                                 InterCustomText(
-                                  text: '${order['buyingprice']} Aed',
+                                  text: '${order['buyingPrice']} Aed',
                                   textColor: Colors.white,
                                   fontWeight: FontWeight.w400,
                                   fontsize: 11.sp,
@@ -167,47 +168,76 @@ class _MyOrdersState extends State<MyOrders> {
                         height: 5.h,
                       ),
                       Wrap(
-                        spacing: 3, // space between items
-                        runSpacing: 10, // space between rows
-                        children:
-                            [product['category'], product['size']].map((item) {
+                        spacing: 3,
+                        runSpacing: 10,
+                        children: [product['category'], product['size']].map((item) {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Obx(() => Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8.w, vertical: 6.h),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20.r),
-                                      color: (item ==
-                                              homeController.selectedSize.value)
-                                          ? primaryColor
-                                          : primaryColor.withOpacity(
-                                              0.10), // Highlight background color for selected item
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          MontserratCustomText(
-                                            text: item,
-                                            textColor: (item ==
-                                                    homeController
-                                                        .selectedSize.value)
-                                                ? whiteColor
-                                                : primaryColor,
-                                            fontWeight: FontWeight.w500,
-                                            fontsize: 10.sp,
-                                          ),
-                                        ],
+                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20.r),
+                                  color: (item == homeController.selectedSize.value)
+                                      ? primaryColor
+                                      : primaryColor.withOpacity(0.10),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      MontserratCustomText(
+                                        text: item,
+                                        textColor: (item == homeController.selectedSize.value)
+                                            ? whiteColor
+                                            : primaryColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontsize: 10.sp,
                                       ),
-                                    ),
-                                  )),
+                                    ],
+                                  ),
+                                ),
+                              )),
                             ],
                           );
                         }).toList(),
                       ),
+
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.to(CreateShipment(), arguments: {
+                              'orderId': order['orderId'],
+                              'productId': order['productId'],
+                              'productName': order['productName'],
+                              'brand': product != null ? product['brand'] : 'Unknown',
+                              'buyingPrice': order['buyingPrice'],
+                              'shipmentAddress': order['shipmentAddress'],
+                              'orderDate': formattedDate,
+                              'buyerId': order['buyerId'],
+                              'sellerId': order['sellerId'],
+                              'shipmentFees': order['shipmentFees'],
+                              'isOrdered': order['isOrdered'],
+                              'deliveryStatus': order['deliveryStatus'],
+                              'imageUrl': product != null ? product['productImages'][0] : '',
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.r), // 15.r rounded corners
+                            ),
+                            backgroundColor: primaryColor, // Set button background color
+                            elevation: 2, // Optional: adds a slight shadow
+                          ),
+                          child: InterCustomText(
+                            text: 'Create Shipment',
+                            textColor: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontsize: 11.sp,
+                          ),
+                        ),
+                      )
+
                     ],
                   ),
                 ),

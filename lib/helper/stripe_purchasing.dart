@@ -43,122 +43,118 @@ class StripePaymentPurchasing {
   }
 
   Future<void> paymentPurchasing(
-    String amount,
-    String listingId,
-    String sellerId,
-    String brand,
-    BuildContext context,
-    String productName,
-    int purchasePrice,
-    String productImage,
+      String amount,
+      String listingId,
+      String sellerId,
+      String brand,
+      BuildContext context,
+      String productName,
+      int purchasePrice,
+      String productImage,
       bool isdirectPurchase,
-      dynamic order
-  ) async {
-    print('payment method call here');
+      dynamic order,
+      double shippingAmount,
+      String address,
+      ) async {
+    print('Payment method called');
 
-    /// creating payments intent
     try {
       signUpController.isLoading.value = true;
+
       int appFees = (purchasePrice * 0.1).round();
-      int finalPrice = purchasePrice + appFees;
+      int shippingAmountTotal = shippingAmount.toInt();
+      int finalPrice = purchasePrice + appFees + shippingAmountTotal;
+
       Map<String, dynamic> body = {
         'amount': calculateAmount(finalPrice.toString()),
-        'currency': 'Aed',
+        'currency': 'AED',
         'payment_method_types[]': 'card',
       };
+
       var response = await http.post(
-          Uri.parse('https://api.stripe.com/v1/payment_intents'),
-          headers: {
-            'Authorization': 'Bearer $secretKey', //here will be the secret keys
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: body);
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization': 'Bearer $secretKey', // Use actual secret key
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body,
+      );
 
-      paymentIntents = jsonDecode(response.body);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to create payment intent: ${response.body}');
+      }
 
-      print("payment intents here");
-      print(paymentIntents);
-    } catch (e) {
-      signUpController.isLoading.value = false;
+      Map<String, dynamic> paymentIntents = jsonDecode(response.body);
+      print("Payment Intents: $paymentIntents");
 
-      throw Exception(e.toString());
-    }
-    signUpController.isLoading.value = true;
+      /// Initialize Payment Sheet
+      await Stripe.instance
+          .initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          setupIntentClientSecret: secretKey,
+          paymentIntentClientSecret: paymentIntents['client_secret'],
+          style: ThemeMode.light,
+          merchantDisplayName: 'Reclaim',
+          appearance: const PaymentSheetAppearance(
+            primaryButton: PaymentSheetPrimaryButtonAppearance(
+              colors: PaymentSheetPrimaryButtonTheme(
+                dark: PaymentSheetPrimaryButtonThemeColors(
+                  background: primaryColor,
+                  text: whiteColor,
+                ),
+                light: PaymentSheetPrimaryButtonThemeColors(
+                  background: primaryColor,
+                  text: whiteColor,
+                ),
+              ),
+            ),
+            colors: PaymentSheetAppearanceColors(
+              background: whiteColor,
+            ),
+            shapes: PaymentSheetShape(
+              borderRadius: BorderSide.strokeAlignCenter,
+            ),
+          ),
+        ),
+      )
+          .catchError((error) {
+        throw Exception('Error initializing payment sheet: $error');
+      });
 
-    ///initialize payments sheet
-    await Stripe.instance
-        .initPaymentSheet(
-            paymentSheetParameters: SetupPaymentSheetParameters(
-                setupIntentClientSecret: secretKey,
-                paymentIntentClientSecret: paymentIntents!['client_secret'],
-                style: ThemeMode.light,
-                merchantDisplayName: 'Reclaim',
-                // billingDetails: const BillingDetails(
-                //     address: Address(city: 'London', country: 'GB', line1: '', line2: 'line2', postalCode: '', state: 'United Kingdom')
-                // ),
-                appearance: const PaymentSheetAppearance(
-                    primaryButton: PaymentSheetPrimaryButtonAppearance(
-                        colors: PaymentSheetPrimaryButtonTheme(
-                      dark: PaymentSheetPrimaryButtonThemeColors(
-                          background: primaryColor, text: whiteColor),
-                      light: PaymentSheetPrimaryButtonThemeColors(
-                          background: primaryColor, text: whiteColor),
-                    )),
-                    colors: PaymentSheetAppearanceColors(
-                      background: whiteColor,
-                    ),
-                    shapes: PaymentSheetShape(
-                      borderRadius: BorderSide.strokeAlignCenter,
-                    ))))
-        .then((value) {})
-        .onError((error, stackTrace) {
-      print(error.toString());
-      signUpController.isLoading.value = false;
-    });
-    signUpController.isLoading.value = true;
-
-    ///Display payment sheet
-
-    try {
+      /// Display Payment Sheet
       await Stripe.instance.presentPaymentSheet().then((value) async {
-if(isdirectPurchase == true){
+        if (isdirectPurchase) {
+          productsListingController.buyProduct(
+            listingId,
+            sellerId,
+            brand,
+            context,
+            productName,
+            purchasePrice,
+            productImage,
+            finalPrice,
+            address, shippingAmount,
+          );
+        } else {
+          productsListingController.buyProduct1(
+            listingId,
+            sellerId,
+            brand,
+            context,
+            productName,
+            order['offers']['offerPrice'],
+            productImage,
+            order['orderId'],
+          );
+        }
 
-  productsListingController.buyProduct(listingId, sellerId, brand,
-      context, productName, purchasePrice, productImage,);
-}else{
-  productsListingController
-      .buyProduct1(
-      listingId,
-      sellerId,      brand,
-      context,
-     productName,
-      order['offers']['offerPrice'],
-      productImage,
-      order['orderId']);
-}
-
-        // double newamount = walletController.walletbalance.value +
-        //     int.parse(amount);
-        // walletController.walletbalance.value = newamount;
-        // await walletController.storetopup(newamount.toInt());
-        // await walletController.storetransactionhistory(
-        //     int.parse(amount), 'deposit');
-        // await walletController.transactionfetch();
-        // print('newamount $newamount');
-        // print('newamount ${walletController.walletbalance.value }');
-        // Get.snackbar(
-        //     "Paid Successfully", 'Amount is transferred to your wallet');
-
-        signUpController.isLoading.value = false;
+        Get.snackbar("Success", "Payment completed successfully");
+      }).catchError((e) {
+        throw Exception("Payment Sheet Error: $e");
       });
     } catch (e) {
-      signUpController.isLoading.value = false;
-
-      if (kDebugMode) {
-        print('payment Error $e');
-      }
-      Get.snackbar("Error", 'Payment Cancelled');
-      throw Exception(e.toString());
+      print('Payment Error: $e');
+      Get.snackbar("Error", e.toString());
     } finally {
       signUpController.isLoading.value = false;
     }

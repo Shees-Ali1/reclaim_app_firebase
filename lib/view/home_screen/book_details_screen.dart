@@ -44,6 +44,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   late final String formattedDate;
   final StripePaymentPurchasing stripePaymentPurchasing =
       StripePaymentPurchasing();
+  TextEditingController addressController = TextEditingController();
 
   String selectedPayment = '';
 
@@ -64,6 +65,27 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       'checked': false,
     },
   ];
+
+  // Remote and Outer Areas
+  final List<String> remoteAreas = [
+    "Ghayathi", "Bad Al Matawa", "Al Nadra", "Al Hmara", "Baraka", "Al Sila",
+    "Madinat Zayed", "Habshan", "Bainuana", "Liwa", "Asab", "Hameem",
+    "Ruwais", "Mirfa", "Abu Al Bayad", "Al Hamra", "Jabel Al Dhani"
+  ];
+
+  final List<String> outerAreas = [
+    "DXB- Hatta", "SHJ -Lehbab", "AJM- Masfout", "RAK- Wadi Al Shiji",
+    "DXB- Nazwa", "RAK-Al Shawka", "SHJ-Madam",
+    "Nahi", "Sawehan", "Al Dahra", "Al Qua", "Al Wagan"
+  ];
+
+  // Pricing
+  final double remotePrice = 41.52;
+  final double outerAreaPrice = 28.56;
+  final double standardPrice = 17.36;
+
+  String? selectedCategory;
+  String? selectedArea;
   @override
   void initState() {
     // TODO: implement initState
@@ -573,81 +595,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
                                                     Spacer(),
                                                     GestureDetector(
-                                                      onTap: () async {
+                                                      onTap: () {
                                                         Navigator.pop(context);
-                                                        // Navigate based on the selected payment method
-                                                        if (controller
-                                                                .selectedPayment ==
-                                                            controller
-                                                                    .payments[0]
-                                                                ['name']) {
-                                                          await stripePaymentPurchasing.paymentPurchasing(
-                                                              widget.bookDetail[
-                                                                      'productPrice']
-                                                                  .toString(),
-                                                              widget.bookDetail[
-                                                                  'listingId'],
-                                                              widget.bookDetail[
-                                                                  'sellerId'],
-                                                              widget.bookDetail[
-                                                                  'brand'],
-                                                              context,
-                                                              widget.bookDetail[
-                                                                  'productName'],
-                                                              widget.bookDetail[
-                                                                  'productPrice'],
-                                                              widget.bookDetail[
-                                                                  'productImages'][0],
-                                                              true,
-                                                              {});
-                                                          // Get.back();
-                                                        } else if (controller
-                                                                .selectedPayment ==
-                                                            controller
-                                                                    .payments[1]
-                                                                ['name']) {
-                                                          // Navigate to PayPal screen
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        PaypalPayment(
-                                                                          amount: widget
-                                                                              .bookDetail['productPrice']
-                                                                              .toString(),
-                                                                        )),
-                                                          );
-                                                        } else if (controller
-                                                                .selectedPayment ==
-                                                            controller
-                                                                    .payments[2]
-                                                                ['name']) {
-                                                          print('wallet');
-                                                          await productsListingController.buyProductWithWallet(
-                                                              widget.bookDetail[
-                                                                  'listingId'],
-                                                              widget.bookDetail[
-                                                                  'sellerId'],
-                                                              widget.bookDetail[
-                                                                  'brand'],
-                                                              context,
-                                                              widget.bookDetail[
-                                                                  'productName'],
-                                                              widget.bookDetail[
-                                                                  'productPrice'],
-                                                              widget.bookDetail[
-                                                                      'productImages']
-                                                                  [0]);
+                                                        showDeliveryBottomSheet(context,controller);
 
-                                                          // Navigate to PayPal screen
-                                                          // Navigator.push(
-                                                          //   context,
-                                                          //   MaterialPageRoute(builder: (context) => PayPalScreen()),
-                                                          // );
-                                                        } else {
-                                                          // Handle other payment methods if necessary
-                                                        }
                                                       },
                                                       child: Container(
                                                         padding: EdgeInsets
@@ -721,6 +672,150 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               height: 10.h,
             )
           ],
+        ),
+      ),
+    );
+  }
+  void showDeliveryBottomSheet(BuildContext context, controller) {
+    TextEditingController addressController = TextEditingController();
+    double? deliveryPrice;
+    String detectedArea = "Standard Area"; // Default area type
+
+    // Function to check if the input matches a city in remote or outer areas
+    void checkAddress(String input, StateSetter setModalState) {
+      String lowerCaseAddress = input.toLowerCase();
+      double newPrice = standardPrice;
+      String newArea = "Standard Area";
+
+      for (String area in remoteAreas) {
+        if (lowerCaseAddress.contains(area.toLowerCase())) {
+          newPrice = remotePrice;
+          newArea = "Remote Area";
+          break;
+        }
+      }
+
+      for (String area in outerAreas) {
+        if (lowerCaseAddress.contains(area.toLowerCase())) {
+          newPrice = outerAreaPrice;
+          newArea = "Outer Area";
+          break;
+        }
+      }
+
+      setModalState(() {
+        deliveryPrice = newPrice;
+        detectedArea = newArea;
+      });
+    }
+
+    Get.bottomSheet(
+      isDismissible: true,
+      enableDrag: true,
+      Container(
+padding: EdgeInsets.symmetric(horizontal: 20.w,vertical: 10.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: StatefulBuilder(
+          builder: (context, setModalState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Enter Delivery Address",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10.h),
+
+                // Address input field
+                TextField(
+                  controller: addressController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "Enter your address",
+                    hintText: "e.g., Street 12, Ghayathi, Dubai",
+                  ),
+                  onChanged: (value) {
+                    checkAddress(value, setModalState);
+                  },
+                ),
+                SizedBox(height: 5.h),
+
+                // Show detected area and delivery price
+                Text(
+                  "Detected Area: $detectedArea",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                if (deliveryPrice != null)
+                  Text(
+                    "Delivery Fee: AED ${deliveryPrice!.toStringAsFixed(2)}",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+
+                SizedBox(height: 20.h),
+
+                // Pay Button
+                ElevatedButton(
+                  onPressed: () async {
+                    if (addressController.text.isEmpty) {
+                      Get.snackbar("Error", "Please enter a valid address");
+                      return;
+                    }
+                    if (deliveryPrice == null) {
+                      Get.snackbar("Error", "Unable to determine delivery price");
+                      return;
+                    }
+
+                    Get.snackbar("Delivery Price", "Your delivery fee is AED ${deliveryPrice!.toStringAsFixed(2)}");
+                    print("Delivery Price: AED $deliveryPrice");
+
+                    // Proceed to payment
+                    Get.back();
+                    if (controller.selectedPayment == controller.payments[0]['name']) {
+                      await stripePaymentPurchasing.paymentPurchasing(
+                        widget.bookDetail['productPrice'].toString(),
+                        widget.bookDetail['listingId'],
+                        widget.bookDetail['sellerId'],
+                        widget.bookDetail['brand'],
+                        context,
+                        widget.bookDetail['productName'],
+                        widget.bookDetail['productPrice'],
+                        widget.bookDetail['productImages'][0],
+                        true,
+                        {},
+                        deliveryPrice!,
+                        addressController.text, // Pass full address
+                      );
+                    } else if (controller.selectedPayment == controller.payments[1]['name']) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaypalPayment(
+                            amount: widget.bookDetail['productPrice'].toString(),
+                          ),
+                        ),
+                      );
+                    } else if (controller.selectedPayment == controller.payments[2]['name']) {
+                      await productsListingController.buyProductWithWallet(
+                        widget.bookDetail['listingId'],
+                        widget.bookDetail['sellerId'],
+                        widget.bookDetail['brand'],
+                        context,
+                        widget.bookDetail['productName'],
+                        widget.bookDetail['productPrice'],
+                        widget.bookDetail['productImages'][0],
+                        deliveryPrice!,
+                        addressController.text, // Pass full address
+                      );
+                    }
+                  },
+                  child: Text("Pay"),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -606,7 +606,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                                 widget.productPrice,
                                                                                 widget.image,
                                                                                 false,
-                                                                                order);
+                                                                                order,0.0,'');
                                                                             // Get.back();
                                                                           } else if (controller.selectedPayment ==
                                                                               controller.payments[1][
