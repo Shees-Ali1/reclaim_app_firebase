@@ -169,100 +169,74 @@ class LoginAuthController extends GetxController {
     try {
       isLoading.value = true;
       final auth = FirebaseAuth.instance;
-      final _firestore = FirebaseFirestore.instance; // Initialize Firestore
+      final _firestore = FirebaseFirestore.instance;
 
+      // Sign in with Google
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
-        // Handle null Google user
+        Get.snackbar("Cancelled", "Google Sign-In was cancelled");
         return;
       }
-      // Obtain the auth details from the request.
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      // Create a new credential.
+
+      // Obtain auth details
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      print("Access Token: ${googleAuth.accessToken}");
+      print("ID Token: ${googleAuth.idToken}");
+
+      // Create credential
       final OAuthCredential googleCredential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      // Sign in to Firebase with the Google [UserCredential].
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(googleCredential);
 
+      // Sign in to Firebase
+      final UserCredential userCredential =
+      await auth.signInWithCredential(googleCredential);
       final user = userCredential.user!;
       final uid = user.uid;
+      print("Signed in with UID: $uid");
 
-
-      // Check if the user already exists in the Firestore collection
+      // Check if user exists in Firestore
       final userDoc = await _firestore.collection('userDetails').doc(uid).get();
       if (!userDoc.exists) {
-        // User does not exist in the collection, proceed to store their data
         String? uName = user.displayName;
         String? uEmail = user.email;
         String? uPhoto = user.photoURL;
         String? fcmToken = await FirebaseMessaging.instance.getToken();
-        if (fcmToken != null) {
-          await FirebaseFirestore.instance
-              .collection('userDetails')
-              .doc(user.uid)
-              .set({
-            'fcmToken': fcmToken,
-          },SetOptions(merge: true));
-        }
-        // if (uPhoto != null) {
-        //   print('Photo URL: $uPhoto');
-        // } else {
-        //   print('Photo URL not available');
-        // }
-        // if (uName != null) {
-        //   print('Google user name: $uName');
-        // } else {
-        //   print('Google user name not available');
-        // }
-        // if (uEmail != null) {
-        //   print('uEmail : $uEmail');
-        // } else {
-        //   print('uEmail not available');
-        // }
 
-        // Store user data in Firestore
+        // Store FCM token if available
+        if (fcmToken != null) {
+          await _firestore.collection('userDetails').doc(uid).set({
+            'fcmToken': fcmToken,
+          }, SetOptions(merge: true));
+        }
+
+        // Store user data
         await _firestore.collection('userDetails').doc(uid).set({
           'userId': uid,
           'userEmail': uEmail,
           'userImage': uPhoto,
           'userName': uName,
-          // 'verified': false,
-          'userPurchases':[],
-          'following':[],
-          // 'userSchool':'Harker',
-          "userPassword":'',
+          'userPurchases': [],
+          'following': [],
+          'userPassword': '', // Not needed for Google Sign-In
+        }, SetOptions(merge: true));
 
-        },SetOptions(merge: true));
-        await FirebaseFirestore.instance.collection('wallet').doc(uid).set(
-            {
-              'balance':0,
-              'userId':uid,
-            },SetOptions(merge: true));
-        // _authController.signupName.value = uName!;
-        // _authController.signupEmail.value = uEmail!;
-        // _authController.profileURL.value = uPhoto!;
-        // _authController.fromLogin.value = true;
-        // Navigator.of(context).pop();
-        // Get.offAll(const MainAuthProgressScreen());
-    Get.snackbar('Welcome', 'Welcome Back');
+        await _firestore.collection('wallet').doc(uid).set({
+          'balance': 0,
+          'userId': uid,
+        }, SetOptions(merge: true));
 
-        Get.back();
-        // Proceed with navigation or other actions
-        Get.offAll(BottomNavBar());
-
-
+        Get.snackbar('Welcome', 'Welcome, $uName!');
+        Get.offAll(const BottomNavBar());
       } else {
-        Get.back();
-        // Proceed with navigation or other actions
-        Get.offAll(BottomNavBar());
+        Get.snackbar('Welcome Back', 'Good to see you again!');
+        Get.offAll(const BottomNavBar());
       }
     } catch (e) {
-      print("error sign in with googleee $e");
-    }finally {
+      print("Error signing in with Google: $e");
+      Get.snackbar("Error", "Failed to sign in with Google: $e");
+    } finally {
       isLoading.value = false;
     }
   }

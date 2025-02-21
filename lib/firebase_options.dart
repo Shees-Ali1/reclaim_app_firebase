@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBYAIJKGm7dFEoTRVkwpXft4B_-hAazSLQ',
-    appId: '1:283889365166:android:63456322de87163f8b3d3f',
+    appId: '1:283889365166:android:b49ec840db4c98ea8b3d3f',
     messagingSenderId: '283889365166',
     projectId: 'reclaimapp-fc1b9',
     storageBucket: 'reclaimapp-fc1b9.appspot.com',

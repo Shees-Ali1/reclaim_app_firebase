@@ -18,6 +18,81 @@ class SignUpController extends GetxController {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  // New fields for address
+  var selectedEmirate = 'Dubai'.obs; // Default to Dubai as per your request
+  var selectedCity = ''.obs;
+  final poBoxController = TextEditingController();
+
+  // Emirates and their cities, including remote and outer areas
+  final Map<String, List<String>> emirateCities = {
+    'Dubai': [
+      'Downtown Dubai',
+      'Dubai Marina',
+      'Jumeirah',
+      'Deira',
+      'Bur Dubai',
+      'Palm Jumeirah',
+      'Business Bay',
+      'Hatta', // From outerAreas: DXB-Hatta
+      'Nazwa', // From outerAreas: DXB-Nazwa
+    ],
+    'Abu Dhabi': [
+      'Abu Dhabi City',
+      'Al Ain',
+      'Al Dhafra',
+      'Yas Island',
+      'Saadiyat Island',
+      'Ghayathi', // From remoteAreas
+      'Bad Al Matawa', // From remoteAreas
+      'Al Nadra', // From remoteAreas
+      'Baraka', // From remoteAreas (assuming Barakah)
+      'Al Sila', // From remoteAreas
+      'Madinat Zayed', // From remoteAreas
+      'Habshan', // From remoteAreas
+      'Bainuana', // From remoteAreas
+      'Liwa', // From remoteAreas
+      'Asab', // From remoteAreas
+      'Hameem', // From remoteAreas
+      'Ruwais', // From remoteAreas
+      'Mirfa', // From remoteAreas
+      'Abu Al Bayad', // From remoteAreas
+      'Jabel Al Dhani', // From remoteAreas (assuming Jebel Dhanna)
+      'Sweihan', // From outerAreas: Sawehan (corrected spelling)
+      'Al Qua', // From outerAreas
+      'Al Wagan', // From outerAreas
+    ],
+    'Sharjah': [
+      'Sharjah City',
+      'Khor Fakkan',
+      'Kalba',
+      'Al Dhaid',
+      'Lehbab', // From outerAreas: SHJ-Lehbab
+      'Madam', // From outerAreas: SHJ-Madam
+      'Al Dahra', // From outerAreas (assuming Al Dhaid variant)
+    ],
+    'Ajman': [
+      'Ajman City',
+      'Masfout', // Also in outerAreas: AJM-Masfout
+      'Manama',
+    ],
+    'Umm Al Quwain': [
+      'Umm Al Quwain City',
+      'Falaj Al Mualla',
+    ],
+    'Ras Al Khaimah': [
+      'Ras Al Khaimah City',
+      'Al Hamra', // Also in remoteAreas
+      'Al Nakheel',
+      'Jebel Jais',
+      'Wadi Al Shiji', // From outerAreas: RAK-Wadi Al Shiji
+      'Al Shawka', // From outerAreas: RAK-Al Shawka
+    ],
+    'Fujairah': [
+      'Fujairah City',
+      'Dibba Al Fujairah',
+      'Al Aqah',
+    ],
+  };
   List<String> restrictedWords = [
     'fuck', 'fed', 'fing', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'dickhead', 'pussy',
     'motherfucker', 'tit', 'sex', 'porn', 'nudes', 'erotic', 'strip', 'masturbation', 'horny',
@@ -116,7 +191,9 @@ class SignUpController extends GetxController {
     try {
       if (emailController.text.isEmpty ||
           nameController.text.isEmpty ||
-          passwordController.text.isEmpty) {
+          passwordController.text.isEmpty||
+      selectedEmirate.isEmpty||selectedCity.isEmpty||poBoxController.text.isEmpty) {
+
         Get.snackbar("Error", "Please Enter All Fields.");
       } else {
         isLoading.value = true;
@@ -236,26 +313,41 @@ class SignUpController extends GetxController {
 
   Future<void> storeUserData(String userId) async {
     try {
+      // Combine address components into a single string
+      String fullAddress = [
+        selectedEmirate.value,
+        selectedCity.value,
+        if (poBoxController.text.isNotEmpty) 'P.O. Box: ${poBoxController.text}'
+      ].where((element) => element.isNotEmpty).join(', ');
+
       await FirebaseFirestore.instance
           .collection('userDetails')
           .doc(userId)
           .set({
         'userId': userId,
         'userName': nameController.text,
-        'userPassword': passwordController.text,
+        'userPassword': passwordController.text, // Note: Storing passwords in plain text is not recommended
         'userEmail': emailController.text,
-        // 'userSchool': homeController.classOption.value,
-        'following':[],
-
+        'Address': fullAddress, // Store the combined address here
+        'following': [],
         'userImage': '',
-        // 'verified': false,
         'userPurchases': []
       }, SetOptions(merge: true));
+
       await FirebaseFirestore.instance.collection('wallet').doc(userId).set({
         'balance': 0,
         'userId': userId,
       }, SetOptions(merge: true));
+
       userController.userName.value = nameController.text;
+      passwordController.clear();
+      nameController.clear();
+      emailController.clear();
+      poBoxController.clear();
+
+      // Reset observable address fields
+      selectedEmirate.value = 'Dubai'; // Reset to default
+      selectedCity.value = '';
       Get.offAll(SignupProfilePic());
     } catch (e) {
       print("Error storing user data $e");

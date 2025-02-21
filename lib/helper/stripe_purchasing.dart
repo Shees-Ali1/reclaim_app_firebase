@@ -154,7 +154,6 @@ class StripePaymentPurchasing {
       });
     } catch (e) {
       print('Payment Error: $e');
-      Get.snackbar("Error", e.toString());
     } finally {
       signUpController.isLoading.value = false;
     }

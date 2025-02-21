@@ -11,7 +11,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
 
   final List<Map<String, dynamic>> payments = [
     {
-      'name': 'Stripe',
+      'name': 'Card Payment',
       'logo': Icons.account_balance,
       'checked': true,
     },

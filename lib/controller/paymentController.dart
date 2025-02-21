@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 class PaymentController extends GetxController {
   String selectedPayment = '';
   List<Map<String, String>> payments = [
-    {'name': 'Stripe'},
-    {'name': 'Paypal'},
+    {'name': 'Card '},
+
     {'name': 'Wallet'},
     if (Platform.isIOS) {'name': 'Apple card'},
   ];
