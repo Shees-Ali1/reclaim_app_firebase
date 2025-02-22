@@ -61,7 +61,7 @@ class StripePaymentPurchasing {
     try {
       signUpController.isLoading.value = true;
 
-      int appFees = (purchasePrice * 0.1).round();
+      int appFees = (purchasePrice  * 0.10).round();
       int shippingAmountTotal = shippingAmount.toInt();
       int finalPrice = purchasePrice + appFees + shippingAmountTotal;
 
