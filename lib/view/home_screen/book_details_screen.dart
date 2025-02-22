@@ -235,118 +235,227 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       isDismissible: true,
       enableDrag: true,
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        decoration: const BoxDecoration(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 10,
+            ),
+          ],
         ),
         child: StatefulBuilder(
           builder: (context, setModalState) {
-            // Fetch address when the bottom sheet opens
             if (addressController.text.isEmpty) {
               fetchUserAddress(setModalState);
             }
 
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Enter Delivery Address",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10.h),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Enter your address",
-                    hintText: "e.g., Street 12, Ghayathi, Dubai",
-                  ),
-                  onChanged: (value) {
-                    checkAddress(value, setModalState);
-                  },
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  "Detected Area: $detectedArea",
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                if (deliveryPrice != null)
-                  Text(
-                    "Delivery Fee: ${deliveryPrice!.toStringAsFixed(2)} AED",
-                    style: const TextStyle(
-                        fontSize: 16,
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Center(
+                    child: Text(
+                      "Enter Delivery Address",
+                      style: TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green),
+                        color: Colors.grey[800],
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
-                SizedBox(height: 20.h),
-                ElevatedButton(
-                  onPressed: () async {
-                    Get.back();
-                    if (addressController.text.isEmpty) {
-                      Get.snackbar("Error", "Please enter a valid address");
-                      return;
-                    }
-                    if (deliveryPrice == null) {
-                      Get.snackbar(
-                          "Error", "Unable to determine delivery price");
-                      return;
-                    }
+                  SizedBox(height: 20.h),
 
-
-                    print("Delivery Price: AED $deliveryPrice");
-
-
-                    if (controller.selectedPayment ==
-                        controller.payments[0]['name']) {
-                      await stripePaymentPurchasing.paymentPurchasing(
-                        widget.bookDetail['productPrice'].toString(),
-                        widget.bookDetail['listingId'],
-                        widget.bookDetail['sellerId'],
-                        widget.bookDetail['brand'],
-                        context,
-                        widget.bookDetail['productName'],
-                        widget.bookDetail['productPrice'],
-                        widget.bookDetail['productImages'][0],
-                        true,
-                        {},
-                        deliveryPrice!,
-                        addressController.text,
-                      );
-                    } else if (controller.selectedPayment ==
-                        controller.payments[1]['name']) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaypalPayment(
-                            amount: widget.bookDetail['productPrice']
-                                .toString(),
-                          ),
+                  // Address Input
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: addressController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
-                      );
-                    } else if (controller.selectedPayment ==
-                        controller.payments[2]['name']) {
-                      await productsListingController.buyProductWithWallet(
-                        widget.bookDetail['listingId'],
-                        widget.bookDetail['sellerId'],
-                        widget.bookDetail['brand'],
-                        context,
-                        widget.bookDetail['productName'],
-                        widget.bookDetail['productPrice'],
-                        widget.bookDetail['productImages'][0],
-                        deliveryPrice!,
-                        addressController.text,
-                      );
-                    }
-                  },
-                  child: const Text("Pay"),
-                ),
-              ],
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        labelText: "Delivery Address",
+                        hintText: "e.g., Street 12, Ghayathi, Dubai",
+                        labelStyle: TextStyle(color: Colors.grey[600]),
+                        prefixIcon: Icon(Icons.location_on, color: primaryColor),
+                        contentPadding: EdgeInsets.symmetric(vertical: 15.h),
+                      ),
+                      onChanged: (value) => checkAddress(value, setModalState),
+                    ),
+                  ),
+                  SizedBox(height: 15.h),
+
+                  // Detected Area
+                  Text(
+                    "Detected Area: $detectedArea",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // Price Breakdown Card
+                  if (deliveryPrice != null)
+                    Container(
+                      padding: EdgeInsets.all(15.w),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildPriceRow(
+                            "Subtotal",
+                            widget.bookDetail['productPrice'].toStringAsFixed(2),
+                          ),
+                          SizedBox(height: 12.h),
+                          _buildPriceRow(
+                            "App Fee (10%)",
+                            (widget.bookDetail['productPrice'] * 0.10).toStringAsFixed(2),
+                          ),
+                          SizedBox(height: 12.h),
+                          _buildPriceRow(
+                            "Delivery",
+                            deliveryPrice!.toStringAsFixed(2),
+                          ),
+                          SizedBox(height: 15.h),
+                          Divider(color: Colors.grey[300]),
+                          SizedBox(height: 15.h),
+                          _buildPriceRow(
+                            "Total",
+                            (widget.bookDetail['productPrice'] +
+                                (widget.bookDetail['productPrice'] * 0.10) +
+                                deliveryPrice!).toStringAsFixed(2),
+                            isTotal: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  SizedBox(height: 25.h),
+
+                  // Pay Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Get.back();
+                        if (addressController.text.isEmpty) {
+                          Get.snackbar("Error", "Please enter a valid address");
+                          return;
+                        }
+                        if (deliveryPrice == null) {
+                          Get.snackbar("Error", "Unable to determine delivery price");
+                          return;
+                        }
+
+                        print("Delivery Price: AED $deliveryPrice");
+
+                        // Payment logic remains same
+                        if (controller.selectedPayment == controller.payments[0]['name']) {
+                          await stripePaymentPurchasing.paymentPurchasing(
+                            widget.bookDetail['productPrice'].toString(),
+                            widget.bookDetail['listingId'],
+                            widget.bookDetail['sellerId'],
+                            widget.bookDetail['brand'],
+                            context,
+                            widget.bookDetail['productName'],
+                            widget.bookDetail['productPrice'],
+                            widget.bookDetail['productImages'][0],
+                            true,
+                            {},
+                            deliveryPrice!,
+                            addressController.text,
+                          );
+                        } else if (controller.selectedPayment == controller.payments[1]['name']) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaypalPayment(
+                                amount: widget.bookDetail['productPrice'].toString(),
+                              ),
+                            ),
+                          );
+                        } else if (controller.selectedPayment == controller.payments[2]['name']) {
+                          await productsListingController.buyProductWithWallet(
+                            widget.bookDetail['listingId'],
+                            widget.bookDetail['sellerId'],
+                            widget.bookDetail['brand'],
+                            context,
+                            widget.bookDetail['productName'],
+                            widget.bookDetail['productPrice'],
+                            widget.bookDetail['productImages'][0],
+                            deliveryPrice!,
+                            addressController.text,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      child: Text(
+                        "Confirm Payment",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
       ),
+    );
+
+// Helper method for price rows
+  }
+  Widget _buildPriceRow(String label, String price, {bool isTotal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isTotal ? 18 : 16,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+            color: isTotal ? primaryColor : Colors.grey[700],
+          ),
+        ),
+        Text(
+          "$price AED",
+          style: TextStyle(
+            fontSize: isTotal ? 18 : 16,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+            color: isTotal ? primaryColor : Colors.grey[700],
+          ),
+        ),
+      ],
     );
   }
 
