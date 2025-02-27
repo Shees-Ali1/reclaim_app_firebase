@@ -327,7 +327,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ),
                           SizedBox(height: 12.h),
                           _buildPriceRow(
-                            "App Fee (10%)",
+                            "Service Charge (10%)",
                             (widget.bookDetail['productPrice'] * 0.10).toStringAsFixed(2),
                           ),
                           SizedBox(height: 12.h),
